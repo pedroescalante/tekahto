@@ -3,6 +3,7 @@
 composer.phar
 composer.lock
 .env.*.php
+.env
 .env.php
 .DS_Store
 Thumbs.db

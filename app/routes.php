@@ -19,9 +19,9 @@ Route::get('/', function()
 Route::get('/infusionsoft/callback', [ function()
 {
 	$infusionsoft = new Infusionsoft\Infusionsoft(array(
-            'clientId'     => 'ufh3eanp6kfmudvnmsa78azy',
-            'clientSecret' => 'W8QcHqAxbk',
-            'redirectUri'  => 'https://www.tekahto.com/infusionsoft/callback',
+            'clientId'     => $_ENV['clientId'],
+            'clientSecret' => $_ENV['clientSecret'],
+            'redirectUri'  => $_ENV['redirectUri']
         ));
 
         // If the serialized token is available in the session storage, we tell the SDK
@@ -36,15 +36,15 @@ Route::get('/infusionsoft/callback', [ function()
             //$infusionsoft->requestAccessToken($_GET['code']);
 	    $client = new \GuzzleHttp\Client();
 	    $data = [
-		'client_id' => 'ufh3eanp6kfmudvnmsa78azy',
-		'client_secret' => 'W8QcHqAxbk',
+		'client_id' => $_ENV['client_id'],
+		'client_secret' => $_ENV['clientSecret'],
 		'code' => $_GET['code'],
 		'grant_type' => 'authorization_code',
-		'redirectUri'  => 'https://www.tekahto.com/infusionsoft/callback'
+		'redirectUri'  => $_ENV['redirectUri']
 
 	    ];
-dd($data);
-	    $response = $client->post('https://api.infusionsoft.com/token', $data );
+	    dd($data);
+	    $response = $client->post('https://api.infusionsoft.com/token', $data);
 	    dd($response);
         }
 
