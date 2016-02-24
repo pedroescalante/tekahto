@@ -67,7 +67,7 @@ Route::get('/infusionsoft/callback', [ 'https', function()
     return redirect()->to('/infusionsoft');
 }]);
 
-$app->get('/contacts', [ function(){
+Route::get('/contacts', [ function(){
 
     // Setup a new Infusionsoft SDK object
     $infusionsoft = new InfusionsoftInfusionsoft(array(
