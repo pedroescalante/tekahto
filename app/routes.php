@@ -30,7 +30,7 @@ Route::get('/infusionsoft', [ function()
 Route::get('/infusionsoft/callback', [ 'https', function()
 {
     // Setup a new Infusionsoft SDK object
-    $infusionsoft = new InfusionsoftInfusionsoft(array(
+    $infusionsoft = new Infusionsoft\Infusionsoft(array(
         'clientId'     => $_ENV['clientId'],
         'clientSecret' => $_ENV['clientSecret'],
         'redirectUri'  => $_ENV['redirectUri']
@@ -70,7 +70,7 @@ Route::get('/infusionsoft/callback', [ 'https', function()
 Route::get('/contacts', [ function(){
 
     // Setup a new Infusionsoft SDK object
-    $infusionsoft = new InfusionsoftInfusionsoft(array(
+    $infusionsoft = new Infusionsoft\Infusionsoft(array(
         'clientId'     => $_ENV['clientId'],
         'clientSecret' => $_ENV['clientSecret'],
         'redirectUri'  => $_ENV['redirectUri']
