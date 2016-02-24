@@ -92,7 +92,7 @@ Route::get('/contacts', [ function()
                     'Last4',                    //Order By
                     true);                      //Ascending
         $n = count($credit_cards);
-        echo "<tr> <td> Name: ".$c['FirstName']." </td> <td> Last Name: ".$c['LastName']." </td> <td> # Credit Cards: ".$n."</td> </tr>";
+        echo "<tr> <td> Name: ".$c['FirstName']." </td> <td> Email: ".$c['Email']." </td> <td> # Credit Cards: ".$n."</td> </tr>";
     }
     echo "</table>";
 
