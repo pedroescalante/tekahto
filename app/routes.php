@@ -84,7 +84,7 @@ Route::get('/contacts', [ function()
     foreach ($contacts as $c) 
     {
         print_r($c);
-        //$credit_cards = $infusionsoft->data->query(
+        /*$credit_cards = $infusionsoft->data->query(
                     'CreditCard',               //Table
                     10, 0,                      //Limit - Paging
                     ['ContactID' => $c['Id']],  //Query Data
@@ -92,7 +92,7 @@ Route::get('/contacts', [ function()
                     'Last4',                    //Order By
                     true);                      //Ascending
         //$n = count($credit_cards);
-        //echo "<tr> <td> Name: ".$c['FirstName']." </td> <td> Last Name: ".$c['LastName']." </td> <td> # Credit Cards: ".$n."</td> </tr>";
+        //echo "<tr> <td> Name: ".$c['FirstName']." </td> <td> Last Name: ".$c['LastName']." </td> <td> # Credit Cards: ".$n."</td> </tr>";*/
     }
     echo "</table>";
 
