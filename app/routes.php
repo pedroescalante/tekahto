@@ -60,7 +60,7 @@ Route::get('/infusionsoft/callback', [ 'https', function()
         Session::put('token', serialize($infusionsoft->getToken()));
 
         // Now redirect the user to a page that performs some Infusionsoft actions
-        return redirect()->to('/contacts');
+        return Redirect::to('/contacts');
     }
 
     // something didn't work, so let's go back to the beginning
