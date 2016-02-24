@@ -18,7 +18,7 @@ Route::get('/', function()
 
 Route::get('/infusionsoft/callback', [ function()
 {
-	$infusionsoft = new Infusionsoft\Infusionsoft(array(
+    $infusionsoft = new Infusionsoft\Infusionsoft(array(
             'clientId'     => $_ENV['clientId'],
             'clientSecret' => $_ENV['clientSecret'],
             'redirectUri'  => $_ENV['redirectUri']
@@ -34,18 +34,18 @@ Route::get('/infusionsoft/callback', [ function()
         // access token.
         if (isset($_GET['code']) and !$infusionsoft->getToken()) {
             //$infusionsoft->requestAccessToken($_GET['code']);
-	    $client = new \GuzzleHttp\Client();
-	    $data = [
-		'client_id' => $_ENV['client_id'],
-		'client_secret' => $_ENV['clientSecret'],
-		'code' => $_GET['code'],
-		'grant_type' => 'authorization_code',
-		'redirectUri'  => $_ENV['redirectUri']
+    	    $client = new \GuzzleHttp\Client();
+    	    $data = [
+    		'client_id' => $_ENV['client_id'],
+    		'client_secret' => $_ENV['clientSecret'],
+    		'code' => $_GET['code'],
+    		'grant_type' => 'authorization_code',
+    		'redirectUri'  => $_ENV['redirectUri']
 
-	    ];
-	    dd($data);
-	    $response = $client->post('https://api.infusionsoft.com/token', $data);
-	    dd($response);
+    	    ];
+    	    var_dump($data);
+    	    $response = $client->post('https://api.infusionsoft.com/token', $data);
+    	    var_dump($response);
         }
 
         if( isset($_GET) )
