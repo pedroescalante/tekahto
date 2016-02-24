@@ -98,3 +98,34 @@ Route::get('/contacts', [ function(){
     return $contacts;
 
 }]);
+
+Route::get('contacts/byemail', [ function()
+{
+    // Setup a new Infusionsoft SDK object
+    $infusionsoft = new Infusionsoft\Infusionsoft(array(
+        'clientId'     => $_ENV['clientId'],
+        'clientSecret' => $_ENV['clientSecret'],
+        'redirectUri'  => $_ENV['redirectUri']
+    ));
+
+    // Set the token if we have it in storage (in this case, a session)
+    $infusionsoft->setToken(unserialize(Session::get('token')));
+
+    try {
+        // Retrieve a list of contacts by querying the data service
+        $contact = $infusionsoft->data->query('Contact', 10, 0, ['Email' => 'johnlong@laiusa.net'], ['FirstName', 'LastName', 'Email', 'ID'], 'FirstName', true);
+    } catch (InfusionsoftTokenExpiredException $e) {
+        // Refresh our access token since we've thrown a token expired exception
+        $infusionsoft->refreshAccessToken();
+
+        // We also have to save the new token, since it's now been refreshed. 
+        // We serialize the token to ensure the entire PHP object is saved 
+        // and not accidentally converted to a string
+        Session::put( 'token', serialize( $infusionsoft->getToken() ) );
+
+        // Retrieve the list of contacts again now that we have a new token
+        $contact = $infusionsoft->data->query('Contact', 10, 0, ['Email' => 'johnlong@laiusa.net'], ['FirstName', 'LastName', 'Email', 'ID'], 'FirstName', true);
+    }    
+
+    return "<hr>".$contact;
+}]);
