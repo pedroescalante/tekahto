@@ -64,7 +64,7 @@ Route::get('/infusionsoft/callback', [ 'https', function()
     }
 
     // something didn't work, so let's go back to the beginning
-    return redirect()->to('/infusionsoft');
+    return Redirect::to('/infusionsoft');
 }]);
 
 Route::get('/contacts', [ function(){
@@ -96,7 +96,7 @@ Route::get('/contacts', [ function(){
     }
 
     //return $contacts;
-    return redirect()->to('/contacts/byemail');
+    return Redirect::to('/contacts/byemail');
 
 }]);
 
