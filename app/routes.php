@@ -95,8 +95,8 @@ Route::get('/contacts', [ function(){
         $contacts = $infusionsoft->data->query('Contact', 10, 0, ['FirstName' => 'John'], ['FirstName', 'LastName', 'Email', 'ID'], 'FirstName', true);
     }
 
-    //return $contacts;
-    return Redirect::to('/contacts/byemail');
+    return $contacts;
+    //return Redirect::to('/contacts/byemail');
 
 }]);
 
