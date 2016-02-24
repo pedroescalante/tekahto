@@ -27,7 +27,7 @@ Route::get('/infusionsoft', [ function()
     echo '<a href="' . $infusionsoft->getAuthorizationUrl() . '">Click here to connect to Infusionsoft';
 }]);
 
-Route::get('/infusionsoft/callback', [ function()
+Route::get('/infusionsoft/callback', [ 'https', function()
 {
     // Setup a new Infusionsoft SDK object
     $infusionsoft = new InfusionsoftInfusionsoft(array(
