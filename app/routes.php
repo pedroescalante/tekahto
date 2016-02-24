@@ -109,6 +109,26 @@ Route::get('contacts/byemail', [ function()
     foreach ($contacts as $contact) 
     {
         $c = $infusionsoft->contacts->load($contact['Id'], ['Id', 'FirstName', 'LastName']);
+
+        echo "<table>";
+        echo "<tr> <td> First Name: <b> ".$c['FirstName']."</b> </td></tr>";
+        echo "<tr> <td> Last Name: <b> ".$c['LastName']."</b> </td></tr>";
+        echo "</table>";
+
+        $credit_cards = $infusionsoft->data->query(
+                    'CreditCard',               //Table
+                    10, 0,                      //Limit - Paging
+                    ['ContactID' => $c['Id']],  //Query Data
+                    ['CardNumber', 'Last4'],    //Selected Fields
+                    'CardNumber',               //Order By
+                    true);                      //Ascending
+        
+        echo "<table>";
+        foreach ($credit_cards as $card) 
+        {
+            echo "<tr> <td> ".$card['CardNumber']."</td> <td> ".$card['Last4']." </tr>";
+        }
+        echo "</table>";
     }
     
 }]);
