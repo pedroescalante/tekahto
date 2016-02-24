@@ -16,7 +16,7 @@ Route::get('/', function()
 	return View::make('hello');
 });
 
-Route::get('/infusionsoft/callback', [ function()
+Route::get('/infusionsoft', [ function()
 {
     $infusionsoft = new Infusionsoft\Infusionsoft(array(
         'clientId'     => $_ENV['clientId'],
@@ -24,39 +24,77 @@ Route::get('/infusionsoft/callback', [ function()
         'redirectUri'  => $_ENV['redirectUri']
     ));
 
-    // If the serialized token is available in the session storage, we tell the SDK
-    // to use that token for subsequent requests.
-    if (isset($_SESSION['token'])) {
-        $infusionsoft->setToken(unserialize($_SESSION['token']));
+    echo '<a href="' . $infusionsoft->getAuthorizationUrl() . '">Click here to connect to Infusionsoft';
+}]);
+
+Route::get('/infusionsoft/callback', [ function()
+{
+    // Setup a new Infusionsoft SDK object
+    $infusionsoft = new InfusionsoftInfusionsoft(array(
+        'clientId'     => $_ENV['clientId'],
+        'clientSecret' => $_ENV['clientSecret'],
+        'redirectUri'  => $_ENV['redirectUri']
+    ));
+
+    // If the serialized token is already available in the session storage,
+    // we tell the SDK to use that token for subsequent requests, rather
+    // than try and retrieve another one.
+    if (Session::has('token')) {
+        $infusionsoft->setToken(unserialize(Session::get('token')));
     }
 
-    // If we are returning from Infusionsoft we need to exchange the code for an
-    // access token.
-    if (isset($_GET['code']) and !$infusionsoft->getToken()) {
-        //$infusionsoft->requestAccessToken($_GET['code']);
-	    $client = new \GuzzleHttp\Client();
-	    $data = [
-		'client_id' => $_ENV['clientId'],
-		'client_secret' => $_ENV['clientSecret'],
-		'code' => $_GET['code'],
-		'grant_type' => 'authorization_code',
-		'redirectUri'  => $_ENV['redirectUri']
-
-	    ];
-	    dd($data);
-	    $response = $client->post('https://api.infusionsoft.com/token', $data);
-	    var_dump($response);
+    // If we are returning from Infusionsoft we need to exchange the code
+    // for an access token.
+    if (Request::has('code') and !$infusionsoft->getToken()) {
+        $infusionsoft->requestAccessToken(Request::get('code'));
     }
 
-    if( isset($_GET) )
-        var_dump($_GET);
+    // NOTE: there's some magic in the step above - the Infusionsoft SDK has
+    // not only requested an access token, but also set the token in the current
+    // Infusionsoft object, so there's no need for you to do it.
 
     if ($infusionsoft->getToken()) {
         // Save the serialized token to the current session for subsequent requests
-        $_SESSION['token'] = serialize($infusionsoft->getToken());
+        // NOTE: this can be saved in your database - make sure to serialize the
+        // entire token for easy future access
+        Session::put('token', serialize($infusionsoft->getToken()));
 
-        // MAKE INFUSIONSOFT REQUEST
-    } else {
-        echo '<a href="' . $infusionsoft->getAuthorizationUrl() . '">Click here to authorize</a>';
+        // Now redirect the user to a page that performs some Infusionsoft actions
+        return redirect()->to('/contacts');
     }
+
+    // something didn't work, so let's go back to the beginning
+    return redirect()->to('/infusionsoft');
+}]);
+
+$app->get('/contacts', [ function(){
+
+    // Setup a new Infusionsoft SDK object
+    $infusionsoft = new InfusionsoftInfusionsoft(array(
+        'clientId'     => $_ENV['clientId'],
+        'clientSecret' => $_ENV['clientSecret'],
+        'redirectUri'  => $_ENV['redirectUri']
+    ));
+
+    // Set the token if we have it in storage (in this case, a session)
+    $infusionsoft->setToken(unserialize(Session::get('token')));
+
+    try {
+        // Retrieve a list of contacts by querying the data service
+        $contacts = $infusionsoft->data->query('Contact', 10, 0, ['FirstName' => 'John'], ['FirstName', 'LastName', 'Email', 'ID'], 'FirstName', true);
+    } catch (InfusionsoftTokenExpiredException $e) {
+        // Refresh our access token since we've thrown a token expired exception
+        $infusionsoft->refreshAccessToken();
+
+        // We also have to save the new token, since it's now been refreshed. 
+        // We serialize the token to ensure the entire PHP object is saved 
+        // and not accidentally converted to a string
+        Session::put( 'token', serialize( $infusionsoft->getToken() ) );
+
+        // Retrieve the list of contacts again now that we have a new token
+        $contacts = $infusionsoft->data->query('Contact', 10, 0, ['FirstName' => 'John'], ['FirstName', 'LastName', 'Email', 'ID'], 'FirstName', true);
+    }
+
+    return $contacts;
+
 }]);
