@@ -128,5 +128,5 @@ Route::get('contacts/byemail', [ function()
         $contact = $infusionsoft->data->query('Contact', 10, 0, ['Email' => 'johnlong@laiusa.net'], ['FirstName', 'LastName', 'Email', 'ID'], 'FirstName', true);
     }    
 
-    return "<hr>".$contact;
+    return $contact;
 }]);
