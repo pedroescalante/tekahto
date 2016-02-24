@@ -43,7 +43,7 @@ Route::get('/infusionsoft/callback', [ function()
 		'redirectUri'  => $_ENV['redirectUri']
 
 	    ];
-	    var_dump($data);
+	    dd($data);
 	    $response = $client->post('https://api.infusionsoft.com/token', $data);
 	    var_dump($response);
     }
