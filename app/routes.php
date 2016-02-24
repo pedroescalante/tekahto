@@ -81,7 +81,14 @@ Route::get('/contacts', [ function(){
 
     try {
         // Retrieve a list of contacts by querying the data service
-        $contacts = $infusionsoft->data->query('Contact', 10, 0, ['FirstName' => 'John'], ['AccountId', 'FirstName', 'LastName', 'Email', 'ID'], 'FirstName', true);
+        $contacts = $infusionsoft->data->query(
+                    'Contact',                                  //Table
+                    10, 0,                                      //Limit - Paging
+                    ['AccountId' => '0'],                       //Query Data
+                    ['FirstName', 'LastName', 'Email', 'ID'],   //Selected Fields
+                    'FirstName',                                //Order By
+                    true);                                      //Ascending
+
     } catch (InfusionsoftTokenExpiredException $e) {
         // Refresh our access token since we've thrown a token expired exception
         $infusionsoft->refreshAccessToken();
