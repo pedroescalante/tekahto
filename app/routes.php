@@ -83,7 +83,7 @@ Route::get('/contacts', [ function(){
         // Retrieve a list of contacts by querying the data service
         $contacts = $infusionsoft->data->query(
                     'Contact',                                  //Table
-                    10, 0,                                      //Limit - Paging
+                    0, 0,                                      //Limit - Paging
                     ['AccountId' => '0'],                       //Query Data
                     ['FirstName', 'LastName', 'Email', 'ID'],   //Selected Fields
                     'FirstName',                                //Order By
@@ -99,7 +99,13 @@ Route::get('/contacts', [ function(){
         Session::put( 'token', serialize( $infusionsoft->getToken() ) );
 
         // Retrieve the list of contacts again now that we have a new token
-        $contacts = $infusionsoft->data->query('Contact', 10, 0, ['FirstName' => 'John'], ['FirstName', 'LastName', 'Email', 'ID'], 'FirstName', true);
+        $contacts = $infusionsoft->data->query(
+                    'Contact',                                  //Table
+                    0, 0,                                      //Limit - Paging
+                    ['AccountId' => '0'],                       //Query Data
+                    ['FirstName', 'LastName', 'Email', 'ID'],   //Selected Fields
+                    'FirstName',                                //Order By
+                    true);                                      //Ascending
     }
 
     return $contacts;
