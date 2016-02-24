@@ -93,17 +93,19 @@ Route::get('contacts/byemail', [ function()
     ));
 
     $infusionsoft->setToken(unserialize(Session::get('token')));
-
+    $email = Request::get('email');
+    
     try 
     {
-        $contacts = $infusionsoft->contacts->findByEmail('johnlong@laiusa.net', ['Id', 'FirstName', 'LastName']);
+        $email = Request::get('email');
+        $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
     } 
     catch (InfusionsoftTokenExpiredException $e) 
     {
         $infusionsoft->refreshAccessToken();
         Session::put( 'token', serialize( $infusionsoft->getToken() ) );
 
-        $contacts = $infusionsoft->contacts->findByEmail('johnlong@laiusa.net', ['Id', 'FirstName', 'LastName']);
+        $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
     }    
 
     foreach ($contacts as $contact) 
