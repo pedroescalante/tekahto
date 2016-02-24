@@ -128,7 +128,7 @@ Route::get('contacts/byemail', [ function()
     try {
         // Retrieve a list of contacts by querying the data service
         //$contact = $infusionsoft->data->query('Contact', 10, 0, ['Email' => 'johnlong@laiusa.net'], ['FirstName', 'LastName', 'Email', 'ID'], 'FirstName', true);
-        $contact = $infusionsoft->contact->findByEmail('johnlong@laiusa.net', ['Id', 'FirstName', 'LastName']);
+        $contact = $infusionsoft->findByEmail('johnlong@laiusa.net', ['Id', 'FirstName', 'LastName']);
     } catch (InfusionsoftTokenExpiredException $e) {
         // Refresh our access token since we've thrown a token expired exception
         $infusionsoft->refreshAccessToken();
