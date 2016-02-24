@@ -119,14 +119,14 @@ Route::get('contacts/byemail', [ function()
                     'CreditCard',               //Table
                     10, 0,                      //Limit - Paging
                     ['ContactID' => $c['Id']],  //Query Data
-                    ['CardNumber', 'Last4'],    //Selected Fields
-                    'CardNumber',               //Order By
+                    ['CardType', 'Last4'],    //Selected Fields
+                    'Last4',               //Order By
                     true);                      //Ascending
-        
+
         echo "<table>";
         foreach ($credit_cards as $card) 
         {
-            echo "<tr> <td> ".$card['CardNumber']."</td> <td> ".$card['Last4']." </tr>";
+            echo "<tr> <td> ".$card['CardType']."</td> <td> ".$card['Last4']." </tr>";
         }
         echo "</table>";
     }
