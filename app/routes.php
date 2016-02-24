@@ -140,7 +140,7 @@ Route::get('contacts/byemail', [ function()
 
         // Retrieve the list of contacts again now that we have a new token
         //$contact = $infusionsoft->data->query('Contact', 10, 0, ['Email' => 'johnlong@laiusa.net'], ['FirstName', 'LastName', 'Email', 'ID'], 'FirstName', true);
-        $contact = $infusionsoft->contact->findByEmail('johnlong@laiusa.net', ['Id', 'FirstName', 'LastName']);
+        $contact = $infusionsoft->findByEmail('johnlong@laiusa.net', ['Id', 'FirstName', 'LastName']);
     }    
 
     return $contact;
