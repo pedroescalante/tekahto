@@ -170,7 +170,13 @@ Route::get('products', [ function()
         $infusionsoft->refreshAccessToken();
         Session::put( 'token', serialize( $infusionsoft->getToken() ) );
 
-        $products = $infusionsoft->products->all();
+        $products = $infusionsoft->data->query(
+                    'Product',
+                    10, 0,
+                    ['Status' => '1'],
+                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
+                    'ProductName',
+                    true);
     }
 
     return View::make('products', ['products'=>$products]);

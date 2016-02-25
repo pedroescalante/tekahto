@@ -13,7 +13,7 @@
             </tr>
             @foreach($products as $product)
             <tr>
-              <td> {{$product['ID']}}         </td>
+              <td> {{$product['Id']}}         </td>
               <td> {{$product['Name']}}  </td>
               <td> {{$product['Description']}}  </td>
               <td> {{$product['Price']}}  </td>
