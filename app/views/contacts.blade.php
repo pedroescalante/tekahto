@@ -8,6 +8,7 @@
               <th> ID         </th>
               <th> First Name </th>
               <th> Email      </th>
+              <th> Registered Credit Cards </th>
             </tr>
             @foreach($contacts as $contact)
             <tr>
@@ -18,6 +19,7 @@
                   {{$contact['Email']}}      
                 </a>
               </td>
+              <td> {{ $contact['CreditCards']}}
             </tr>
             @endforeach
           </table>
