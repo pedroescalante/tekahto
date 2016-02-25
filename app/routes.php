@@ -80,8 +80,7 @@ Route::get('/contacts', [ function()
                     true);                                      //Ascending
     }
 
-    echo "<table>";
-    foreach ($contacts as $c) 
+    /*foreach ($contacts as $c) 
     {
         $credit_cards = $infusionsoft->data->query(
                     'CreditCard',               //Table
@@ -92,8 +91,9 @@ Route::get('/contacts', [ function()
                     true);                      //Ascending
         $n = count($credit_cards);
         echo "<tr> <td> Name: ".$c['FirstName']." </td> <td> Email: ".$c['Email']." </td> <td> # Credit Cards: ".$n."</td> </tr>";
-    }
-    echo "</table>";
+    }*/
+
+    return View::make('contacts', ['contacts'=>$contacts]);
 
 }]);
 
