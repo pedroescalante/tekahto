@@ -142,3 +142,30 @@ Route::get('contacts/byemail', [ function()
     return View::make('contactbyemail', ['contact'=>$data[0]]);
     
 }]);
+
+Route::get('products', [ function()
+{
+    $infusionsoft = new Infusionsoft\Infusionsoft(array(
+        'clientId'     => $_ENV['clientId'],
+        'clientSecret' => $_ENV['clientSecret'],
+        'redirectUri'  => $_ENV['redirectUri']
+    ));
+
+    $infusionsoft->setToken(unserialize(Session::get('token')));
+    
+    try 
+    {
+        $email = Request::get('email');
+        $products = $infusionsoft->products->all();
+    } 
+    catch (InfusionsoftTokenExpiredException $e) 
+    {
+        $infusionsoft->refreshAccessToken();
+        Session::put( 'token', serialize( $infusionsoft->getToken() ) );
+
+        $products = $infusionsoft->products->all();
+    }
+
+    return View::make('products', ['products'=>$products]);
+    
+}]);
