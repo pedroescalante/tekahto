@@ -1,5 +1,7 @@
 @extends('layouts.master')
 
+@$status=['unknown', 'error', 'deleted', 'OK, 'Inactive']
+
 @section('content')
         <div class="col-sm-12">
           <h4>Contact</h4>
@@ -27,7 +29,7 @@
             @foreach($contact['CreditCards'] as $card)
             <tr>
               <td> {{$card['Last4']}}         </td>
-              <td> {{$card['Status']}}  </td>
+              <td> {{$card['Status']}} = {{ $status[$card['Status']]}} </td>
             </tr>
             @endforeach
           </table>
