@@ -1,8 +1,8 @@
 @extends('layouts.master')
-
+@var_dump($product)
 @section('content')
         <div class="col-sm-12">
-          <h4>Prouct</h4>
+          <h4>Product</h4>
           <table class="table table-striped">
             <tr>
               <th> ID         </th>
