@@ -207,8 +207,6 @@ Route::get('product', [ function()
         $product = $infusionsoft->products->find($id);
     }    
 
-    return $product;
-
-    //return View::make('contactbyemail', ['contact'=>$data[0]]);
+    return View::make('product', ['product'=>$product]);
     
 }]);
