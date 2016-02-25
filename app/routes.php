@@ -58,7 +58,7 @@ Route::get('/contacts', [ function()
         
         $contacts = $infusionsoft->data->query(
                     'Contact',                                  //Table
-                    100, 0,                                     //Limit - Paging
+                    10, 0,                                     //Limit - Paging
                     ['FirstName' => 'John'],                    //Query Data
                     ['FirstName', 'LastName', 'Email', 'ID'],   //Selected Fields
                     'FirstName',                                //Order By

@@ -17,7 +17,7 @@
             </tr>
             <tr>
               <th> Status </th>
-              <td> {{ $product['Status'] }} </td>
+              <td> {{ $product['status'] }} </td>
             </tr>
             <tr>
               <th> Description </th>
