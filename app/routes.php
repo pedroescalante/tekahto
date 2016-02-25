@@ -123,29 +123,22 @@ Route::get('contacts/byemail', [ function()
         $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
     }    
 
+    $data = array();
     foreach ($contacts as $contact) 
     {
         $c = $infusionsoft->contacts->load($contact['Id'], ['Id', 'FirstName', 'LastName']);
 
-        echo "<table>";
-        echo "<tr> <td> First Name: <b> ".$c['FirstName']."</b> </td></tr>";
-        echo "<tr> <td> Last Name: <b> ".$c['LastName']."</b> </td></tr>";
-        echo "</table>";
-
         $credit_cards = $infusionsoft->data->query(
-                    'CreditCard',               //Table
-                    10, 0,                      //Limit - Paging
-                    ['ContactID' => $c['Id']],  //Query Data
-                    ['CardType', 'Last4', 'Status'],      //Selected Fields
-                    'Last4',                    //Order By
-                    true);                      //Ascending
-
-        echo "<table>";
-        foreach ($credit_cards as $card) 
-        {
-            echo "<tr> <td> ".$card['CardType']."</td> <td> ".$card['Last4']." </td> <td> ".$card['Status']." </td> </tr>";
-        }
-        echo "</table>";
+                    'CreditCard',
+                    10, 0,
+                    ['ContactID' => $c['ID']],
+                    ['CardType', 'Last4', 'Status'],
+                    'Last4',
+                    true);
+        $c['CreditCards'] = $credit_cards;
+        $data[] = $c;
     }
+
+    return View::make('contactsbyemail', ['contacts'=>$data]);
     
 }]);
