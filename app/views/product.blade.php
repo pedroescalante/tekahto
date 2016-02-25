@@ -1,12 +1,11 @@
 @extends('layouts.master')
-<?php var_dump($product); ?>
 @section('content')
         <div class="col-sm-12">
           <h4>Product</h4>
           <table class="table table-striped">
             <tr>
               <th> ID         </th>
-              <td> {{ $product['Id'] }} </td>
+              <td> {{ $product['id'] }} </td>
             </tr>
             <tr>
               <th> Name         </th>
@@ -14,11 +13,15 @@
             </tr>
             <tr>
               <th> Price         </th>
-              <td> {{ $product['ProductPrice'] }} </td>
+              <td> {{ $product['product_price'] }} </td>
             </tr>
             <tr>
               <th> Status </th>
               <td> {{ $product['Status'] }} </td>
+            </tr>
+            <tr>
+              <th> Description </th>
+              <td> {{ $product['product_short_desc'] }} </td>
             </tr>
           </table>
         </div>
