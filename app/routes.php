@@ -131,7 +131,7 @@ Route::get('contacts/byemail', [ function()
         $credit_cards = $infusionsoft->data->query(
                     'CreditCard',
                     10, 0,
-                    ['ContactID' => $c['ID']],
+                    ['ContactID' => $c['Id']],
                     ['CardType', 'Last4', 'Status'],
                     'Last4',
                     true);
