@@ -73,7 +73,7 @@ Route::get('/contacts', [ function()
 
         $contacts = $infusionsoft->data->query(
                     'Contact',                                  //Table
-                    100, 0,                                     //Limit - Paging
+                    10, 0,                                     //Limit - Paging
                     ['FirstName' => 'John'],                    //Query Data
                     ['FirstName', 'LastName', 'Email', 'ID'],   //Selected Fields
                     'FirstName',                                //Order By
@@ -180,5 +180,35 @@ Route::get('products', [ function()
     }
 
     return View::make('products', ['products'=>$products]);
+    
+}]);
+
+Route::get('product', [ function()
+{
+    $infusionsoft = new Infusionsoft\Infusionsoft(array(
+        'clientId'     => $_ENV['clientId'],
+        'clientSecret' => $_ENV['clientSecret'],
+        'redirectUri'  => $_ENV['redirectUri']
+    ));
+
+    $infusionsoft->setToken(unserialize(Session::get('token')));
+    $id = Request::get('id');
+    
+    try 
+    {
+        $email = Request::get('email');
+        $product = $infusionsoft->products->find($id);
+    } 
+    catch (InfusionsoftTokenExpiredException $e) 
+    {
+        $infusionsoft->refreshAccessToken();
+        Session::put( 'token', serialize( $infusionsoft->getToken() ) );
+
+        $product = $infusionsoft->products->find($id);
+    }    
+
+    return $product;
+
+    //return View::make('contactbyemail', ['contact'=>$data[0]]);
     
 }]);

@@ -12,7 +12,11 @@
             </tr>
             @foreach($products as $product)
             <tr>
-              <td> {{$product['Id']}}         </td>
+              <td>
+                <a href="/product?id={{$product['Id']}}" class="btn btn-primary"> 
+                  {{$product['Id']}}
+                </a>
+              </td>
               <td> {{$product['ProductName']}}  </td>
               <td> {{$product['ProductPrice']}}  </td>
               <td> {{$product['Status']}}  </td>
