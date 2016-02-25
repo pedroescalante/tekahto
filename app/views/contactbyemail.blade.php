@@ -6,22 +6,22 @@
           <table class="table table-striped">
             <tr>
               <th> ID         </th>
-              <td> {{ $c['Id'] }} </td>
+              <td> {{ $contact['Id'] }} </td>
             </tr>
             <tr>
               <th> First Name         </th>
-              <td> {{ $c['FirstName'] }} </td>
+              <td> {{ $contact['FirstName'] }} </td>
             </tr>
             <tr>
               <th> Last Name         </th>
-              <td> {{ $c['LastName'] }} </td>
+              <td> {{ $contact['LastName'] }} </td>
             </tr>
             <tr>
               <th> Registered Credit Cards </th>
-              <td> {{ count($c['CreditCards']) }} </td>
+              <td> {{ count($contact['CreditCards']) }} </td>
             </tr>
             </tr>
-            @foreach($c['CreditCards'] as $card)
+            @foreach($contact['CreditCards'] as $card)
             <tr>
               <td> {{$card['Last4']}}         </td>
               <td> {{$card['Status']}}  </td>
