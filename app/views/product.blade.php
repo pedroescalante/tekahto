@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@var_dump($product)
+<?php var_dump($product); ?>
 @section('content')
         <div class="col-sm-12">
           <h4>Product</h4>
