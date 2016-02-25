@@ -1,6 +1,8 @@
 @extends('layouts.master')
 
-@$status=['unknown', 'error', 'deleted', 'OK, 'Inactive']
+<?php
+  $status=['unknown', 'error', 'deleted', 'OK', 'Inactive'];
+?>
 
 @section('content')
         <div class="col-sm-12">
