@@ -10,7 +10,7 @@
             </tr>
             <tr>
               <th> Name         </th>
-              <td> {{ $product['ProductName'] }} </td>
+              <td> {{ $product['product_name'] }} </td>
             </tr>
             <tr>
               <th> Price         </th>
