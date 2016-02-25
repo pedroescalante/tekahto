@@ -20,6 +20,9 @@
               <th> Registered Credit Cards </th>
               <td> {{ count($contact['CreditCards']) }} </td>
             </tr>
+          </table>
+          <h4> Credit Cards </h4>
+          <table class="table table-striped">
             </tr>
             @foreach($contact['CreditCards'] as $card)
             <tr>
