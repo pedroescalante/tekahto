@@ -139,6 +139,6 @@ Route::get('contacts/byemail', [ function()
         $data[] = $c;
     }
 
-    return View::make('contactsbyemail', ['contacts'=>$data]);
+    return View::make('contactbyemail', ['contacts'=>$data]);
     
 }]);
