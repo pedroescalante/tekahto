@@ -27,6 +27,9 @@
           </table>
           <h4> Credit Cards </h4>
           <table class="table table-striped">
+            <tr>
+              <th> Last 4 Numbers </th>
+              <th> Status </th>
             </tr>
             @foreach($contact['CreditCards'] as $card)
             <tr>
