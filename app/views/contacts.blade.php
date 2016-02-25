@@ -13,7 +13,11 @@
             <tr>
               <td> {{$contact['ID']}}         </td>
               <td> {{$contact['FirstName']}}  </td>
-              <td> {{$contact['Email']}}      </td>
+              <td> 
+                <a href="/contacts/byemail?email={{$contact['Email']}}" class="btn btn-primary">
+                  {{$contact['Email']}}      
+                </a>
+              </td>
             </tr>
             @endforeach
           </table>
