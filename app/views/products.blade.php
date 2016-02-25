@@ -7,7 +7,6 @@
             <tr>
               <th> Id         </th>
               <th> Name </th>
-              <th> Description      </th>
               <th> Price </th>
               <th> Status </th>
             </tr>
@@ -15,7 +14,6 @@
             <tr>
               <td> {{$product['Id']}}         </td>
               <td> {{$product['ProductName']}}  </td>
-              <td> {{$product['Description']}}  </td>
               <td> {{$product['ProductPrice']}}  </td>
               <td> {{$product['Status']}}  </td>
             </tr>
