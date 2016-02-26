@@ -238,7 +238,13 @@ Route::get('invoice', [ function()
 
     $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
     $contact = $contacts[0];
-    $credit_card = $app->locateCard($contact['Id'],$cc_last4);
+    $credit_card = $infusionsoft->data->query(
+                    'CreditCard',
+                    10, 0,
+                    ['Last4' => $cc_last4],
+                    ['CardType', 'Last4', 'Status'],
+                    'Last4',
+                    true);
 
     return compact($contact, $credit_card);
 }]);
