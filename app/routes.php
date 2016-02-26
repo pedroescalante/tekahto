@@ -196,7 +196,6 @@ Route::get('product', [ function()
     
     try 
     {
-        $email = Request::get('email');
         $product = $infusionsoft->products->find($id);
     } 
     catch (InfusionsoftTokenExpiredException $e) 
@@ -209,4 +208,37 @@ Route::get('product', [ function()
 
     return View::make('product', ['product'=>$product]);
     
+}]);
+
+Route::get('invoice', [ function()
+{
+    $infusionsoft = new Infusionsoft\Infusionsoft(array(
+        'clientId'     => $_ENV['clientId'],
+        'clientSecret' => $_ENV['clientSecret'],
+        'redirectUri'  => $_ENV['redirectUri']
+    ));
+
+    $infusionsoft->setToken(unserialize(Session::get('token')));
+    
+    try
+    {
+        $email = Request::get('email');
+        $product_id = Request::get('product_id');
+        $cc_last4 = Request::get('cc_id');
+
+        $product = $infusionsoft->products->find($product_id);
+    }
+    catch (InfusionsoftTokenExpiredException $e) 
+    {
+        $infusionsoft->refreshAccessToken();
+        Session::put( 'token', serialize( $infusionsoft->getToken() ) );
+
+        $product = $infusionsoft->products->find($product_id);
+    }
+
+    $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
+    $contact = $contacts[0];
+    $credit_card = $app->locateCard($contact['Id',$cc_last4);
+
+    return compact($contact, $credit_card);
 }]);
