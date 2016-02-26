@@ -246,5 +246,5 @@ Route::get('invoice', [ function()
                     'Last4',
                     true);
 
-    return compact($contact, $credit_card);
+    return [$contact, $credit_card];
 }]);
