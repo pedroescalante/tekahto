@@ -5,7 +5,7 @@ Route::get('/', function()
 	return View::make('hello');
 });
 
-Route::get('/infusionsoft', [ function()
+/*Route::get('/infusionsoft', [ function()
 {
     $infusionsoft = new Infusionsoft\Infusionsoft(array(
         'clientId'     => $_ENV['clientId'],
@@ -14,8 +14,9 @@ Route::get('/infusionsoft', [ function()
     ));
 
     echo '<a href="' . $infusionsoft->getAuthorizationUrl() . '">Click here to connect to Infusionsoft';
+}]);*/
 
-}]);
+Route::get('/infusionsoft', ['uses'=>'InfusionsoftController@getLink']);
 
 Route::get('/infusionsoft/callback', [ 'https', function()
 {
