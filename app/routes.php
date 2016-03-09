@@ -1,20 +1,6 @@
 <?php
 
-Route::get('/', function()
-{
-	return View::make('hello');
-});
-
-/*Route::get('/infusionsoft', [ function()
-{
-    $infusionsoft = new Infusionsoft\Infusionsoft(array(
-        'clientId'     => $_ENV['clientId'],
-        'clientSecret' => $_ENV['clientSecret'],
-        'redirectUri'  => $_ENV['redirectUri']
-    ));
-
-    echo '<a href="' . $infusionsoft->getAuthorizationUrl() . '">Click here to connect to Infusionsoft';
-}]);*/
+Route::get('/', function(){ return View::make('hello'); });
 
 Route::get('/infusionsoft', ['uses'=>'InfusionsoftController@getLink']);
 
