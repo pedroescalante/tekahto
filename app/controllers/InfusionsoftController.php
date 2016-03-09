@@ -13,7 +13,7 @@ class InfusionsoftController extends BaseController {
 
 	public function getLink()
 	{
-		return View::make('link', ['infusionsoft'=>getInfusionsoftObject()]);
+		return View::make('link', ['infusionsoft' => $this->getInfusionsoftObject()]);
 	}
 
 }
