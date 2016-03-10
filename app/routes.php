@@ -3,65 +3,9 @@
 Route::get('/', function(){ return View::make('hello'); });
 
 Route::get('/infusionsoft', ['uses'=>'InfusionsoftController@getLink']);
-
 Route::get('/infusionsoft/callback', [ 'https', 'uses'=>'InfusionsoftController@callback']);
-
 Route::get('/infusionsoft/token', ['uses'=>'InfusionsoftController@sendToken']);
-
-Route::get('/contacts', [ function()
-{
-    $infusionsoft = new Infusionsoft\Infusionsoft(array(
-        'clientId'     => $_ENV['clientId'],
-        'clientSecret' => $_ENV['clientSecret'],
-        'redirectUri'  => $_ENV['redirectUri']
-    ));
-
-    $infusionsoft->setToken(unserialize(Session::get('token')));
-
-    try 
-    {
-        $contacts = $infusionsoft->data->query(
-                    'Contact',                                  //Table
-                    10, 0,                                      //Limit - Paging
-                    ['FirstName' => 'John'],                    //Query Data
-                    ['FirstName', 'LastName', 'Email', 'ID'],   //Selected Fields
-                    'FirstName',                                //Order By
-                    true);                                      //Ascending
-
-    } 
-    catch (InfusionsoftTokenExpiredException $e) 
-    {
-        $infusionsoft->refreshAccessToken();
-
-        Session::put( 'token', serialize( $infusionsoft->getToken() ) );
-
-        $contacts = $infusionsoft->data->query(
-                    'Contact',                                  //Table
-                    10, 0,                                     //Limit - Paging
-                    ['FirstName' => 'John'],                    //Query Data
-                    ['FirstName', 'LastName', 'Email', 'ID'],   //Selected Fields
-                    'FirstName',                                //Order By
-                    true);                                      //Ascending
-    }
-
-    $data = array();
-    foreach ($contacts as $c) 
-    {
-        $credit_cards = $infusionsoft->data->query(
-                    'CreditCard',
-                    10, 0,
-                    ['ContactID' => $c['ID']],
-                    ['CardType', 'Last4'],
-                    'Last4',
-                    true);
-        $n = count($credit_cards);
-        $c['CreditCards'] = $n;
-        $data[] = $c;
-    }
-
-    return View::make('contacts', ['contacts'=>$data]);
-
-}]);
+Route::get('/infusionsoft/contacts', ['uses'=>'InfusionsoftController@contacts']);
 
 Route::get('contacts/byemail', [ function()
 {

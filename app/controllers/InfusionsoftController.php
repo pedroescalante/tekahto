@@ -55,9 +55,59 @@ class InfusionsoftController extends BaseController {
 	{
 		$infusionsoft = getInfusionsoftObject();
 		$last_token = Token::orderBy('created_at', 'desc')->first();
-		$infusionsoft->setToken($last_token->token);
+		$infusionsoft->setToken(unserialize($last_token->token));
 		$infusionsoft->refreshAccessToken();
 
 		return Response::json(['infusionsoft'=>$infusionsoft]);
+	}
+
+	public function contacts()
+	{
+		$infusionsoft = $this->getInfusionsoftObject();
+		$last_token = Token::orderBy('created_at', 'desc')->first();
+		$infusionsoft->setToken(unserialize($last_token->token));
+
+	    try 
+	    {
+	        $contacts = $infusionsoft->data->query(
+	                    'Contact',                                  //Table
+	                    10, 0,                                      //Limit - Paging
+	                    ['FirstName' => 'John'],                    //Query Data
+	                    ['FirstName', 'LastName', 'Email', 'ID'],   //Selected Fields
+	                    'FirstName',                                //Order By
+	                    true);                                      //Ascending
+
+	    } 
+	    catch (InfusionsoftTokenExpiredException $e) 
+	    {
+	        $infusionsoft->refreshAccessToken();
+
+	        Session::put( 'token', serialize( $infusionsoft->getToken() ) );
+
+	        $contacts = $infusionsoft->data->query(
+	                    'Contact',                                  //Table
+	                    10, 0,                                     //Limit - Paging
+	                    ['FirstName' => 'John'],                    //Query Data
+	                    ['FirstName', 'LastName', 'Email', 'ID'],   //Selected Fields
+	                    'FirstName',                                //Order By
+	                    true);                                      //Ascending
+	    }
+
+	    $data = array();
+	    foreach ($contacts as $c) 
+	    {
+	        $credit_cards = $infusionsoft->data->query(
+	                    'CreditCard',
+	                    10, 0,
+	                    ['ContactID' => $c['ID']],
+	                    ['CardType', 'Last4'],
+	                    'Last4',
+	                    true);
+	        $n = count($credit_cards);
+	        $c['CreditCards'] = $n;
+	        $data[] = $c;
+	    }
+
+	    return View::make('contacts', ['contacts'=>$data]);
 	}
 }
