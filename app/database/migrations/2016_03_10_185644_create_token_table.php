@@ -10,11 +10,7 @@ class CreateTokenTable extends Migration {
 		Schema::create('tokens', function(Blueprint $table)
 		{
 			$table->increments('id');
-			$table->string('accessToken', 25);
-			$table->string('refreshToken', 25);
-			$table->integer('endOfLife');
-			$table->string('token_type', 25);
-			$table->string('scope', 50);
+			$table->text('token');
 			$table->timestamps();
 		});
 	}

@@ -30,22 +30,24 @@ class InfusionsoftController extends BaseController {
 	        $infusionsoft->setToken(unserialize($last_token->token));
 	    }
 
-	    try{
+	    try
+	    {
 		    if (Request::has('code') and !$infusionsoft->getToken()) {
 		        $infusionsoft->requestAccessToken(Request::get('code'));
 		    }
-		} catch (Exception $e){
+		} 
+		catch (Exception $e)
+		{
 			return Response::json(['error' => $e->getMessage()]);
 		}
 
 	    if ($infusionsoft->getToken()) {
 	    	$token = new Token;
-	    	$data = serialize($infusionsoft->getToken());
-	    	dd($data);
-	    	$token->fillFromToken($data);
-	        //$token->save();
+	    	$token->token = serialize($infusionsoft->getToken());
+	    	dd($token);
+	    	//$token->save();
 	    }
 
-	    return Response::json(['error' => 'Token was not found']);
+	    return Response::json(['error' => "Code or Access Token wasn't found"]);
 	}
 }
