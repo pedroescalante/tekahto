@@ -1,7 +1,5 @@
 <?php
 
-use Token;
-
 class InfusionsoftController extends BaseController {
 
 	public function getInfusionsoftObject(){
