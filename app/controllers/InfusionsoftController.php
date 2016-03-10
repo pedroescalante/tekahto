@@ -36,7 +36,7 @@ class InfusionsoftController extends BaseController {
 
 	    if ($infusionsoft->getToken()) {
 	    	$token = new Token;
-	    	$token->fill(serialize($infusionsoft->getToken()));
+	    	$token->fill(['token'=>serialize($infusionsoft->getToken())]);
 	        $token->save();
 
 	        return Response::json(['token' => $token]);
