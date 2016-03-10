@@ -9,6 +9,8 @@ class InfusionsoftController extends BaseController {
 	        'clientSecret' => $_ENV['clientSecret'],
 	        'redirectUri'  => $_ENV['redirectUri']
     	));
+    	
+    	return $infusionsoft;
 	}
 
 	public function getLink()
