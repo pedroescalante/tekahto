@@ -55,8 +55,6 @@ class InfusionsoftController extends BaseController {
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
 		$last_token = Token::orderBy('created_at', 'desc')->first();
-		var_dump(unserialize($last_token->token));
-		dd();
 		$infusionsoft->setToken(unserialize($last_token->token));
 		$infusionsoft->refreshAccessToken();
 
