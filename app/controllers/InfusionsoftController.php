@@ -13,13 +13,15 @@ class InfusionsoftController extends BaseController {
 
 	public function getLink()
 	{
-		return View::make('link', ['infusionsoft' => $this->getInfusionsoftObject()]);
+		$infusionsoft = $this->getInfusionsoftObject();
+		$link = $infusionsoft->getAuthorizationUrl();
+		return View::make('link', ['link' => $link]);
 	}
 
 	public function callback()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
-		
+
 		if (Session::has('token')) {
 	        $infusionsoft->setToken(unserialize(Session::get('token')));
 	    }
