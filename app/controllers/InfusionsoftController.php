@@ -1,5 +1,7 @@
 <?php
 
+use Token;
+
 class InfusionsoftController extends BaseController {
 
 	public function getInfusionsoftObject(){
@@ -24,8 +26,10 @@ class InfusionsoftController extends BaseController {
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
 
-		if (Session::has('token')) {
-	        $infusionsoft->setToken(unserialize(Session::get('token')));
+		$last_token = Token::orderBy('created_at', 'desc')->first();
+
+		if (isset($last_token)) {
+	        $infusionsoft->setToken(unserialize($last_token->token));
 	    }
 
 	    if (Request::has('code') and !$infusionsoft->getToken()) {
@@ -33,12 +37,13 @@ class InfusionsoftController extends BaseController {
 	    }
 
 	    if ($infusionsoft->getToken()) {
-	        Session::put('token', serialize($infusionsoft->getToken()));
+	    	$token = new Token;
+	    	$token->fill(serialize($infusionsoft->getToken()));
+	        $token->save();
 
-	        return Redirect::to('/contacts');
+	        return Response::json(['token' => $token]);
 	    }
 
-	    return Redirect::to('/infusionsoft');
+	    return Response::json(['error' => 'Token was not found']);
 	}
-
 }
