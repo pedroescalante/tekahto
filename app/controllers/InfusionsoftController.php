@@ -81,8 +81,9 @@ class InfusionsoftController extends BaseController {
 	    catch (InfusionsoftTokenExpiredException $e) 
 	    {
 	        $infusionsoft->refreshAccessToken();
-
-	        Session::put( 'token', serialize( $infusionsoft->getToken() ) );
+	        $token = new Token;
+	    	$token->token = serialize($infusionsoft->getToken());
+	    	$token->save();
 
 	        $contacts = $infusionsoft->data->query(
 	                    'Contact',                                  //Table
@@ -109,5 +110,142 @@ class InfusionsoftController extends BaseController {
 	    }
 
 	    return View::make('contacts', ['contacts'=>$data]);
+	}
+
+	public function contact()
+	{
+		$infusionsoft = $this->getInfusionsoftObject();
+		$last_token = Token::orderBy('created_at', 'desc')->first();
+		$infusionsoft->setToken(unserialize($last_token->token));
+	    
+	    try 
+	    {
+	        $email = Request::get('email');
+	        $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
+	    } 
+	    catch (InfusionsoftTokenExpiredException $e) 
+	    {
+	        $infusionsoft->refreshAccessToken();
+	        $token = new Token;
+	    	$token->token = serialize($infusionsoft->getToken());
+	    	$token->save();
+
+	        $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
+	    }    
+
+	    $data = array();
+	    foreach ($contacts as $contact) 
+	    {
+	        $c = $infusionsoft->contacts->load($contact['Id'], ['Id', 'FirstName', 'LastName']);
+
+	        $credit_cards = $infusionsoft->data->query(
+	                    'CreditCard',
+	                    10, 0,
+	                    ['ContactID' => $c['Id']],
+	                    ['CardType', 'Last4', 'Status'],
+	                    'Last4',
+	                    true);
+	        $c['CreditCards'] = $credit_cards;
+	        $data[] = $c;
+	    }
+
+	    return View::make('contactbyemail', ['contact'=>$data[0]]);
+	}	
+
+	public function products()
+	{
+		$infusionsoft = $this->getInfusionsoftObject();
+		$last_token = Token::orderBy('created_at', 'desc')->first();
+		$infusionsoft->setToken(unserialize($last_token->token));
+	    
+	    try 
+	    {
+	        $products = $infusionsoft->data->query(
+	                    'Product',
+	                    10, 0,
+	                    ['Status' => '1'],
+	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
+	                    'ProductName',
+	                    true);
+	    } 
+	    catch (InfusionsoftTokenExpiredException $e) 
+	    {
+	        $infusionsoft->refreshAccessToken();
+	        $token = new Token;
+	    	$token->token = serialize($infusionsoft->getToken());
+	    	$token->save();
+
+	        $products = $infusionsoft->data->query(
+	                    'Product',
+	                    10, 0,
+	                    ['Status' => '1'],
+	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
+	                    'ProductName',
+	                    true);
+	    }
+
+	    return View::make('products', ['products'=>$products]);
+	}
+
+	public function product()
+	{
+		$infusionsoft = $this->getInfusionsoftObject();
+		$last_token = Token::orderBy('created_at', 'desc')->first();
+		$infusionsoft->setToken(unserialize($last_token->token));
+
+	    $id = Request::get('id');
+	    
+	    try 
+	    {
+	        $product = $infusionsoft->products->find($id);
+	    } 
+	    catch (InfusionsoftTokenExpiredException $e) 
+	    {
+	        $infusionsoft->refreshAccessToken();
+	        $token = new Token;
+	    	$token->token = serialize($infusionsoft->getToken());
+	    	$token->save();
+
+	        $product = $infusionsoft->products->find($id);
+	    }    
+
+	    return View::make('product', ['product'=>$product]);
+	}
+
+	public function invoice()
+	{
+		$infusionsoft = $this->getInfusionsoftObject();
+		$last_token = Token::orderBy('created_at', 'desc')->first();
+		$infusionsoft->setToken(unserialize($last_token->token));
+	    
+	    try
+	    {
+	        $email 		= Request::get('email');
+	        $product_id = Request::get('product_id');
+	        $cc_last4 	= Request::get('cc_id');
+
+	        $product 	= $infusionsoft->products->find($product_id);
+	    }
+	    catch (InfusionsoftTokenExpiredException $e) 
+	    {
+	        $infusionsoft->refreshAccessToken();
+	        $token = new Token;
+	    	$token->token = serialize($infusionsoft->getToken());
+	    	$token->save();
+
+	        $product = $infusionsoft->products->find($product_id);
+	    }
+
+	    $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
+	    $contact = $contacts[0];
+	    $credit_card = $infusionsoft->data->query(
+	                    'CreditCard',
+	                    10, 0,
+	                    ['Last4' => $cc_last4],
+	                    ['CardType', 'Last4', 'Status'],
+	                    'Last4',
+	                    true);
+
+	    return [$contact, $credit_card];
 	}
 }
