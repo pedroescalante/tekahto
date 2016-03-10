@@ -39,12 +39,9 @@ class InfusionsoftController extends BaseController {
 		}
 
 	    if ($infusionsoft->getToken()) {
-	    	var_dump($infusionsoft->getToken());
-	    	dd("_");
-	    	$token->fill(['token'=>serialize($infusionsoft->getToken())]);
-	        $token->save();
-
-	        var_dump($token->accessToken);
+	    	$token = new Token;
+	    	$token->fill([$infusionsoft->getToken()]);
+	        //$token->save();
 	    }
 
 	    return Response::json(['error' => 'Token was not found']);

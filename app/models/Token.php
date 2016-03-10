@@ -6,4 +6,8 @@ class Token extends Eloquent {
 
 	protected $fillable   = ['token'];
 
+	public function fill(array $attributes){
+		dd($attributes);
+	}
+
 }
