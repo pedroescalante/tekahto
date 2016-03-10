@@ -35,7 +35,8 @@ class InfusionsoftController extends BaseController {
 	    }
 
 	    if ($infusionsoft->getToken()) {
-	    	$token = new Token;
+	    	var_dump($infusionsoft->getToken());
+	    	dd("_");
 	    	$token->fill(['token'=>serialize($infusionsoft->getToken())]);
 	        $token->save();
 
