@@ -45,9 +45,19 @@ class InfusionsoftController extends BaseController {
 	    	$token = new Token;
 	    	$token->token = serialize($infusionsoft->getToken());
 	    	dd($token);
-	    	//$token->save();
+	    	$token->save();
 	    }
 
 	    return Response::json(['error' => "Code or Access Token wasn't found"]);
+	}
+
+	public function sendToken()
+	{
+		$infusionsoft = getInfusionsoftObject();
+		$last_token = Token::orderBy('created_at', 'desc')->first();
+		$infusionsoft->setToken($last_token->token);
+		$infusionsoft->refreshAccessToken();
+
+		return Response::json(['infusionsoft'=>$infusionsoft]);
 	}
 }

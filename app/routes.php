@@ -6,6 +6,8 @@ Route::get('/infusionsoft', ['uses'=>'InfusionsoftController@getLink']);
 
 Route::get('/infusionsoft/callback', [ 'https', 'uses'=>'InfusionsoftController@callback']);
 
+Route::get('/infusionsoft/token', ['uses'=>'InfusionsoftController@sendToken']);
+
 Route::get('/contacts', [ function()
 {
     $infusionsoft = new Infusionsoft\Infusionsoft(array(
