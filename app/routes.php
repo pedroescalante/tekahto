@@ -4,31 +4,7 @@ Route::get('/', function(){ return View::make('hello'); });
 
 Route::get('/infusionsoft', ['uses'=>'InfusionsoftController@getLink']);
 
-Route::get('/infusionsoft/callback', [ 'https', function()
-{
-    $infusionsoft = new Infusionsoft\Infusionsoft(array(
-        'clientId'     => $_ENV['clientId'],
-        'clientSecret' => $_ENV['clientSecret'],
-        'redirectUri'  => $_ENV['redirectUri']
-    ));
-
-    if (Session::has('token')) {
-        $infusionsoft->setToken(unserialize(Session::get('token')));
-    }
-
-    if (Request::has('code') and !$infusionsoft->getToken()) {
-        $infusionsoft->requestAccessToken(Request::get('code'));
-    }
-
-    if ($infusionsoft->getToken()) {
-        Session::put('token', serialize($infusionsoft->getToken()));
-
-        return Redirect::to('/contacts');
-    }
-
-    return Redirect::to('/infusionsoft');
-
-}]);
+Route::get('/infusionsoft/callback', [ 'https', 'uses'=>'InfusionsoftController@callback']);
 
 Route::get('/contacts', [ function()
 {
@@ -42,10 +18,9 @@ Route::get('/contacts', [ function()
 
     try 
     {
-        
         $contacts = $infusionsoft->data->query(
                     'Contact',                                  //Table
-                    10, 0,                                     //Limit - Paging
+                    10, 0,                                      //Limit - Paging
                     ['FirstName' => 'John'],                    //Query Data
                     ['FirstName', 'LastName', 'Email', 'ID'],   //Selected Fields
                     'FirstName',                                //Order By
