@@ -24,13 +24,10 @@ class InfusionsoftController extends BaseController {
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
 
-		$last_token = Token::orderBy('created_at', 'desc')->first();
+		$last_token = Token::orderBy('id', 'desc')->first();
 		if (isset($last_token)) {
 			$infusionsoft->setToken(unserialize($last_token->token));
 	    }
-	    /*if (Session::has('token')) {
-			$infusionsoft->setToken(unserialize(Session::get('token')));
-		}*/
 
 	    try
 	    {
@@ -39,12 +36,12 @@ class InfusionsoftController extends BaseController {
 		    }
 
 		    if ($infusionsoft->getToken()) {
-				//Session::put('token', serialize($infusionsoft->getToken()));
 				$token = new Token;
 				$token->token = serialize($infusionsoft->getToken());
 				$token->save();
 
-				return Response::json(['Session' => "Token: ".Session::get('token'), 'Token'=>$token->token]);
+				//return Response::json(['Session' => "Token: ".Session::get('token'), 'Token'=>$token->token]);
+				return View::make('token');
 			}
 		} 
 		catch (Exception $e)
@@ -58,19 +55,16 @@ class InfusionsoftController extends BaseController {
 	public function sendToken()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('created_at', 'desc')->first();
-		$infusionsoft->setToken(unserialize($last_token->token));
-		$infusionsoft->refreshAccessToken();
-
-		return Response::json(['infusionsoft'=>$infusionsoft]);
+		$last_token = Token::orderBy('id', 'desc')->first();
+		
+		return Response::json(['token'=>$last_token->token]);
 	}
 
 	public function contacts()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('created_at', 'desc')->first();
+		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
-		//$infusionsoft->setToken(unserialize(Session::get('token')));
 
 	    try 
 	    {
@@ -121,7 +115,7 @@ class InfusionsoftController extends BaseController {
 	public function contact()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('created_at', 'desc')->first();
+		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
 	    
 	    try 
@@ -161,7 +155,7 @@ class InfusionsoftController extends BaseController {
 	public function products()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('created_at', 'desc')->first();
+		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
 	    
 	    try 
@@ -196,7 +190,7 @@ class InfusionsoftController extends BaseController {
 	public function product()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('created_at', 'desc')->first();
+		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
 
 	    $id = Request::get('id');
@@ -221,7 +215,7 @@ class InfusionsoftController extends BaseController {
 	public function invoice()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('created_at', 'desc')->first();
+		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
 	    
 	    try
