@@ -24,13 +24,13 @@ class InfusionsoftController extends BaseController {
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
 
-		/*$last_token = Token::orderBy('created_at', 'desc')->first();
+		$last_token = Token::orderBy('created_at', 'desc')->first();
 		if (isset($last_token)) {
 			$infusionsoft->setToken(unserialize($last_token->token));
-	    }*/
-	    if (Session::has('token')) {
+	    }
+	    /*if (Session::has('token')) {
 			$infusionsoft->setToken(unserialize(Session::get('token')));
-		}
+		}*/
 
 	    try
 	    {
@@ -39,7 +39,7 @@ class InfusionsoftController extends BaseController {
 		    }
 
 		    if ($infusionsoft->getToken()) {
-				Session::put('token', serialize($infusionsoft->getToken()));
+				//Session::put('token', serialize($infusionsoft->getToken()));
 				$token = new Token;
 				$token->token = serialize($infusionsoft->getToken());
 				$token->save();
