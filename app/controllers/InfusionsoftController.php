@@ -40,8 +40,11 @@ class InfusionsoftController extends BaseController {
 
 		    if ($infusionsoft->getToken()) {
 				Session::put('token', serialize($infusionsoft->getToken()));
+				$token = new Token;
+				$token->token = serialize($infusionsoft->getToken());
+				$token->save();
 
-				return Response::json(['success' => "Token: ".Session::get('token')]);		
+				return Response::json(['Session' => "Token: ".Session::get('token'), 'Token'=>$token->token]);
 			}
 		} 
 		catch (Exception $e)
