@@ -68,8 +68,9 @@ class InfusionsoftController extends BaseController {
 	public function contacts()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('created_at', 'desc')->first();
-		$infusionsoft->setToken(unserialize($last_token->token));
+		//$last_token = Token::orderBy('created_at', 'desc')->first();
+		//$infusionsoft->setToken(unserialize($last_token->token));
+		$infusionsoft->setToken(unserialize(Session::get('token')));
 
 	    try 
 	    {
@@ -85,9 +86,10 @@ class InfusionsoftController extends BaseController {
 	    catch (InfusionsoftTokenExpiredException $e) 
 	    {
 	        $infusionsoft->refreshAccessToken();
-	        $token = new Token;
-	    	$token->token = serialize($infusionsoft->getToken());
-	    	$token->save();
+	        //$token = new Token;
+	    	//$token->token = serialize($infusionsoft->getToken());
+	    	//$token->save();
+	    	Session::put( 'token', serialize( $infusionsoft->getToken() ) );
 
 	        $contacts = $infusionsoft->data->query(
 	                    'Contact',                                  //Table
