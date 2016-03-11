@@ -24,29 +24,30 @@ class InfusionsoftController extends BaseController {
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
 
-		$last_token = Token::orderBy('created_at', 'desc')->first();
-
+		/*$last_token = Token::orderBy('created_at', 'desc')->first();
 		if (isset($last_token)) {
-	        $infusionsoft->setToken(unserialize($last_token->token));
-	    }
+			$infusionsoft->setToken(unserialize($last_token->token));
+	    }*/
+	    if (Session::has('token')) {
+			$infusionsoft->setToken(unserialize(Session::get('token')));
+		}
 
 	    try
 	    {
 		    if (Request::has('code') and !$infusionsoft->getToken()) {
 		        $infusionsoft->requestAccessToken(Request::get('code'));
 		    }
+		    
+		    if ($infusionsoft->getToken()) {
+				Session::put('token', serialize($infusionsoft->getToken()));
+
+				return Response::json(['success' => "Token: ".$Session::get('token')]);		
+			}
 		} 
 		catch (Exception $e)
 		{
 			return Response::json(['error' => $e->getMessage()]);
 		}
-
-	    if ($infusionsoft->getToken()) {
-	    	$token = new Token;
-	    	$token->token = serialize($infusionsoft->getToken());
-	    	$token->save();
-	    	return Response::json(['success' => "Access Token saved"]);
-	    }
 
 	    return Response::json(['error' => "Code or Access Token wasn't found"]);
 	}
