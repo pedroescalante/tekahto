@@ -248,4 +248,39 @@ class InfusionsoftController extends BaseController {
 
 	    return [$contact, $credit_card];
 	}
+
+	public function payment($plan_id)
+	{
+		$infusionsoft = $this->getInfusionsoftObject();
+		$last_token = Token::orderBy('id', 'desc')->first();
+		$infusionsoft->setToken(unserialize($last_token->token));
+
+	    try 
+	    {
+	        $product  = $infusionsoft->data->query(
+	                    'Product',                                  //Table
+	                    10, 0,                                      //Limit - Paging
+	                    ['ID' => $plan_id],                    		//Query Data
+	                    ['ID', 'Name'],   							//Selected Fields
+	                    'Id',                                		//Order By
+	                    true);                                      //Ascending
+	    } 
+	    catch (InfusionsoftTokenExpiredException $e) 
+	    {
+	        $infusionsoft->refreshAccessToken();
+	        $token = new Token;
+	    	$token->token = serialize($infusionsoft->getToken());
+	    	$token->save();
+	    	Session::put( 'token', serialize( $infusionsoft->getToken() ) );
+
+	        $product  = $infusionsoft->data->query(
+	                    'Product',                                  //Table
+	                    10, 0,                                      //Limit - Paging
+	                    ['ID' => $plan_id],                    		//Query Data
+	                    ['ID', 'Name'],   							//Selected Fields
+	                    'Id',                                		//Order By
+	                    true);                                      //Ascending
+	    }
+
+	    return Response::json($product);
 }
