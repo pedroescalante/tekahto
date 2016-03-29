@@ -264,25 +264,33 @@ class InfusionsoftController extends BaseController {
 		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
 	    
+	    $data = [];
 	    try 
 	    {
-	        $product = $infusionsoft->data->query(
+	        $data['product'] = $infusionsoft->data->query(
 	                    'Product',
 	                    10, 0,
 	                    ['ID' => $plan_id],
 	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
 	                    'ProductName',
 	                    true);
+
 	        $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
-	        foreach($contacts as $contact){
+			foreach ($contacts as $contact) 
+		    {
+		        $c = $infusionsoft->contacts->load($contact['Id'], ['Id', 'FirstName', 'LastName']);
+
 		        $credit_cards = $infusionsoft->data->query(
 		                    'CreditCard',
 		                    10, 0,
-		                    ['ContactID' => $contact['Id']],
-		                    ['CardType', 'Last4'],
+		                    ['ContactID' => $c['Id']],
+		                    ['CardType', 'Last4', 'Status'],
 		                    'Last4',
 		                    true);
-		     }
+		        $c['CreditCards'] = $credit_cards;
+
+		        $data['contact'] = $c;
+		    }
 	    } 
 	    catch (InfusionsoftTokenExpiredException $e) 
 	    {
