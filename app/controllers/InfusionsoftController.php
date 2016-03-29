@@ -152,6 +152,16 @@ class InfusionsoftController extends BaseController {
 	                    'Last4',
 	                    true);
 	        $c['CreditCards'] = $credit_cards;
+	        
+	        $jobs = 	$infusionsoft->data->query(
+	                    'Job',
+	                    10, 0,
+	                    ['ContactID' => $c['Id']],
+	                    ['Id', 'JobTitle', 'ProductId', 'DateCreated'],
+	                    'Last4',
+	                    true);
+	        $c['Jobs'] = $jobs;
+	        
 	        $data[] = $c;
 	    }
 

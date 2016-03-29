@@ -38,5 +38,24 @@
             </tr>
             @endforeach
           </table>
+
+          <h4> Jobs </h4>
+          <table class="table table-striped">
+            <tr>
+              <th> Id </th>
+              <th> Title </th>
+              <th> Product Id </th>
+              <th> Created</th>
+            </tr>
+            @foreach($contact['Jobs'] as $job)
+            <tr>
+              <td> {{$job['Id']}}         </td>
+              <td> {{$job['JobTitle']}}   </td>
+              <td> {{$job['ProductId']}}  </td>
+              <td> {{$job['DateCreated']}}</td>
+            </tr>
+            @endforeach
+          </table>
+
         </div>
 @stop      
