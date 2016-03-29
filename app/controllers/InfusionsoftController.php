@@ -273,7 +273,7 @@ class InfusionsoftController extends BaseController {
 	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
 	                    'ProductName',
 	                    true);
-	        $contact = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
+	        $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
 	        foreach($contacts as $contact){
 		        $credit_cards = $infusionsoft->data->query(
 		                    'CreditCard',
@@ -298,7 +298,7 @@ class InfusionsoftController extends BaseController {
 	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
 	                    'ProductName',
 	                    true);
-	        $contact = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
+	        $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
 	        foreach($contacts as $contact){
 		        $credit_cards = $infusionsoft->data->query(
 		                    'CreditCard',
@@ -310,6 +310,6 @@ class InfusionsoftController extends BaseController {
 		     }
 	    }
 
-	    return Response::json([$product, $contact, $credit_cards]);
+	    return Response::json([$product, $contacts[0], $credit_cards]);
 	}
 }
