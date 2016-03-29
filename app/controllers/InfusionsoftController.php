@@ -257,21 +257,25 @@ class InfusionsoftController extends BaseController {
 	    return [$contact, $credit_card];
 	}
 
-	public function payment($plan_id)
+	public function payment()
 	{
+		$plan_id = Input::get('plan_id');
+		$email 	 = Input::get('email');
+
 		$infusionsoft = $this->getInfusionsoftObject();
 		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
 	    
 	    try 
 	    {
-	        $products = $infusionsoft->data->query(
+	        $product = $infusionsoft->data->query(
 	                    'Product',
 	                    10, 0,
 	                    ['ID' => $plan_id],
 	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
 	                    'ProductName',
 	                    true);
+	        $contact = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
 	    } 
 	    catch (InfusionsoftTokenExpiredException $e) 
 	    {
@@ -280,15 +284,16 @@ class InfusionsoftController extends BaseController {
 	    	$token->token = serialize($infusionsoft->getToken());
 	    	$token->save();
 
-	        $products = $infusionsoft->data->query(
+	        $product = $infusionsoft->data->query(
 	                    'Product',
 	                    10, 0,
 	                    ['ID' => $plan_id],
 	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
 	                    'ProductName',
 	                    true);
+	        $contact = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
 	    }
 
-	    return Response::json($products);
+	    return Response::json([$products, $contact]);
 	}
 }
