@@ -45,14 +45,12 @@
               <th> Id </th>
               <th> Title </th>
               <th> Product Id </th>
-              <th> Created</th>
             </tr>
             @foreach($contact['Jobs'] as $job)
             <tr>
               <td> {{$job['Id']}}         </td>
               <td> {{$job['JobTitle']}}   </td>
               <td> {{$job['ProductId']}}  </td>
-              <td> {{$job['DateCreated']}}</td>
             </tr>
             @endforeach
           </table>
