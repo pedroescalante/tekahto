@@ -307,6 +307,6 @@ class InfusionsoftController extends BaseController {
 	       	$cc[] = $credit_cards;
 	    }
 
-	    return Response::json([$products[0], $contacts[0], $cc]);
+	    return Response::json(['product'=>$products[0], 'contact'=>$contacts[0], 'credit_card'=>$cc]);
 	}
 }
