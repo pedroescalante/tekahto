@@ -277,7 +277,7 @@ class InfusionsoftController extends BaseController {
 	        $credit_cards = $infusionsoft->data->query(
 	                    'CreditCard',
 	                    10, 0,
-	                    ['ContactID' => $contact['ID']],
+	                    ['ContactID' => $contact['Id']],
 	                    ['CardType', 'Last4'],
 	                    'Last4',
 	                    true);
@@ -300,7 +300,7 @@ class InfusionsoftController extends BaseController {
 	        $credit_cards = $infusionsoft->data->query(
 	                    'CreditCard',
 	                    10, 0,
-	                    ['ContactID' => $contact['ID']],
+	                    ['ContactID' => $contact['Id']],
 	                    ['CardType', 'Last4'],
 	                    'Last4',
 	                    true);
