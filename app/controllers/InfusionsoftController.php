@@ -315,7 +315,7 @@ class InfusionsoftController extends BaseController {
 	                    'Last4',
 	                    true);
 
-	       	foreach ($credit_card as $card)
+	       	foreach ($credit_cards as $card)
 	       		$cc[]=$card;
 	    }
 
