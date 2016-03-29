@@ -24,11 +24,6 @@ class InfusionsoftController extends BaseController {
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
 
-		/*$last_token = Token::orderBy('id', 'desc')->first();
-		if (isset($last_token)) {
-			$infusionsoft->setToken(unserialize($last_token->token));
-	    }*/
-
 	    try
 	    {
 		    if (Request::has('code') and !$infusionsoft->getToken()) {
@@ -41,7 +36,7 @@ class InfusionsoftController extends BaseController {
 				$token->save();
 
 				//return Response::json(['Session' => "Token: ".Session::get('token'), 'Token'=>$token->token]);
-				//return View::make('token');
+				return View::make('token');
 				
 				try 
 			    {
