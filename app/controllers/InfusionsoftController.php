@@ -85,9 +85,13 @@ class InfusionsoftController extends BaseController {
 
 	public function contacts()
 	{
+		$infusionsoft = $this->getInfusionsoftObject();
+		$last_token = Token::orderBy('id', 'desc')->first();
+		$infusionsoft->setToken(unserialize($last_token->token));
+
 		try 
 	    {
-	        $products = $infusionsoft->data->query(
+	        $contacts = $infusionsoft->data->query(
 	                    'Contact',
 	                    10, 0,
 	                    ['FirstName' => 'John'],
@@ -102,7 +106,7 @@ class InfusionsoftController extends BaseController {
 	    	$token->token = serialize($infusionsoft->getToken());
 	    	$token->save();
 
-	        $products = $infusionsoft->data->query(
+	        $contacts = $infusionsoft->data->query(
 	                    'Contact',
 	                    10, 0,
 	                    ['FirstName' => 'John'],
