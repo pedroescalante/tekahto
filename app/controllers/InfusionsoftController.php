@@ -289,6 +289,6 @@ class InfusionsoftController extends BaseController {
 	                    true);
 	    }
 
-	    return View::make('products', ['products'=>$products]);
+	    return Response::json($products);
 	}
 }
