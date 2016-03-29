@@ -158,7 +158,7 @@ class InfusionsoftController extends BaseController {
 	                    10, 0,
 	                    ['ContactID' => $c['Id']],
 	                    ['Id', 'JobTitle', 'ProductId', 'DateCreated'],
-	                    'Last4',
+	                    'Id',
 	                    true);
 	        $c['Jobs'] = $jobs;
 	        
