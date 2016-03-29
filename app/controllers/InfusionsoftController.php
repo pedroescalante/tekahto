@@ -64,35 +64,20 @@ class InfusionsoftController extends BaseController {
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
 		$last_token = Token::orderBy('id', 'desc')->first();
+		$t = unserialize($last_token->token);
+		$t->endOfLife+=(20*86400);
 		$infusionsoft->setToken(unserialize($last_token->token));
 
 	    try 
 	    {
-	        $contacts = $infusionsoft->data->query(
-	                    'Contact',                                  //Table
-	                    10, 0,                                      //Limit - Paging
-	                    ['FirstName' => 'John'],                    //Query Data
-	                    ['FirstName', 'LastName', 'Email', 'ID'],   //Selected Fields
-	                    'FirstName',                                //Order By
-	                    true);                                      //Ascending
-
+	        $contact = $infusionsoft->contacts()->findByEmail("john@buyersonfire.com", ['ID', 'FirstName']);
 	    } 
 	    catch (InfusionsoftTokenExpiredException $e) 
 	    {
-	        $infusionsoft->refreshAccessToken();
-	        $token = new Token;
-	    	$token->token = serialize($infusionsoft->getToken());
-	    	$token->save();
-	    	Session::put( 'token', serialize( $infusionsoft->getToken() ) );
-
-	        $contacts = $infusionsoft->data->query(
-	                    'Contact',                                  //Table
-	                    10, 0,                                     //Limit - Paging
-	                    ['FirstName' => 'John'],                    //Query Data
-	                    ['FirstName', 'LastName', 'Email', 'ID'],   //Selected Fields
-	                    'FirstName',                                //Order By
-	                    true);                                      //Ascending
+	        dd($e->getMessage());
 	    }
+
+	    dd($contact);
 
 	    $data = array();
 	    foreach ($contacts as $c) 
