@@ -95,8 +95,8 @@ class InfusionsoftController extends BaseController {
 	                    'Contact',
 	                    10, 0,
 	                    ['FirstName' => 'John'],
-	                    ['Id', 'FirstName', 'LastName', 'Email'],
-	                    'Id',
+	                    ['ID', 'FirstName', 'LastName', 'Email'],
+	                    'ID',
 	                    true);
 	    } 
 	    catch (InfusionsoftTokenExpiredException $e) 
@@ -110,8 +110,8 @@ class InfusionsoftController extends BaseController {
 	                    'Contact',
 	                    10, 0,
 	                    ['FirstName' => 'John'],
-	                    ['Id', 'FirstName', 'LastName', 'Email'],
-	                    'Id',
+	                    ['ID', 'FirstName', 'LastName', 'Email'],
+	                    'ID',
 	                    true);
 	    }
 
