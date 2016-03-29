@@ -302,7 +302,7 @@ class InfusionsoftController extends BaseController {
 
 	    $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
 	    
-	    $cc = new Array();
+	    $cc = [];
 	    foreach ($contacts as $contact) 
 	    {
 	        $c = $infusionsoft->contacts->load($contact['Id'], ['Id', 'FirstName', 'LastName']);
