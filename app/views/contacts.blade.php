@@ -14,7 +14,7 @@
               <td> {{$contact['ID']}}         </td>
               <td> {{$contact['FirstName']}}  </td>
               <td> 
-                <a href="/contacts/byemail?email={{$contact['Email']}}" class="btn btn-primary">
+                <a href="/infusionsoft/contact?email={{$contact['Email']}}" class="btn btn-primary">
                   {{$contact['Email']}}      
                 </a>
               </td>
