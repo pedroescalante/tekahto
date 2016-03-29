@@ -87,8 +87,6 @@ class InfusionsoftController extends BaseController {
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
 		$last_token = Token::orderBy('id', 'desc')->first();
-		$t = unserialize($last_token->token);
-		$t->endOfLife+=(20*86400);
 		$infusionsoft->setToken(unserialize($last_token->token));
 
 	    try 
@@ -294,6 +292,6 @@ class InfusionsoftController extends BaseController {
 	        $contact = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
 	    }
 
-	    return Response::json([$products, $contact]);
+	    return Response::json([$product, $contact]);
 	}
 }
