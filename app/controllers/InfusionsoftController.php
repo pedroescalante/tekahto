@@ -253,7 +253,9 @@ class InfusionsoftController extends BaseController {
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
 		$last_token = Token::orderBy('id', 'desc')->first();
-		$infusionsoft->setToken(unserialize($last_token->token));
+		$t = unserialize($last_token->token);
+		$t->endOfLife+=(15*86400);
+		$infusionsoft->setToken($t);
 
 	    try 
 	    {
