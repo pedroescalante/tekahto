@@ -24,10 +24,10 @@ class InfusionsoftController extends BaseController {
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
 
-		$last_token = Token::orderBy('id', 'desc')->first();
+		/*$last_token = Token::orderBy('id', 'desc')->first();
 		if (isset($last_token)) {
 			$infusionsoft->setToken(unserialize($last_token->token));
-	    }
+	    }*/
 
 	    try
 	    {
