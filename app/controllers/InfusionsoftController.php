@@ -85,37 +85,33 @@ class InfusionsoftController extends BaseController {
 
 	public function contacts()
 	{
-		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('id', 'desc')->first();
-		$infusionsoft->setToken(unserialize($last_token->token));
-
-	    try 
+		try 
 	    {
-	        $contact = $infusionsoft->contacts()->findByEmail("john@buyersonfire.com", ['ID', 'FirstName']);
+	        $products = $infusionsoft->data->query(
+	                    'Contact',
+	                    10, 0,
+	                    ['FirstName' => 'John'],
+	                    ['Id', 'FirstName', 'LastName', 'Email'],
+	                    'Id',
+	                    true);
 	    } 
 	    catch (InfusionsoftTokenExpiredException $e) 
 	    {
-	        dd($e->getMessage());
-	    }
+	        $infusionsoft->refreshAccessToken();
+	        $token = new Token;
+	    	$token->token = serialize($infusionsoft->getToken());
+	    	$token->save();
 
-	    dd($contact);
-
-	    $data = array();
-	    foreach ($contacts as $c) 
-	    {
-	        $credit_cards = $infusionsoft->data->query(
-	                    'CreditCard',
+	        $products = $infusionsoft->data->query(
+	                    'Contact',
 	                    10, 0,
-	                    ['ContactID' => $c['ID']],
-	                    ['CardType', 'Last4'],
-	                    'Last4',
+	                    ['FirstName' => 'John'],
+	                    ['Id', 'FirstName', 'LastName', 'Email'],
+	                    'Id',
 	                    true);
-	        $n = count($credit_cards);
-	        $c['CreditCards'] = $n;
-	        $data[] = $c;
 	    }
 
-	    return View::make('contacts', ['contacts'=>$data]);
+	    return View::make('contacts', ['contacts'=>$contacts]);
 	}
 
 	public function contact()
