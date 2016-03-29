@@ -262,16 +262,16 @@ class InfusionsoftController extends BaseController {
 		$infusionsoft = $this->getInfusionsoftObject();
 		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
-
-		try 
+	    
+	    try 
 	    {
-	        $product  = $infusionsoft->data->query(
-	                    'Product',                                  //Table
-	                    10, 0,                                      //Limit - Paging
-	                    ['ID' => $plan_id],                    		//Query Data
-	                    ['ID', 'Name'],   							//Selected Fields
-	                    'Id',                                		//Order By
-	                    true);                                      //Ascending
+	        $products = $infusionsoft->data->query(
+	                    'Product',
+	                    10, 0,
+	                    ['Status' => '1'],
+	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
+	                    'ProductName',
+	                    true);
 	    } 
 	    catch (InfusionsoftTokenExpiredException $e) 
 	    {
@@ -279,17 +279,16 @@ class InfusionsoftController extends BaseController {
 	        $token = new Token;
 	    	$token->token = serialize($infusionsoft->getToken());
 	    	$token->save();
-	    	Session::put( 'token', serialize( $infusionsoft->getToken() ) );
 
-	        $product  = $infusionsoft->data->query(
-	                    'Product',                                  //Table
-	                    10, 0,                                      //Limit - Paging
-	                    ['ID' => $plan_id],                    		//Query Data
-	                    ['ID', 'Name'],   							//Selected Fields
-	                    'Id',                                		//Order By
-	                    true);                                      //Ascending
+	        $products = $infusionsoft->data->query(
+	                    'Product',
+	                    10, 0,
+	                    ['Status' => '1'],
+	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
+	                    'ProductName',
+	                    true);
 	    }
 
-	    return Response::json($product);
+	    return View::make('products', ['products'=>$products]);
 	}
 }
