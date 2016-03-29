@@ -10,5 +10,6 @@ Route::get('/infusionsoft/contacts',    ['https', 'uses' => 'InfusionsoftControl
 Route::get('/infusionsoft/contact',     ['https', 'uses' => 'InfusionsoftController@contact']);
 Route::get('/infusionsoft/products',    ['https', 'uses' => 'InfusionsoftController@products']);
 Route::get('/infusionsoft/product',     ['https', 'uses' => 'InfusionsoftController@product']);
-Route::get('/infusionsoft/invoice',     ['https', 'uses' => 'InfusionsoftController@invoice']);
-Route::post('/infusionsoft/payment', 	['https', 'uses' => 'InfusionsoftController@payment']);
+
+Route::post('/infusionsoft/payment', 	['https', 'uses' => 'InfusionsoftController@paymentInfo']);
+Route::post('/infusionsoft/invoice',     ['https', 'uses' => 'InfusionsoftController@makInvoice']);
