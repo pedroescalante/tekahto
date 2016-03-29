@@ -273,7 +273,13 @@ class InfusionsoftController extends BaseController {
 	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
 	                    'ProductName',
 	                    true);
-	        $contact = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
+	        $credit_cards = $infusionsoft->data->query(
+	                    'CreditCard',
+	                    10, 0,
+	                    ['ContactID' => $contact['ID']],
+	                    ['CardType', 'Last4'],
+	                    'Last4',
+	                    true);
 	    } 
 	    catch (InfusionsoftTokenExpiredException $e) 
 	    {
@@ -290,8 +296,15 @@ class InfusionsoftController extends BaseController {
 	                    'ProductName',
 	                    true);
 	        $contact = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
+	        $credit_cards = $infusionsoft->data->query(
+	                    'CreditCard',
+	                    10, 0,
+	                    ['ContactID' => $contact['ID']],
+	                    ['CardType', 'Last4'],
+	                    'Last4',
+	                    true);
 	    }
 
-	    return Response::json([$product, $contact]);
+	    return Response::json([$product, $contact, $credit_cards]);
 	}
 }
