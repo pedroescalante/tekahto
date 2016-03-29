@@ -255,6 +255,7 @@ class InfusionsoftController extends BaseController {
 		$last_token = Token::orderBy('id', 'desc')->first();
 		$t = unserialize($last_token->token);
 		$t->endOfLife+=(15*86400);
+		dd(['Token'=>$t, 'Time'=>time()]);
 		$infusionsoft->setToken($t);
 
 	    try 
