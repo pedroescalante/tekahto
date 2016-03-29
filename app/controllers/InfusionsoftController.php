@@ -267,23 +267,24 @@ class InfusionsoftController extends BaseController {
 	    $data = [];
 	    try 
 	    {
-	        $data['product'] = $infusionsoft->data->query(
+	        $products = $infusionsoft->data->query(
 	                    'Product',
 	                    10, 0,
 	                    ['ID' => $plan_id],
 	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
 	                    'ProductName',
 	                    true);
+	       	$data['products'] = $products[0];
 
 	        $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
 			foreach ($contacts as $contact) 
 		    {
-		        $c = $infusionsoft->contacts->load($contact['Id'], ['Id', 'FirstName', 'LastName']);
+		        $c = $infusionsoft->contacts->load($contact['Id'], ['ID', 'FirstName', 'LastName']);
 
 		        $credit_cards = $infusionsoft->data->query(
 		                    'CreditCard',
 		                    10, 0,
-		                    ['ContactID' => $c['Id']],
+		                    ['ContactID' => $c['ID']],
 		                    ['CardType', 'Last4', 'Status'],
 		                    'Last4',
 		                    true);
