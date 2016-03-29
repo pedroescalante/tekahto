@@ -41,7 +41,35 @@ class InfusionsoftController extends BaseController {
 				$token->save();
 
 				//return Response::json(['Session' => "Token: ".Session::get('token'), 'Token'=>$token->token]);
-				return View::make('token');
+				//return View::make('token');
+				
+				try 
+			    {
+			        $products = $infusionsoft->data->query(
+			                    'Product',
+			                    10, 0,
+			                    ['Status' => '1'],
+			                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
+			                    'ProductName',
+			                    true);
+			    } 
+			    catch (InfusionsoftTokenExpiredException $e) 
+			    {
+			        $infusionsoft->refreshAccessToken();
+			        $token = new Token;
+			    	$token->token = serialize($infusionsoft->getToken());
+			    	$token->save();
+
+			        $products = $infusionsoft->data->query(
+			                    'Product',
+			                    10, 0,
+			                    ['Status' => '1'],
+			                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
+			                    'ProductName',
+			                    true);
+			    }
+
+			    return View::make('products', ['products'=>$products]);
 			}
 		} 
 		catch (Exception $e)
