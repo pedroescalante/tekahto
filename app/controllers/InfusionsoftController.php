@@ -273,6 +273,7 @@ class InfusionsoftController extends BaseController {
 	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
 	                    'ProductName',
 	                    true);
+	        $contact = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
 	        $credit_cards = $infusionsoft->data->query(
 	                    'CreditCard',
 	                    10, 0,
