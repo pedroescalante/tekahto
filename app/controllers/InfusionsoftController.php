@@ -268,7 +268,7 @@ class InfusionsoftController extends BaseController {
 	        $products = $infusionsoft->data->query(
 	                    'Product',
 	                    10, 0,
-	                    ['Status' => '1'],
+	                    ['ID' => $plan_id],
 	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
 	                    'ProductName',
 	                    true);
@@ -283,7 +283,7 @@ class InfusionsoftController extends BaseController {
 	        $products = $infusionsoft->data->query(
 	                    'Product',
 	                    10, 0,
-	                    ['Status' => '1'],
+	                    ['ID' => $plan_id],
 	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
 	                    'ProductName',
 	                    true);
