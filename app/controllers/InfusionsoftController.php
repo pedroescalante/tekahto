@@ -283,4 +283,5 @@ class InfusionsoftController extends BaseController {
 	    }
 
 	    return Response::json($product);
+	}
 }
