@@ -458,14 +458,24 @@ class InfusionsoftController extends BaseController {
 	    		$leadAffiliateID = 0;
 	    		$saleAffiliateID = 0;
 
-	    		//$invoice = $infusionsoft->invoices()->createBlankOrder($contact['Id'], $name, $orderDate, $leadAffiliateID, $saleAffiliateID);
+	    		$invoiceID 	 = $infusionsoft->invoices()->createBlankOrder($contact['Id'], $name, $orderDate, $leadAffiliateID, $saleAffiliateID);
+	    		$productID 	 = $product[0]['ID'];
+	    		$type 		 = 4; //Product
+	    		$price 		 = $product[0]['ProductPrice'];
+	    		$quantity	 = 1;
+	    		$description = $product[0]['Description'] . "Invoice";
+	    		$notes		 = "Test Item";
 
-	    		return Response::json([ 'contactID' => $contact['Id'], 
-		    							'name' => $name, 
-		    							'orderDate' => $orderDate, 
-		    							'leadAffiliateID' => $leadAffiliateID, 
-		    							'saleAffiliateID' => $saleAffiliateID
-		    						  ]);
+	    		$infusionsoft->invoices()->addOrderItem($invoiceID, $productID, $type, $price, $quantity, $description, $notes)
+
+	    		$orders = $infusionsoft->data->query(
+								'Order',
+								10, 0,
+								['InvoiceID' => $invoiceID],
+								['Id', 'JobId'],
+								'Id',
+								true);
+	    		dd($orders);
 	    	}
 	    	else {
 				return Response::view('error', ['error' => 'The Credit Card Id is not valid'], 404);
