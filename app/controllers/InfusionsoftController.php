@@ -161,6 +161,7 @@ class InfusionsoftController extends BaseController {
 	                    'Id',
 	                    true);
 	        
+	        $job_array = [];
 	        foreach ($jobs as $job) {
 	        	$invoices =	$infusionsoft->data->query(
 	                    	'Invoices',
@@ -170,9 +171,10 @@ class InfusionsoftController extends BaseController {
 	                    	'Id',
 	                    	true);
 	        	$job['invoices'] = $invoices;
+	        	$job_array [] = $job;
 	        }
 
-	        $c['Jobs'] = $jobs;
+	        $c['Jobs'] = $job_array;
 	        
 	        $data[] = $c;
 	    }
