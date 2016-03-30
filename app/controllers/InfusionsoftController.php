@@ -391,78 +391,74 @@ class InfusionsoftController extends BaseController {
 
 		$products = null;
 	    
-	    try 
-	    {
-	        $products = $infusionsoft->data->query(
+		try 
+		{
+			$products = $infusionsoft->data->query(
 	                    'Product',
 	                    10, 0,
 	                    ['ID' => $plan_id],
 	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
 	                    'ProductName',
 	                    true);
-	    } 
-	    catch (InfusionsoftTokenExpiredException $e) 
-	    {
-	        $infusionsoft->refreshAccessToken();
-	        $token = new Token;
-	    	$token->token = serialize($infusionsoft->getToken());
-	    	$token->save();
-
-	        $products = $infusionsoft->data->query(
+		} 
+		catch (InfusionsoftTokenExpiredException $e) 
+		{
+			$infusionsoft->refreshAccessToken();
+			$token = new Token;
+			$token->token = serialize($infusionsoft->getToken());
+			$token->save();
+			
+			$products = $infusionsoft->data->query(
 	                    'Product',
 	                    10, 0,
 	                    ['ID' => $plan_id],
 	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
 	                    'ProductName',
 	                    true);
-	    }
+		}
 
 		if( $products ){
+			$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
+			$contact = null;
+			$credit_card = null;
 
-	    $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
-	    $contact = null;
-	    $credit_card = null;
-
-	    foreach ($contacts as $c) 
-	    {
-	        $contact = $infusionsoft->contacts->load($c['Id'], ['Id', 'FirstName', 'LastName']);
+			foreach ($contacts as $c) 
+			{
+				$contact = $infusionsoft->contacts->load($c['Id'], ['Id', 'FirstName', 'LastName']);
 		
-	        $credit_cards = $infusionsoft->data->query(
-	                    'CreditCard',
-	                    10, 0,
-	                    ['ContactID' => $contact['Id'], 'Id'=>$card_id, 'Status' => 3],
-	                    ['Id', 'CardType', 'Last4', 'Status'],
-	                    'Last4',
-	                    true);
+				$credit_cards = $infusionsoft->data->query(
+								'CreditCard',
+								10, 0,
+								['ContactID' => $contact['Id'], 'Id'=>$card_id, 'Status' => 3],
+								['Id', 'CardType', 'Last4', 'Status'],
+								'Last4',
+								true);
+				
+				foreach ($credit_cards as $card)
+	       			$credit_card = $card;
+			}
 
-	       	foreach ($credit_cards as $card)
-	       		$credit_card = $card;
+			if( $credit_card ){
+	    		$name = "Test Invoice";
+	    		$orderDate = new DateTime("now");
+	    		$leadAffiliateID = 0;
+	    		$saleAffiliateID = 0;
 
-	    }
+	    		//$invoice = $infusionsoft->invoices()->createBlankOrder($contact['Id'], $name, $orderDate, $leadAffiliateID, $saleAffiliateID);
 
-	    if( $credit_card ){
-	    	$name = "Test Invoice";
-	    	$orderDate = new DateTime("now");
-	    	$leadAffiliateID = 0;
-	    	$saleAffiliateID = 0;
-
-	    	//$invoice = $infusionsoft->invoices()->createBlankOrder($contact['Id'], $name, $orderDate, $leadAffiliateID, $saleAffiliateID);
-	    	
-	    	return Response::json([ 'contactID' => $contact['Id'], 
-	    							'name' => $name, 
-	    							'orderDate' => $orderDate, 
-	    							'leadAffiliateID' => $leadAffiliateID, 
-	    							'saleAffiliateID' => $saleAffiliateID
-	    						  ]);
-	    }
-	    else{
-	    	return Response::json(['error' => 'The Credit Card Id is not valid']);
-	    }
+	    		return Response::json([ 'contactID' => $contact['Id'], 
+		    							'name' => $name, 
+		    							'orderDate' => $orderDate, 
+		    							'leadAffiliateID' => $leadAffiliateID, 
+		    							'saleAffiliateID' => $saleAffiliateID
+		    						  ]);
+	    	}
+	    	else {
+				return Response::view('error', ['error' => 'The Credit Card Id is not valid'], 404);
+			}
 		}
 		else{
-		return Response::json(['error' => 'The Product Id is not valid']);
+			return Response::view('error', ['error' => 'The Product Id is not valid'], 404);
 		}
 	}
-
-
 }
