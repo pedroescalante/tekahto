@@ -52,6 +52,29 @@
               <td> {{$job['JobTitle']}}   </td>
               <td> {{$job['ProductId']}}  </td>
             </tr>
+            <tr>
+              <table class="table table-striped">
+                <tr>
+                  <th> Invoice Id   </th>
+                  <th> Description  </th>
+                  <th> Type         </th>
+                  <th> PayStatus    </th>
+                  <th> Total        </th>
+                  <th> Due          </th>
+                  <th> Paid         </th>
+                </tr>
+                @foreach($job['invoices'] as $invoice)
+                <tr>
+                  <td> {{$invoice['Id']}}             </td>
+                  <td> {{$invoice['Description']}}    </td>
+                  <td> {{$invoice['InvoiceType']}}    </td>
+                  <td> {{$invoice['PayStatus']}}      </td>
+                  <td> {{$invoice['InvoiceTotal']}}   </td>
+                  <td> {{$invoice['TotalDue']}}       </td>
+                  <td> {{$invoice['TotalPaid']}}      </td>
+                </tr>
+              </table>
+            </tr>
             @endforeach
           </table>
 
