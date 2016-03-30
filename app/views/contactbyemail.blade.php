@@ -42,8 +42,8 @@
           <h4> Jobs </h4>
           <table class="table table-striped">
             <tr>
-              <th> Id </th>
-              <th> Title </th>
+              <th> Job Id: <b> {{$job['Id']}} </b> </th>
+              <th> Job Title </th>
               <th> Product Id </th>
             </tr>
             @foreach($contact['Jobs'] as $job)
@@ -67,7 +67,7 @@
                 <tr>
                   <td> {{$invoice['Id']}}             </td>
                   <td> {{$invoice['Description']}}    </td>
-                  <td> {{$invoice['InvoiceType']}}    </td>
+                  <td> <?php if( isset($invoice['InvoiceType']) )  echo $invoice['InvoiceType']; ?>    </td>
                   <td> {{$invoice['PayStatus']}}      </td>
                   <td> {{$invoice['InvoiceTotal']}}   </td>
                   <td> {{$invoice['TotalDue']}}       </td>
