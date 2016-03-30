@@ -73,6 +73,7 @@
                   <td> {{$invoice['TotalDue']}}       </td>
                   <td> {{$invoice['TotalPaid']}}      </td>
                 </tr>
+                @endforeach
               </table>
             </tr>
             @endforeach
