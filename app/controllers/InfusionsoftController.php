@@ -388,6 +388,8 @@ class InfusionsoftController extends BaseController {
 		$infusionsoft = $this->getInfusionsoftObject();
 		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
+
+		$products = null;
 	    
 	    try 
 	    {
@@ -415,14 +417,16 @@ class InfusionsoftController extends BaseController {
 	                    true);
 	    }
 
+		if( $products ){
+
 	    $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
 	    $contact = null;
 	    $credit_card = null;
 
 	    foreach ($contacts as $c) 
 	    {
-	        $contact = $infusionsoft->contacts->load($contact['Id'], ['Id', 'FirstName', 'LastName']);
-
+	        $contact = $infusionsoft->contacts->load($c['Id'], ['Id', 'FirstName', 'LastName']);
+		
 	        $credit_cards = $infusionsoft->data->query(
 	                    'CreditCard',
 	                    10, 0,
@@ -454,6 +458,10 @@ class InfusionsoftController extends BaseController {
 	    else{
 	    	return Response::json(['error' => 'The Credit Card Id is not valid']);
 	    }
+		}
+		else{
+		return Response::json(['error' => 'The Product Id is not valid']);
+		}
 	}
 
 
