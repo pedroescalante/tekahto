@@ -39,6 +39,9 @@
             @endforeach
           </table>
 
+          <h4> Recurring Orders </h4>
+          <?php print_r($contact['recs']); ?>
+
           <h4> Jobs </h4>
           @foreach($contact['Jobs'] as $job)
             <div>Job Id: <b> {{$job['Id']}} </b> </th></div>
@@ -69,6 +72,6 @@
             </table>
             <hr>
           @endforeach
-          
+
         </div>
 @stop      

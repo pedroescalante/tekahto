@@ -174,7 +174,16 @@ class InfusionsoftController extends BaseController {
 	        	$job_array [] = $job;
 	        }
 
+	        $recs = 	$infusionsoft->data->query(
+	                    'RecurringOrder',
+	                    10, 0,
+	                    ['ContactID' => $c['Id']],
+	                    ['Id', 'JobTitle', 'ProductId', 'DateCreated'],
+	                    'Id',
+	                    true);
+
 	        $c['Jobs'] = $job_array;
+	        $c['Recs'] = $recs;
 	        
 	        $data[] = $c;
 	    }
