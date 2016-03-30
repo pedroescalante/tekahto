@@ -448,10 +448,11 @@ class InfusionsoftController extends BaseController {
 	    							'name' => $name, 
 	    							'orderDate' => $orderDate, 
 	    							'leadAffiliateID' => $leadAffiliateID, 
-	    							'saleAffiliateID' => $saleAffiliateID);
+	    							'saleAffiliateID' => $saleAffiliateID
+	    						  ]);
 	    }
 	    else{
-	    	return Response::json(['error'=>'The Credit Card Id is not valid']);
+	    	return Response::json(['error' => 'The Credit Card Id is not valid']);
 	    }
 	}
 
