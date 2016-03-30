@@ -40,44 +40,35 @@
           </table>
 
           <h4> Jobs </h4>
-          <table class="table table-striped">
-            <tr>
-              <th> Job Id: <b> {{$job['Id']}} </b> </th>
-              <th> Job Title </th>
-              <th> Product Id </th>
-            </tr>
-            @foreach($contact['Jobs'] as $job)
-            <tr>
-              <td> {{$job['Id']}}         </td>
-              <td> {{$job['JobTitle']}}   </td>
-              <td> {{$job['ProductId']}}  </td>
-            </tr>
-            <tr>
-              <table class="table table-striped">
-                <tr>
-                  <th> Invoice Id   </th>
-                  <th> Description  </th>
-                  <th> Type         </th>
-                  <th> PayStatus    </th>
-                  <th> Total        </th>
-                  <th> Due          </th>
-                  <th> Paid         </th>
-                </tr>
-                @foreach($job['invoices'] as $invoice)
-                <tr>
-                  <td> {{$invoice['Id']}}             </td>
-                  <td> {{$invoice['Description']}}    </td>
-                  <td> <?php if( isset($invoice['InvoiceType']) )  echo $invoice['InvoiceType']; ?>    </td>
-                  <td> {{$invoice['PayStatus']}}      </td>
-                  <td> {{$invoice['InvoiceTotal']}}   </td>
-                  <td> {{$invoice['TotalDue']}}       </td>
-                  <td> {{$invoice['TotalPaid']}}      </td>
-                </tr>
-                @endforeach
-              </table>
-            </tr>
-            @endforeach
-          </table>
-
+          @foreach($contact['Jobs'] as $job)
+            <div>Job Id: <b> {{$job['Id']}} </b> </th></div>
+            <div> Job Title <b> {{$job['JobTitle']}} </b> </div>
+            <div> Product Id <b> {{$job['ProductId']}} <b> </div>
+            
+            <table class="table table-condensed">
+              <tr>
+                <th> Invoice Id   </th>
+                <th> Description  </th>
+                <th> Type         </th>
+                <th> PayStatus    </th>
+                <th> Total        </th>
+                <th> Due          </th>
+                <th> Paid         </th>
+              </tr>
+              @foreach($job['invoices'] as $invoice)
+              <tr>
+                <td> {{$invoice['Id']}}             </td>
+                <td> {{$invoice['Description']}}    </td>
+                <td> <?php if( isset($invoice['InvoiceType']) )  echo $invoice['InvoiceType']; ?>    </td>
+                <td> {{$invoice['PayStatus']}}      </td>
+                <td> {{$invoice['InvoiceTotal']}}   </td>
+                <td> {{$invoice['TotalDue']}}       </td>
+                <td> {{$invoice['TotalPaid']}}      </td>
+              </tr>
+              @endforeach
+            </table>
+            <hr>
+          @endforeach
+          
         </div>
 @stop      
