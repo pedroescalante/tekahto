@@ -160,6 +160,18 @@ class InfusionsoftController extends BaseController {
 	                    ['Id', 'JobTitle', 'ProductId', 'DateCreated'],
 	                    'Id',
 	                    true);
+	        
+	        foreach ($jobs as $job) {
+	        	$invoices =	$infusionsoft->data->query(
+	                    	'Invoices',
+	                    	10, 0,
+	                    	['JobID' => $job['Id']],
+	                    	['Id', 'Description', 'InvoiceType', 'PayStatus', 'InvoiceTotal','TotalDue', 'TotalPaid'],
+	                    	'Id',
+	                    	true);
+	        	$job['invoices'] = $invoices;
+	        }
+
 	        $c['Jobs'] = $jobs;
 	        
 	        $data[] = $c;
