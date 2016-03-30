@@ -457,25 +457,41 @@ class InfusionsoftController extends BaseController {
 	    		$orderDate = new DateTime("now");
 	    		$leadAffiliateID = 0;
 	    		$saleAffiliateID = 0;
-
+/*
 	    		$invoiceID 	 = $infusionsoft->invoices()->createBlankOrder($contact['Id'], $name, $orderDate, $leadAffiliateID, $saleAffiliateID);
-	    		$productID 	 = $product[0]['ID'];
+	    		$productID 	 = $products[0]['Id'];
 	    		$type 		 = 4; //Product
-	    		$price 		 = $product[0]['ProductPrice'];
+	    		$price 		 = $products[0]['ProductPrice'];
 	    		$quantity	 = 1;
-	    		$description = $product[0]['Description'] . "Invoice";
+	    		$description 	 = "New Invoice Item";
 	    		$notes		 = "Test Item";
 
-	    		$infusionsoft->invoices()->addOrderItem($invoiceID, $productID, $type, $price, $quantity, $description, $notes)
-
-	    		$orders = $infusionsoft->data->query(
-								'Order',
+	    		$infusionsoft->invoices()->addOrderItem($invoiceID, $productID, $type, $price, $quantity, $description, $notes);
+*/
+$invoiceID = 53334;
+	    		$job = $infusionsoft->data->query(
+								'Invoice',
 								10, 0,
-								['InvoiceID' => $invoiceID],
+								['Id' => $invoiceID],
 								['Id', 'JobId'],
 								'Id',
 								true);
-	    		dd($orders);
+			$infusionsoft->data->update("Job", $job[0]['JobId'], ['JobTitle'=>'Test Job']);
+
+			$jobs = $infusionsoft->data->query('Job',
+							   10, 0,
+							   ['Id' => $job[0]['JobId']],
+							   ['Id', 'JobTitle'],
+							   'Id',
+							   true);
+			$notes = "Test Payment";
+			$creditCardId = $credit_card;
+			$merchantAccountID = "1";
+			$bypassCommissions = false;
+
+			$result = $infusionsoft->invoices()->chargeInvoice($invoiceID, $notes, $creditCardID, $merchantAccountID, $bypassComissions);
+
+	    		dd($result);
 	    	}
 	    	else {
 				return Response::view('error', ['error' => 'The Credit Card Id is not valid'], 404);
