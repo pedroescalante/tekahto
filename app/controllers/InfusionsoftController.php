@@ -424,7 +424,7 @@ class InfusionsoftController extends BaseController {
 	    		$orderDate = new DateTime("now");
 	    		$leadAffiliateID = 0;
 	    		$saleAffiliateID = 0;
-/*
+
 	    		$invoiceID 	 = $infusionsoft->invoices()->createBlankOrder($contact['Id'], $name, $orderDate, $leadAffiliateID, $saleAffiliateID);
 	    		$productID 	 = $products[0]['Id'];
 	    		$type 		 = 4; //Product
@@ -434,8 +434,8 @@ class InfusionsoftController extends BaseController {
 	    		$notes		 = "Test Item";
 
 	    		$infusionsoft->invoices()->addOrderItem($invoiceID, $productID, $type, $price, $quantity, $description, $notes);
-*/
-$invoiceID = 53334;
+				//$invoiceID = 53334;
+
 	    		$job = $infusionsoft->data->query(
 								'Invoice',
 								10, 0,
@@ -488,5 +488,53 @@ $invoiceID = 53334;
 		}
 		
 	    return $p;
+	}
+
+	public function makeSubscription()
+	{
+		$plan_id = Input::get('plan_id');
+		$card_id = Input::get('card_id');
+		$email 	 = Input::get('email');
+
+		$infusionsoft = $this->getInfusionsoftObject();
+		$last_token = Token::orderBy('id', 'desc')->first();
+		$infusionsoft->setToken(unserialize($last_token->token));
+
+		//Product (Pricing Plan)
+		$products = $this->getProducts();
+		if( !isset($products[$plan_id]) )
+			throw new Exception("Error: The Plan is invalid");
+		$product = $products[$plan_id];
+
+		//Contact
+		$query = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
+		if( !isset($query[0]['Id']) )
+			throw new Exception("Error: The Contact is invalid");
+		$contact_id = $query[0]['Id'];
+		$contact = $infusionsoft->contacts->load($contact['Id'], ['Id', 'FirstName', 'LastName']);
+
+		//Credit Card
+		$query = $infusionsoft->data->query('CreditCard',10, 0,['ContactID' => $contact['Id'], 'Id'=>$card_id, 'Status' => 3],['Id', 'CardType', 'Last4', 'Status'],'Last4',true);
+		if( !isset($query[0]) )
+			throw new Exception("Error: The Credit Card is invalid");
+		$credit_card = $query[0];
+
+		//Invoice and Subscription
+		$invoiceID = $infusionsoft->invoices()->createBlankOrder($contact['Id'], "test Invoice", DateTime("now"), 0, 0);
+		$notes = "Some text";
+		$infusionsoft->invoices()->addOrderItem($invoiceID, $product['Id'], 4, $product['ProductPrice'], 1, $product['Description'], $notes);
+		$merchantAccountID = 25;
+		$payment = $infusionsoft->invoices()->chargeInvoice($invoiceID, $notes, $creditCard['Id'], $merchantAccountID, false);
+
+		if( $payment['Successful'] )
+		{
+			//Tag
+			$tagId = 50;
+			$infusionsoft->contacts()->addToGroup($contact['Id'], $tagId);
+		}
+		else
+		{
+			throw new Exception("Error: The Payment process failed");
+		}
 	}
 }
