@@ -9,6 +9,9 @@ class InfusionsoftController extends BaseController {
 	        'clientSecret' => $_ENV['clientSecret'],
 	        'redirectUri'  => $_ENV['redirectUri']
     	));
+    	
+    	$last_token = Token::orderBy('id', 'desc')->first();
+		$infusionsoft->setToken(unserialize($last_token->token));
     	$infusionsoft->refreshAccessToken();
     	
     	return $infusionsoft;
@@ -104,8 +107,6 @@ class InfusionsoftController extends BaseController {
 	public function contact()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('id', 'desc')->first();
-		$infusionsoft->setToken(unserialize($last_token->token));
 	    
 	    try 
 	    {
