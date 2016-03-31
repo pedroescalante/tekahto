@@ -101,7 +101,7 @@ class InfusionsoftController extends BaseController {
 	                    'CreditCard',
 	                    10, 0,
 	                    ['ContactID' => $c['Id']],
-	                    ['CardType', 'Last4', 'Status'],
+	                    ['Id', 'CardType', 'Last4', 'Status'],
 	                    'Last4',
 	                    true);
 	        $c['CreditCards'] = $credit_cards;
@@ -145,8 +145,11 @@ class InfusionsoftController extends BaseController {
 	        
 	        $data[] = $c;
 	    }
-
-	    return View::make('contactbyemail', ['contact'=>$data[0]]);
+		
+	    if( isset($data[0]))
+		    return View::make('contactbyemail', ['contact'=>$data[0]]);
+	    else
+		throw new Exception("The Contact not exists");
 	}	
 
 	public function products()
@@ -505,13 +508,13 @@ class InfusionsoftController extends BaseController {
 		if( !isset($products[$plan_id]) )
 			throw new Exception("Error: The Plan is invalid");
 		$product = $products[$plan_id];
-
+		
 		//Contact
 		$query = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
 		if( !isset($query[0]['Id']) )
 			throw new Exception("Error: The Contact is invalid");
 		$contact_id = $query[0]['Id'];
-		$contact = $infusionsoft->contacts->load($contact['Id'], ['Id', 'FirstName', 'LastName']);
+		$contact = $infusionsoft->contacts->load($contact_id, ['Id', 'FirstName', 'LastName']);
 
 		//Credit Card
 		$query = $infusionsoft->data->query('CreditCard',10, 0,['ContactID' => $contact['Id'], 'Id'=>$card_id, 'Status' => 3],['Id', 'CardType', 'Last4', 'Status'],'Last4',true);
@@ -520,6 +523,30 @@ class InfusionsoftController extends BaseController {
 		$credit_card = $query[0];
 
 		//Invoice and Subscription
+		$contactID = $contact_id;
+		$AllowDuplicate = false;
+		$subscriptionID = 0;
+		$quantity = 1;
+		$price = $product['ProductPrice'];
+		$taxable = false;
+		$merchantAccountID = 25; //Test Merchant
+		$creditCardID = $credit_card['Id'];
+		$affiliateID = 0;
+		$trialPeriod = 0;
+
+		$result = $infusionsoft->invoices()->addRecurringOrder(
+				$contactID, 
+				$AllowDuplicate, 
+				$subscriptionID, 
+				$quantity, 
+				$price, 
+				$taxable, 
+				$merchantAccountID, 
+				$creditCardID, 
+				$affiliateID, 
+				$trialPeriod);
+		dd($result);
+
 		$invoiceID = $infusionsoft->invoices()->createBlankOrder($contact['Id'], "test Invoice", DateTime("now"), 0, 0);
 		$notes = "Some text";
 		$infusionsoft->invoices()->addOrderItem($invoiceID, $product['Id'], 4, $product['ProductPrice'], 1, $product['Description'], $notes);

@@ -18,7 +18,7 @@
             </tr>
             <tr>
               <th> Last Name         </th>
-              <td> {{ $contact['LastName'] }} </td>
+              <td> <?php if( isset($contact['LastName']) ) echo $contact['LastName']; ?> </td>
             </tr>
             <tr>
               <th> Registered Credit Cards </th>
@@ -28,12 +28,14 @@
           <h4> Credit Cards </h4>
           <table class="table table-striped">
             <tr>
+              <th> Id </th>
               <th> Last 4 Numbers </th>
               <th> Type </th>
               <th> Status </th>
             </tr>
             @foreach($contact['CreditCards'] as $card)
             <tr>
+              <td> {{$card['Id']}}         </td>
               <td> {{$card['Last4']}}         </td>
               <td> {{$card['CardType']}}         </td>
               <td> {{$card['Status']}} = {{ $status[$card['Status']]}} </td>
