@@ -40,7 +40,13 @@
           </table>
 
           <h4> Recurring Orders </h4>
-          <?php print_r($contact['recs']); ?>
+          @foreach($contact['Recs'] as $rec)
+            <div>Recurring Order Id: <b> {{$rec['Id']}} </b> </th></div>
+            <div> merchantAccountID <b> {{$rec['merchantAccountId']}} </b> </div>
+            <div> Product Id <b> {{$rec['ProductId']}} <b> </div>
+            <div> Start Date <b> {{$rec['startDate']}} <b> </div>
+            <div> End Date <b> {{$rec['endDate']}} <b> </div>
+          @endforeach
 
           <h4> Jobs </h4>
           @foreach($contact['Jobs'] as $job)

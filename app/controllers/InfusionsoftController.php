@@ -69,7 +69,7 @@ class InfusionsoftController extends BaseController {
 		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
 	    $infusionsoft->refreshAccessToken();
-	    
+
 	    try 
 	    {
 	        $email = Request::get('email');
@@ -124,7 +124,7 @@ class InfusionsoftController extends BaseController {
 	                    'RecurringOrder',
 	                    10, 0,
 	                    ['ContactID' => $c['Id']],
-	                    ['Id', 'JobTitle', 'ProductId', 'DateCreated'],
+	                    ['Id', 'merchantAccountId', 'ProductId', 'StartDate', 'EndDate'],
 	                    'Id',
 	                    true);
 
