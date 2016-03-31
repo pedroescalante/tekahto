@@ -84,6 +84,8 @@ class InfusionsoftController extends BaseController {
 	        $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
 	    }    
 
+	    $products = $this->getProducts();
+	    dd($products);
 	    $data = array();
 	    foreach ($contacts as $contact) 
 	    {
@@ -126,6 +128,9 @@ class InfusionsoftController extends BaseController {
 	                    ['Id', 'merchantAccountId', 'ProductId', 'StartDate', 'EndDate'],
 	                    'Id',
 	                    true);
+	        foreach ($recs as $rec) {
+	        	$rec['ProductName'] = 
+	        }
 
 	        $c['Jobs'] = $job_array;
 	        $c['Recs'] = $recs;
@@ -454,5 +459,21 @@ $invoiceID = 53334;
 		else{
 			return Response::view('error', ['error' => 'The Product Id is not valid'], 404);
 		}
+	}
+
+	public function getProducts(){
+		$infusionsoft = $this->getInfusionsoftObject();
+		$last_token = Token::orderBy('id', 'desc')->first();
+		$infusionsoft->setToken(unserialize($last_token->token));
+	    
+	    $products = $infusionsoft->data->query(
+                    'Product',
+                    100, 0,
+                    [],
+                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
+                    'Id',
+	                true);
+
+	    return $products;
 	}
 }
