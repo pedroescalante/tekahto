@@ -9,11 +9,7 @@ class InfusionsoftController extends BaseController {
 	        'clientSecret' => $_ENV['clientSecret'],
 	        'redirectUri'  => $_ENV['redirectUri']
     	));
-    	
-    	$last_token = Token::orderBy('id', 'desc')->first();
-		$infusionsoft->setToken(unserialize($last_token->token));
-    	$infusionsoft->refreshAccessToken();
-    	
+
     	return $infusionsoft;
 	}
 
@@ -39,36 +35,7 @@ class InfusionsoftController extends BaseController {
 				$token->token = serialize($infusionsoft->getToken());
 				$token->save();
 
-				//return Response::json(['Session' => "Token: ".Session::get('token'), 'Token'=>$token->token]);
 				return View::make('token');
-				
-				try 
-			    {
-			        $products = $infusionsoft->data->query(
-			                    'Product',
-			                    10, 0,
-			                    ['Status' => '1'],
-			                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
-			                    'ProductName',
-			                    true);
-			    } 
-			    catch (InfusionsoftTokenExpiredException $e) 
-			    {
-			        $infusionsoft->refreshAccessToken();
-			        $token = new Token;
-			    	$token->token = serialize($infusionsoft->getToken());
-			    	$token->save();
-
-			        $products = $infusionsoft->data->query(
-			                    'Product',
-			                    10, 0,
-			                    ['Status' => '1'],
-			                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
-			                    'ProductName',
-			                    true);
-			    }
-
-			    return View::make('products', ['products'=>$products]);
 			}
 		} 
 		catch (Exception $e)
@@ -77,14 +44,6 @@ class InfusionsoftController extends BaseController {
 		}
 
 	    return Response::json(['error' => "Code or Access Token wasn't found"]);
-	}
-
-	public function sendToken()
-	{
-		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('id', 'desc')->first();
-		
-		return Response::json(['token'=>$last_token->token]);
 	}
 
 	public function contacts()
@@ -107,6 +66,9 @@ class InfusionsoftController extends BaseController {
 	public function contact()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
+		$last_token = Token::orderBy('id', 'desc')->first();
+		$infusionsoft->setToken(unserialize($last_token->token));
+	    $infusionsoft->refreshAccessToken();
 	    
 	    try 
 	    {
