@@ -29,33 +29,42 @@
           <table class="table table-striped">
             <tr>
               <th> Last 4 Numbers </th>
+              <th> Type </th>
               <th> Status </th>
             </tr>
             @foreach($contact['CreditCards'] as $card)
             <tr>
               <td> {{$card['Last4']}}         </td>
+              <td> {{$card['CardType']}}         </td>
               <td> {{$card['Status']}} = {{ $status[$card['Status']]}} </td>
             </tr>
             @endforeach
           </table>
 
-          <h4> Recurring Orders </h4>
-          @foreach($contact['Recs'] as $rec)
+	  <div class="panel panel-default">
+  <div class="panel-heading">Recurring Orders</div>
+  <div class="panel-body">
+    @foreach($contact['Recs'] as $rec)
             <div>Recurring Order Id: <b> {{$rec['Id']}} </b> </th></div>
-            <div> merchantAccountID <b> {{$rec['merchantAccountId']}} </b> </div>
-            <div> Product Id <b> {{$rec['ProductId']}} <b> </div>
-            <div> Start Date <b> {{$rec['StartDate']->format('Y-m-d')}} <b> </div>
+            <div> Merchant Account ID <b> {{$rec['merchantAccountId']}} </b> </div>
+            <div> Product Name <b> {{$rec['ProductName']}} </b> </div>
+            <div> Start Date <b> {{$rec['StartDate']->format('Y-m-d')}} </b> </div>
+            <div> End Date <b> <?php if(isset($rec['EndDate'])) echo $rec['StartDate']->format('Y-m-d'); else echo "-"; ?> </b> </div>
+            <hr>
           @endforeach
+  </div>
+</div>
 
           <h4> Jobs </h4>
           @foreach($contact['Jobs'] as $job)
             <div>Job Id: <b> {{$job['Id']}} </b> </th></div>
             <div> Job Title <b> {{$job['JobTitle']}} </b> </div>
-            <div> Product Id <b> {{$job['ProductId']}} <b> </div>
+            <div> Product Id <b> {{$job['ProductId']}} </b> </div>
             
-            <table class="table table-condensed">
-              <tr>
-                <th> Invoice Id   </th>
+<h5>Invoices</h5>
+            <table class="table table-condensed table-bordered">
+              <tr class="info">
+                <th> Id   </th>
                 <th> Description  </th>
                 <th> Type         </th>
                 <th> PayStatus    </th>

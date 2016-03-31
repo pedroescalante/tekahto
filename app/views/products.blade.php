@@ -13,7 +13,7 @@
             @foreach($products as $product)
             <tr>
               <td>
-                <a href="/product?id={{$product['Id']}}" class="btn btn-primary"> 
+                <a href="/infusionsoft/product?id={{$product['Id']}}" class="btn btn-primary"> 
                   {{$product['Id']}}
                 </a>
               </td>

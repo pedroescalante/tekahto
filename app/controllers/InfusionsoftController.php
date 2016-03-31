@@ -59,8 +59,14 @@ class InfusionsoftController extends BaseController {
 	                    ['ID', 'FirstName', 'LastName', 'Email'],
 	                    'ID',
 	                    true);
+		$c=[];
+		foreach($contacts as $contact){
+			$creditCards = $infusionsoft->data->query('CreditCard',1000, 0, ['ContactId'=>$contact['ID']], ['Id','Last4','CardType','Status'], 'Id', true);
+			$contact['CreditCards'] = $creditCards;
+			$c[] = $contact;
+		}
 	    
-	    return View::make('contacts', ['contacts'=>$contacts]);
+	    return View::make('contacts', ['contacts'=>$c]);
 	}
 
 	public function contact()
@@ -85,7 +91,7 @@ class InfusionsoftController extends BaseController {
 	    }    
 
 	    $products = $this->getProducts();
-	    dd($products);
+
 	    $data = array();
 	    foreach ($contacts as $contact) 
 	    {
@@ -128,12 +134,14 @@ class InfusionsoftController extends BaseController {
 	                    ['Id', 'merchantAccountId', 'ProductId', 'StartDate', 'EndDate'],
 	                    'Id',
 	                    true);
-	        foreach ($recs as $rec) {
-	        	$rec['ProductName'] = 
-	        }
+		$r=[];
+		foreach($recs as $rec){
+			$rec['ProductName']=$products[$rec['ProductId']]['ProductName'];
+			$r[]=$rec;
+		}
 
 	        $c['Jobs'] = $job_array;
-	        $c['Recs'] = $recs;
+	        $c['Recs'] = $r;
 	        
 	        $data[] = $c;
 	    }
@@ -151,7 +159,7 @@ class InfusionsoftController extends BaseController {
 	    {
 	        $products = $infusionsoft->data->query(
 	                    'Product',
-	                    10, 0,
+	                    1000, 0,
 	                    ['Status' => '1'],
 	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
 	                    'ProductName',
@@ -465,15 +473,20 @@ $invoiceID = 53334;
 		$infusionsoft = $this->getInfusionsoftObject();
 		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
-	    
-	    $products = $infusionsoft->data->query(
-                    'Product',
-                    100, 0,
-                    [],
-                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
-                    'Id',
-	                true);
 
-	    return $products;
+                $products = $infusionsoft->data->query(
+                            'Product',
+                            1000, 0,
+                            ['Status' => '1'],
+                            ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
+                            'ProductName',
+                            true);
+		$p=[];
+		foreach($products as $product){
+			$p[$product['Id']]=['ProductName'=>$product['ProductName'], 'ProductPrice'=>$product['ProductPrice'], 'Status'=>$product['Status']];
+			if( isset($product['Description']) ) $p['Description']=$product['Description']; else $p['Description']="-";
+		}
+		
+	    return $p;
 	}
 }

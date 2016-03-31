@@ -37,8 +37,8 @@
       <div class="header clearfix">
         <nav>
           <ul class="nav nav-pills pull-right">
-            <li role="presentation"><a href="/contacts">Contacts</a></li>
-            <li role="presentation"><a href="/products">Products</a></li>
+            <li role="presentation"><a href="/infusionsoft/contacts">Contacts</a></li>
+            <li role="presentation"><a href="/infusionsoft/products">Products</a></li>
           </ul>
         </nav>
         <h3 class="text-muted">InfusionSoft API</h3>
