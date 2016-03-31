@@ -68,7 +68,6 @@ class InfusionsoftController extends BaseController {
 		$infusionsoft = $this->getInfusionsoftObject();
 		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
-	    $infusionsoft->refreshAccessToken();
 
 	    try 
 	    {
