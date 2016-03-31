@@ -9,6 +9,7 @@ class InfusionsoftController extends BaseController {
 	        'clientSecret' => $_ENV['clientSecret'],
 	        'redirectUri'  => $_ENV['redirectUri']
     	));
+    	$infusionsoft->refreshAccessToken();
     	
     	return $infusionsoft;
 	}
@@ -89,32 +90,14 @@ class InfusionsoftController extends BaseController {
 		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
 
-		try 
-	    {
-	        $contacts = $infusionsoft->data->query(
+		$contacts = $infusionsoft->data->query(
 	                    'Contact',
 	                    10, 0,
 	                    ['FirstName' => 'John'],
 	                    ['ID', 'FirstName', 'LastName', 'Email'],
 	                    'ID',
 	                    true);
-	    } 
-	    catch (InfusionsoftTokenExpiredException $e) 
-	    {
-	        $infusionsoft->refreshAccessToken();
-	        $token = new Token;
-	    	$token->token = serialize($infusionsoft->getToken());
-	    	$token->save();
-
-	        $contacts = $infusionsoft->data->query(
-	                    'Contact',
-	                    10, 0,
-	                    ['FirstName' => 'John'],
-	                    ['ID', 'FirstName', 'LastName', 'Email'],
-	                    'ID',
-	                    true);
-	    }
-
+	    
 	    return View::make('contacts', ['contacts'=>$contacts]);
 	}
 
@@ -495,7 +478,7 @@ $invoiceID = 53334;
 							   true);
 			$notes = "Test Payment";
 			$creditCardId = $credit_card;
-			$merchantAccountID = "1";
+			$merchantAccountID = "25";
 			$bypassCommissions = false;
 
 			$result = $infusionsoft->invoices()->chargeInvoice($invoiceID, $notes, $creditCardID, $merchantAccountID, $bypassComissions);
