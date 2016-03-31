@@ -44,8 +44,8 @@
             <div>Recurring Order Id: <b> {{$rec['Id']}} </b> </th></div>
             <div> merchantAccountID <b> {{$rec['merchantAccountId']}} </b> </div>
             <div> Product Id <b> {{$rec['ProductId']}} <b> </div>
-            <div> Start Date <b> {{$rec['StartDate']}} <b> </div>
-            <div> End Date <b> {{$rec['EndDate']}} <b> </div>
+            <div> Start Date <b> {{$rec['StartDate']->format('Y-m-d')}} <b> </div>
+            <div> End Date <b> {{ $rec['EndDate']->format('Y-m-d')}} <b> </div>
           @endforeach
 
           <h4> Jobs </h4>
