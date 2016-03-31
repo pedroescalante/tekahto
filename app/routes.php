@@ -10,4 +10,4 @@ Route::get('/infusionsoft/products',    ['https', 'uses' => 'InfusionsoftControl
 Route::get('/infusionsoft/product',     ['https', 'uses' => 'InfusionsoftController@product']);
 
 Route::post('/infusionsoft/payment', 	['https', 'uses' => 'InfusionsoftController@paymentInfo']);
-Route::post('/infusionsoft/invoice',     ['https', 'uses' => 'InfusionsoftController@makeInvoice']);
+Route::post('/infusionsoft/subscription',     ['https', 'uses' => 'InfusionsoftController@makeSubscription']);
