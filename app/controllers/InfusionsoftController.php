@@ -161,12 +161,15 @@ class InfusionsoftController extends BaseController {
 	    try 
 	    {
 	        $products = $infusionsoft->data->query(
-	                    'Product',
+	                    'ContactGroup',
 	                    1000, 0,
-	                    ['Status' => '1'],
-	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
-	                    'ProductName',
+	                    ['Id' => 2496],
+	                    ['GroupCategoryId', 'GroupDescription', 'GroupName', 'Id'],
+	                    'Id',
 	                    true);
+		return $products;
+		return View::make('SubscriptionPlans', ['subscription_plans'=>$products, 'products'=>$this->getProducts()]);
+		//dd($products);
 	    } 
 	    catch (InfusionsoftTokenExpiredException $e) 
 	    {
@@ -525,7 +528,7 @@ class InfusionsoftController extends BaseController {
 		//Invoice and Subscription
 		$contactID = $contact_id;
 		$AllowDuplicate = false;
-		$subscriptionID = 0;
+		$subscriptionID = 94; //Professional selected this instead of 94(97$)
 		$quantity = 1;
 		$price = $product['ProductPrice'];
 		$taxable = false;
@@ -534,7 +537,7 @@ class InfusionsoftController extends BaseController {
 		$affiliateID = 0;
 		$trialPeriod = 0;
 
-		$result = $infusionsoft->invoices()->addRecurringOrder(
+		$subscriptionID = $infusionsoft->invoices()->addRecurringOrder(
 				$contactID, 
 				$AllowDuplicate, 
 				$subscriptionID, 
@@ -545,23 +548,34 @@ class InfusionsoftController extends BaseController {
 				$creditCardID, 
 				$affiliateID, 
 				$trialPeriod);
-		dd($result);
+		dd($suscriptionID);
 
-		$invoiceID = $infusionsoft->invoices()->createBlankOrder($contact['Id'], "test Invoice", DateTime("now"), 0, 0);
-		$notes = "Some text";
-		$infusionsoft->invoices()->addOrderItem($invoiceID, $product['Id'], 4, $product['ProductPrice'], 1, $product['Description'], $notes);
-		$merchantAccountID = 25;
-		$payment = $infusionsoft->invoices()->chargeInvoice($invoiceID, $notes, $creditCard['Id'], $merchantAccountID, false);
+/*		$invoices = $infusionsoft->data->query('Invoice', 10, 0,
+                                                                ['Id' => 53340],
+                                                                ['AffiliateId', 'ContactId', 'CreditStatus', 'DateCreated', 'Description', 'Id', 'InvoiceTotal', 'Invoice'],
+                                                                'Id',
+                                                                true);*/
 
-		if( $payment['Successful'] )
-		{
+
+		$invoiceID = $infusionsoft->invoices()->createInvoiceForRecurring($subscriptionID);
+
+		$invoiceID = 53430;
+		$notes = "ChargeInvoice Testing";
+		$creditCardID = $credit_card['Id'];
+		$merchantAccountID = 25; //TestMerchant
+		$bypassComissions = false;
+		$payment = $infusionsoft->invoices()->chargeInvoice($invoiceID, $notes, $creditCardID, $merchantAccountID, $bypassComissions);*/
+
+//		if( $payment['Successful'] )
+//		{
 			//Tag
-			$tagId = 50;
-			$infusionsoft->contacts()->addToGroup($contact['Id'], $tagId);
-		}
-		else
-		{
-			throw new Exception("Error: The Payment process failed");
-		}
+//			$tagId = 2496;
+//			$infusionsoft->contacts()->addToGroup($contact['Id'], $tagId);
+//		}
+//		else
+//		{
+//			//REMOVE THE SUBSCRIPTION!!!
+//			throw new Exception("Error: The Payment process failed");
+//		}
 	}
 }
