@@ -363,7 +363,7 @@ class InfusionsoftController extends BaseController {
 	       		$cc[]=$card;
 	    }
 
-	    if( isset($products[0]) )
+	    if( isset($contacts[0]) )
 	    	return Response::json(['product'=>$products[0], 'contact'=>$contacts[0], 'credit_card'=>$cc]);
 	    else
 	    	return Response::json(['error'=>'Invalid Contact']);
