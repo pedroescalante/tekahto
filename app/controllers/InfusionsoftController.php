@@ -90,7 +90,7 @@ class InfusionsoftController extends BaseController {
 	        $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
 	    }    
 
-	    $products = $this->getProducts();
+	    $products = $this->getProducts($infusionsoft);
 
 	    $data = array();
 	    foreach ($contacts as $contact) 
@@ -168,7 +168,7 @@ class InfusionsoftController extends BaseController {
 	                    'Id',
 	                    true);
 		return $products;
-		return View::make('SubscriptionPlans', ['subscription_plans'=>$products, 'products'=>$this->getProducts()]);
+		return View::make('SubscriptionPlans', ['subscription_plans'=>$products, 'products'=>$this->getProducts($infusionsoft)]);
 		//dd($products);
 	    } 
 	    catch (InfusionsoftTokenExpiredException $e) 
@@ -475,25 +475,26 @@ class InfusionsoftController extends BaseController {
 		}
 	}
 
-	public function getProducts(){
-		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('id', 'desc')->first();
-		$infusionsoft->setToken(unserialize($last_token->token));
+	public function getProducts($infusionsoft){
+		
+		$query = $infusionsoft->data->query(
+                'Product',
+                1000, 0,
+                ['Status' => '1'],
+                ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
+                'ProductName',
+                true);
 
-                $products = $infusionsoft->data->query(
-                            'Product',
-                            1000, 0,
-                            ['Status' => '1'],
-                            ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
-                            'ProductName',
-                            true);
-		$p=[];
-		foreach($products as $product){
-			$p[$product['Id']]=['ProductName'=>$product['ProductName'], 'ProductPrice'=>$product['ProductPrice'], 'Status'=>$product['Status']];
-			if( isset($product['Description']) ) $p['Description']=$product['Description']; else $p['Description']="-";
+		$products = [];
+		foreach($query as $product){
+			$p[$product['Id']] = ['ProductName'=>$product['ProductName'], 'ProductPrice'=>$product['ProductPrice'], 'Status'=>$product['Status']];
+			if( isset($product['Description']) ) 
+				$p['Description']=$product['Description']; 
+			else 
+				$p['Description']="-";
 		}
 		
-	    return $p;
+	    return $products;
 	}
 
 	public function makeSubscription()
@@ -507,28 +508,28 @@ class InfusionsoftController extends BaseController {
 		$infusionsoft->setToken(unserialize($last_token->token));
 
 		//Product (Pricing Plan)
-		$products = $this->getProducts();
+		$products = $this->getProducts($infusionsoft);
 		if( !isset($products[$plan_id]) )
-			throw new Exception("Error: The Plan is invalid");
+			return Response::json(['error' => 'Invalid Product']);
 		$product = $products[$plan_id];
 		
 		//Contact
 		$query = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
 		if( !isset($query[0]['Id']) )
-			throw new Exception("Error: The Contact is invalid");
+			return Response::json(['error' => 'Invalid Contact']);
 		$contact_id = $query[0]['Id'];
 		$contact = $infusionsoft->contacts->load($contact_id, ['Id', 'FirstName', 'LastName']);
 
 		//Credit Card
 		$query = $infusionsoft->data->query('CreditCard',10, 0,['ContactID' => $contact['Id'], 'Id'=>$card_id, 'Status' => 3],['Id', 'CardType', 'Last4', 'Status'],'Last4',true);
 		if( !isset($query[0]) )
-			throw new Exception("Error: The Credit Card is invalid");
+			return Response::json(['error' => 'Invalid Credit Card']);
 		$credit_card = $query[0];
 
-		//Invoice and Subscription
+		//Subscription
 		$contactID = $contact_id;
 		$AllowDuplicate = false;
-		$subscriptionID = 94; //Professional selected this instead of 94(97$)
+		$subscriptionID = 94; //Subscription = [92 => 197$, 94 => 97$]
 		$quantity = 1;
 		$price = $product['ProductPrice'];
 		$taxable = false;
@@ -536,35 +537,21 @@ class InfusionsoftController extends BaseController {
 		$creditCardID = $credit_card['Id'];
 		$affiliateID = 0;
 		$trialPeriod = 0;
+		$subscriptionID = $infusionsoft->invoices()->addRecurringOrder($contactID, $AllowDuplicate, $subscriptionID, $quantity, $price, $taxable, $merchantAccountID, $creditCardID, $affiliateID, $trialPeriod);
+		dd($subscriptionID);
+		//$subscriptionID = 
 
-		$subscriptionID = $infusionsoft->invoices()->addRecurringOrder(
-				$contactID, 
-				$AllowDuplicate, 
-				$subscriptionID, 
-				$quantity, 
-				$price, 
-				$taxable, 
-				$merchantAccountID, 
-				$creditCardID, 
-				$affiliateID, 
-				$trialPeriod);
-		dd($suscriptionID);
-
-/*		$invoices = $infusionsoft->data->query('Invoice', 10, 0,
-                                                                ['Id' => 53340],
-                                                                ['AffiliateId', 'ContactId', 'CreditStatus', 'DateCreated', 'Description', 'Id', 'InvoiceTotal', 'Invoice'],
-                                                                'Id',
-                                                                true);*/
-
-
+		//Invoice For Recurring
 		$invoiceID = $infusionsoft->invoices()->createInvoiceForRecurring($subscriptionID);
+		//$invoiceID = 53430;
 
-		$invoiceID = 53430;
+		//Charge Invoice
+		
 		$notes = "ChargeInvoice Testing";
 		$creditCardID = $credit_card['Id'];
 		$merchantAccountID = 25; //TestMerchant
 		$bypassComissions = false;
-		$payment = $infusionsoft->invoices()->chargeInvoice($invoiceID, $notes, $creditCardID, $merchantAccountID, $bypassComissions);*/
+		$payment = $infusionsoft->invoices()->chargeInvoice($invoiceID, $notes, $creditCardID, $merchantAccountID, $bypassComissions);
 
 //		if( $payment['Successful'] )
 //		{
