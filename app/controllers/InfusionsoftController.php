@@ -117,17 +117,17 @@ class InfusionsoftController extends BaseController {
 
 	    $contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName']);
 		
-		$contact['CreditCards'] = getCreditCards($infusionsoft, $contact['Id']);
+		$contact['CreditCards'] = $this->getCreditCards($infusionsoft, $contact['Id']);
 	        
-	    $jobs = getJobs($infusionsoft, $contact['Id']);
+	    $jobs = $this->getJobs($infusionsoft, $contact['Id']);
         $job_array = [];
         foreach ($jobs as $job) {
-        	$job['invoices'] = getInvoicesByJob($infusionsoft, $job['Id']);
+        	$job['invoices'] = $this->getInvoicesByJob($infusionsoft, $job['Id']);
         	$job_array [] = $job;
         }
         $contact['Jobs'] = $job_array;
 
-	    $subs 	  = getSubscriptions($infusionsoft, $contact['Id']);
+	    $subs 	  = $this->getSubscriptions($infusionsoft, $contact['Id']);
 	    $products = $this->getProducts($infusionsoft);
 		$subs_array =[];
 		foreach($subs as $sub){
