@@ -137,7 +137,7 @@ class InfusionsoftController extends BaseController {
 		}
 		$contact['subscriptions'] = $subs_array;
 		
-	    return View::make('contactbyemail', ['contact' => $contact]);
+	    return View::make('contact', ['contact' => $contact]);
 	}	
 
 	public function products()
@@ -525,11 +525,11 @@ class InfusionsoftController extends BaseController {
 		$array = [];
 		foreach($products as $product){
 			$array[$product['Id']] = [
-					'Id' 			=> $product['Id'],
-					'ProductName' 	=> $product['ProductName'], 
-					'ProductPrice' 	=> $product['ProductPrice'], 
+					'Id'			=> $product['Id'],
+					'ProductName'	=> $product['ProductName'], 
+					'ProductPrice'	=> $product['ProductPrice'], 
 					'Status'		=> $product['Status'],
-					'Description' 	=> (isset($product['Description'])) ? $product['Description'] : "-" ];
+					'Description'	=> (isset($product['Description'])) ? $product['Description'] : "-" ];
 		}
 		
 	    return $array;
