@@ -215,7 +215,7 @@ class InfusionsoftController extends BaseController {
 		$contact = $infusionsoft->contacts->load($contact_id, ['Id', 'FirstName', 'LastName']);
 
 		//Credit Card
-		$credit_cards = $this->getCreditCards($infusionsoft, $contact['Id']);
+		$credit_cards = $this->getSpecificCreditCard($infusionsoft, $contact['Id'], $card_id);
 		if( !isset($query[0]) )
 			return Response::json(['error' => 'Invalid Credit Card']);
 		$credit_card = $query[0];
@@ -242,8 +242,12 @@ class InfusionsoftController extends BaseController {
 							$invoiceID, $notes, 
 							$credit_card['Id'], $merchantAccountID, $false);
 
-		if( $payment['Successful'] )
+		if( $payment['Successful'] ){
+			
 			$infusionsoft->contacts()->addToGroup($contact['Id'], $tags[ $product['Id']]);
+			return Response::json([ "success" => "true", "info" => "The Payment Process was successful",
+    								"new_plan" : { "plan_name": "Professional Plan" } });
+		}
 		else
 		{
 			return Response::json(['error' => 'Payment failed']);
@@ -318,6 +322,24 @@ class InfusionsoftController extends BaseController {
 					'Id', 
 					true);
 		return $credit_c;
+	}
+
+	/**
+		Get a specific Credit Card from a specific contact
+		$infusionsoft 	= InfusionSoft object
+		$contact_id 	= Contact ID from previous queries
+		$card_id 		= Card ID from previous queries
+	**/
+	public function getCreditCards($infusionsoft, $contact_id, $card_id){
+
+		$credit_c = $infusionsoft->data->query(
+					'CreditCard', 
+					1000, 0, 
+					['ContactId' => $contact_id, 'Id' => $card_id], 
+					['Id','Last4','CardType','Status'], 
+					'Id', 
+					true);
+		return $credit_c[0];
 	}
 
 	/**
