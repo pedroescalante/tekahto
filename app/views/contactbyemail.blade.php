@@ -80,7 +80,7 @@
                     <div> Job Title <b> {{$job['JobTitle']}} </b> </div>
                     <div> Product Id <b> {{$job['ProductId']}} </b> </div>
             
-                    <h5>Invoices</h5>
+                    <h5><b>Invoices</b></h5>
                     <table class="table table-condensed table-bordered">
                         <tr class="info">
                             <th> Id   </th>

@@ -646,4 +646,16 @@ class InfusionsoftController extends BaseController {
                 true);
 		return $jobs;
 	}
+
+	public function retrieve(){
+
+		$jobs = $infusionsoft->data->query(
+                'Job',
+                10, 0,
+                ['JobRecurringId' => 7588],
+                ['Id', 'JobTitle', 'ProductId', 'DateCreated'],
+                'Id',
+                true);
+		return $jobs;
+	}
 }
