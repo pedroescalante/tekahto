@@ -80,7 +80,7 @@
                     <td> {{$invoice['Description']}}    </td>
                     <td> <?php if( isset($invoice['InvoiceType']) )  echo $invoice['InvoiceType']; ?>    </td>
                     <td> {{$invoice['PayStatus']}}      </td>
-                    <td> {{$invoice['InvoiceTotal']}}   </td>
+                    <td> <?php if(isset($invoice['InvoiceTotal'])) echo $invoice['InvoiceTotal']; else echo "-" }}   </td>
                     <td> {{$invoice['TotalDue']}}       </td>
                     <td> {{$invoice['TotalPaid']}}      </td>
                 </tr>
