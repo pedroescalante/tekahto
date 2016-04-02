@@ -204,7 +204,7 @@ class InfusionsoftController extends BaseController {
 		//Product (Pricing Plan)
 		$products = $this->getProducts($infusionsoft);
 		if( !isset($products[$plan_id]) )
-			return Response::json(['error' => 'Invalid Product']);
+			return Response::json(['success' => 'false', 'info' => 'Invalid Product']);
 		$product = $products[$plan_id];
 		
 		//Contact
@@ -215,42 +215,39 @@ class InfusionsoftController extends BaseController {
 		$contact = $infusionsoft->contacts->load($contact_id, ['Id', 'FirstName', 'LastName']);
 
 		//Credit Card
-		$credit_cards = $this->getSpecificCreditCard($infusionsoft, $contact['Id'], $card_id);
-		if( !isset($credit_cards[0]) )
+		$credit_card = $this->getSpecificCreditCard($infusionsoft, $contact['Id'], $card_id);
+		if( !isset($credit_card) )
 			return Response::json(['error' => 'Invalid Credit Card']);
-		$credit_card = $query[0];
+		return Response::json([ 'success' => 'true', 'info' => 'Test approach', 'product_id' => $product['Id'] ]);
 
 		//Subscription
 		$subscriptionPlanId = $subscriptionPlans[ $product['Id'] ]; //Subscription = [92 => 197$, 94 => 97$]
 		$merchantAccountID = 25; //Test Merchant
-		/*$subscriptionID = $infusionsoft->invoices()->addRecurringOrder(
+		$subscriptionID = $infusionsoft->invoices()->addRecurringOrder(
 							$contact['Id'], false, $subscriptionPlanId, 1, 
 							$product['ProductPrice'], 
 							false, 
 							$merchantAccountID, 
 							$credit_card['Id'], 
-							0, 0);*/
-		dd([$contact['Id'], $subscriptionPlanId, $product['ProductPrice'], $merchantAccountID, $credit_card['Id']]);
+							0, 0);
 		
 		//Invoice For Recurring
-		$invoiceID = $this->getInvoicesBySubscription($infusionsoft, $subscriptionID);
+		$invoiceID = $infusionsoft->invoices()->createInvoiceForRecurring($subscriptionID);
 		
 		//Charge Invoice
-		
 		$notes = "Invoice - ".$product['Description'];
 		$payment = $infusionsoft->invoices()->chargeInvoice(
 							$invoiceID, $notes, 
-							$credit_card['Id'], $merchantAccountID, $false);
-
+							$credit_card['Id'], $merchantAccountID, false);
+	
 		if( $payment['Successful'] ){
 			
 			$infusionsoft->contacts()->addToGroup($contact['Id'], $tags[ $product['Id']]);
-			return Response::json([ "success" => "true", "info" => "The Payment Process was successful",
-    								"new_plan" => ["plan_name" => "Professional Plan"]] );
+			return Response::json([ "success" => "true", "info" => $payment, "new_plan" => ["plan_name" => "Professional Plan"]] );
 		}
 		else
 		{
-			return Response::json(['error' => 'Payment failed']);
+			return Response::json(['success' => 'false', 'info' => 'Payment failed']);
 		}
 	}
 
