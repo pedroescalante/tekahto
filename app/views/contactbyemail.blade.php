@@ -67,6 +67,29 @@
                         <b> <?php if(isset($sub['EndDate'])) echo $sub['EndDate']->format('Y-m-d'); else echo "-"; ?> </b> 
                     </div>
                     <div> Status: <b> {{ $sub['Status'] }} </b> </div>
+                    <h5><b>Invoices</b></h5>
+                    <table class="table table-condensed table-bordered">
+                        <tr class="info">
+                            <th> Id   </th>
+                            <th> Description  </th>
+                            <th> Type         </th>
+                            <th> PayStatus    </th>
+                            <th> Total        </th>
+                            <th> Due          </th>
+                            <th> Paid         </th>
+                        </tr>
+                        @foreach($sub['invoices'] as $invoice)
+                        <tr>
+                            <td> {{$invoice['Id']}}             </td>
+                            <td> {{$invoice['Description']}}    </td>
+                            <td> <?php if( isset($invoice['InvoiceType']) )  echo $invoice['InvoiceType']; ?>    </td>
+                            <td> {{$invoice['PayStatus']}}      </td>
+                            <td> <?php if(isset($invoice['InvoiceTotal'])) echo $invoice['InvoiceTotal']; else echo "-" ?>   </td>
+                            <td> {{$invoice['TotalDue']}}       </td>
+                            <td> {{$invoice['TotalPaid']}}      </td>
+                        </tr>
+                        @endforeach
+                    </table>
                     <hr>
                 @endforeach
                 </div>

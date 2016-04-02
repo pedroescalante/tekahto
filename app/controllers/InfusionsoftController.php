@@ -122,8 +122,8 @@ class InfusionsoftController extends BaseController {
 	    $jobs = $this->getJobs($infusionsoft, $contact['Id']);
         $job_array = [];
         foreach ($jobs as $job) {
-        	$job['invoices'] = $this->getInvoicesByJob($infusionsoft, $job['Id']);
-        	$job_array [] = $job;
+        	$job['invoices'] 	= $this->getInvoicesByJob($infusionsoft, $job['Id']);
+        	$job_array [] 		= $job;
         }
         $contact['Jobs'] = $job_array;
 
@@ -132,7 +132,8 @@ class InfusionsoftController extends BaseController {
 		$subs_array =[];
 		foreach($subs as $sub){
 			$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
-			$subs_array[] = $sub;
+			$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
+			$subs_array[] 		= $sub;
 		}
 		$contact['subscriptions'] = $subs_array;
 		
@@ -145,34 +146,7 @@ class InfusionsoftController extends BaseController {
 		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
 	    
-	    try 
-	    {
-	        $products = $infusionsoft->data->query(
-	                    'ContactGroup',
-	                    1000, 0,
-	                    ['Id' => 2496],
-	                    ['GroupCategoryId', 'GroupDescription', 'GroupName', 'Id'],
-	                    'Id',
-	                    true);
-		return $products;
-		return View::make('SubscriptionPlans', ['subscription_plans'=>$products, 'products'=>$this->getProducts($infusionsoft)]);
-		//dd($products);
-	    } 
-	    catch (InfusionsoftTokenExpiredException $e) 
-	    {
-	        $infusionsoft->refreshAccessToken();
-	        $token = new Token;
-	    	$token->token = serialize($infusionsoft->getToken());
-	    	$token->save();
-
-	        $products = $infusionsoft->data->query(
-	                    'Product',
-	                    10, 0,
-	                    ['Status' => '1'],
-	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
-	                    'ProductName',
-	                    true);
-	    }
+	    $products = $this->getProducts($infusionsoft);
 
 	    return View::make('products', ['products'=>$products]);
 	}
@@ -561,6 +535,32 @@ class InfusionsoftController extends BaseController {
 	}
 
 	/**
+		Get all the Tags from InfusionSoft
+		$infusionsoft 	= InfusionSoft object
+	**/
+	public function getTags($infusionsoft){
+		
+		$tags = $infusionsoft->data->query(
+	            'ContactGroup',
+	            1000, 0,
+	            ['Id' => 2496],
+	            ['GroupCategoryId', 'GroupDescription', 'GroupName', 'Id'],
+	            'Id',
+	            true);
+
+		$array = [];
+		foreach($tags as $tag){
+			$array[$tag['Id']] = [
+					'GroupCategoryId' 	=> $tag['GroupCategoryId'], 
+					'GroupDescription' 	=> $tag['GroupDescription'], 
+					'GroupName'			=> $tag['GroupName'],
+					'Description' 		=> (isset($tag['Description'])) ? $tag['Description'] : "-" ];
+		}
+		
+	    return $array;
+	}
+
+	/**
 		Get all the Credit Cards from a specific contact
 		$infusionsoft 	= InfusionSoft object
 		$contact_id 	= Contact ID from previous queries
@@ -647,27 +647,31 @@ class InfusionsoftController extends BaseController {
 		return $jobs;
 	}
 
-	public function retrieve(){
+	/**
+		Get all the invoices linked to a Subscription
+		$infusionsoft 		= InfusionSoft object
+		$subscription_id 	= Susbcription ID from previous queries
+	**/
+	public function getInvoicesBySubscription($infusionsoft, $subscription_id){
 
-		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('id', 'desc')->first();
-		$infusionsoft->setToken(unserialize($last_token->token));
 		$jobs = $infusionsoft->data->query(
                 'Job',
                 10, 0,
-                ['JobRecurringId' => 7588],
+                ['JobRecurringId' => $subscriptionID],
                 ['Id', 'JobTitle', 'ProductId', 'DateCreated'],
                 'Id',
                 true);
+		if(!isset($jobs[0]))
+			return null;
 
 		$invoic = $infusionsoft->data->query(
                 'Invoice',
                 10, 0,
-                ['JobId' => 53422],
+                ['JobId' => $jobs[0]['Id']],
                 ['Id','Description','JobId','ContactId','PayStatus','TotalDue','TotalPaid'], 
                 'Id',
                 true);
 
-		return [$jobs, $invoic];
+		return $invoic;
 	}
 }
