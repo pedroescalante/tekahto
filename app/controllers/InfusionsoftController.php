@@ -56,6 +56,9 @@ class InfusionsoftController extends BaseController {
 	    return Response::json(['error' => "Code or Access Token wasn't found"]);
 	}
 
+	/**
+		Return a list of contacts
+	**/
 	public function contacts()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
@@ -63,12 +66,12 @@ class InfusionsoftController extends BaseController {
 		$infusionsoft->setToken(unserialize($last_token->token));
 
 		$contacts = $infusionsoft->data->query(
-	                    'Contact',
-	                    10, 0,
-	                    ['FirstName' => 'John'],
-	                    ['ID', 'FirstName', 'LastName', 'Email'],
-	                    'ID',
-	                    true);
+                    'Contact',
+                    10, 0,
+                    ['FirstName' => 'John'],
+                    ['ID', 'FirstName', 'LastName', 'Email'],
+                    'ID',
+                    true);
 		$c=[];
 		foreach($contacts as $contact){
 			$creditCards = $infusionsoft->data->query('CreditCard',1000, 0, ['ContactId'=>$contact['ID']], ['Id','Last4','CardType','Status'], 'Id', true);
@@ -488,28 +491,6 @@ class InfusionsoftController extends BaseController {
 		}
 	}
 
-	public function getProducts($infusionsoft){
-		
-		$query = $infusionsoft->data->query(
-                'Product',
-                1000, 0,
-                ['Status' => '1'],
-                ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
-                'ProductName',
-                true);
-
-		$products = [];
-		foreach($query as $product){
-			$p[$product['Id']] = ['ProductName'=>$product['ProductName'], 'ProductPrice'=>$product['ProductPrice'], 'Status'=>$product['Status']];
-			if( isset($product['Description']) ) 
-				$p['Description']=$product['Description']; 
-			else 
-				$p['Description']="-";
-		}
-		
-	    return $products;
-	}
-
 	public function makeSubscription()
 	{
 		$plan_id = Input::get('plan_id');
@@ -577,5 +558,48 @@ class InfusionsoftController extends BaseController {
 //			//REMOVE THE SUBSCRIPTION!!!
 //			throw new Exception("Error: The Payment process failed");
 //		}
+	}
+
+	/**
+		Get all the Products on InfusionSoft
+		$infusionsoft 	= InfusionSoft object
+	**/
+	public function getProducts($infusionsoft){
+		
+		$products = $infusionsoft->data->query(
+					'Product',
+					1000, 0,
+					['Status' => '1'],
+					['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
+					'ProductName',
+					true);
+
+		$array = [];
+		foreach($query as $product){
+			$array[$product['Id']] = [
+					'ProductName' 	=> $product['ProductName'], 
+					'ProductPrice' 	=> $product['ProductPrice'], 
+					'Status'		=> $product['Status'],
+					'Description' 	=> (isset($product['Description'])) ? $product['Description'] : "-" ];
+		}
+		
+	    return $array;
+	}
+
+	/**
+		Get all the Credit Cards from a specific contact
+		$infusionsoft 	= InfusionSoft object
+		$contact_id 	= Contact ID from previous queries
+	**/
+	public function getCreditCards($infusionsoft, $contact_id){
+
+		$credit_c = $infusionsoft->data->query(
+					'CreditCard', 
+					1000, 0, 
+					['ContactId' => $contact_id, 
+					['Id','Last4','CardType','Status'], 
+					'Id', 
+					true);
+		return $credit_c;
 	}
 }

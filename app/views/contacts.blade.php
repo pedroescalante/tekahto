@@ -15,8 +15,8 @@
                     <td> {{$contact['ID']}}         </td>
                     <td> {{$contact['FirstName']}} {{$contact['LastName']}}  </td>
                     <td> 
-                        <a href="/infusionsoft/contact?email={{$contact['Email']}}" class="btn btn-primary">
-                        {{$contact['Email']}}      
+                        <a href="/infusionsoft/contact?email={{$contact['Email']}}">
+                        {{$contact['Email']}}
                         </a>
                     </td>
                     <td> {{ count($contact['CreditCards']) }}
