@@ -161,13 +161,13 @@ class InfusionsoftController extends BaseController {
 	{
 		$plan_id = Input::get('plan_id');
 		$email 	 = Input::get('email');
-
+		
 		$infusionsoft = $this->getInfusionsoftObject();
 		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
 	    
 	    $products = $this->getProducts($infusionsoft);
-	    if( !isset($products[0]) )
+	    if( !isset($products[$plan_id]) )
 	    	return Response::json(['error' => 'Invalid Plan']);
 
 	    $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
@@ -180,7 +180,7 @@ class InfusionsoftController extends BaseController {
 		foreach ($credit_cards as $card)
 	       		$cc[]=$card;
 
-	    return Response::json(['product'=>$products[0], 'contact'=>$contact, 'credit_card'=>$cc]);
+	    return Response::json(['product'=>$products[$plan_id], 'contact'=>$contact, 'credit_card'=>$cc]);
 	}
 
 	public function paymentInfo()

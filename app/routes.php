@@ -15,4 +15,4 @@ Route::post('/infusionsoft/payment', 		['https', 'uses' => 'InfusionsoftControll
 Route::post('/infusionsoft/subscription',	['https', 'uses' => 'InfusionsoftController@makeSubscription']);
 
 //Test Endpoints
-Route::get('/infusionsoft/test',     		['https', 'uses' => 'InfusionsoftController@test']);
+Route::post('/infusionsoft/test',     		['https', 'uses' => 'InfusionsoftController@payment']);
