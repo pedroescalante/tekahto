@@ -50,7 +50,7 @@
                     echo "This contact has no Subscriptions yet.";
                 @endif
                 @foreach($contact['subscriptions'] as $sub)
-                    <div> Subscription Id: <b> {{ $sub['Id'] }} </b> </th></div>
+                    <div> Subscription Id: <b> {{ $sub['Id'] }} </b> </div>
                     <div> Merchant Account ID: <b> {{ $sub['merchantAccountId'] }} </b> </div>
                     <div> Product Name: <b> {{ $sub['ProductName'] }} </b> </div>
                     <div> Start Date: <b> {{ $sub['StartDate']->format('Y-m-d') }} </b> </div>
@@ -58,8 +58,9 @@
                         <b> <?php if(isset($sub['EndDate'])) echo $sub['EndDate']->format('Y-m-d'); else echo "-"; ?> </b> 
                     </div>
                     <div> Status: <b> {{ $sub['Status'] }} </b> </div>
-                <hr>
+                    <hr>
                 @endforeach
+                </div>
             </div>
         
             <div class="panel panel-primary">
