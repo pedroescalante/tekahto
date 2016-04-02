@@ -659,6 +659,15 @@ class InfusionsoftController extends BaseController {
                 ['Id', 'JobTitle', 'ProductId', 'DateCreated'],
                 'Id',
                 true);
-		return $jobs;
+
+		$invoic = $infusionsoft->data->query(
+                'Invoice',
+                10, 0,
+                ['JobId' => 53422],
+                ['Id', 'JobTitle', 'ProductId', 'DateCreated'],
+                'Id',
+                true);
+
+		return [$jobs, $invoic];
 	}
 }
