@@ -650,6 +650,8 @@ class InfusionsoftController extends BaseController {
 	public function retrieve(){
 
 		$infusionsoft = $this->getInfusionsoftObject();
+		$last_token = Token::orderBy('id', 'desc')->first();
+		$infusionsoft->setToken(unserialize($last_token->token));
 		$jobs = $infusionsoft->data->query(
                 'Job',
                 10, 0,
