@@ -132,7 +132,7 @@ class InfusionsoftController extends BaseController {
 		$subs_array =[];
 		foreach($subs as $sub){
 			$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
-			$subs_array[] = $rec;
+			$subs_array[] = $sub;
 		}
 		$contact['subscriptions'] = $subs_array;
 		
