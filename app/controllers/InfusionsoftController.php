@@ -97,21 +97,9 @@ class InfusionsoftController extends BaseController {
 		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
 
-	    try 
-	    {
-	        $email = Request::get('email');
-	        $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
-	    } 
-	    catch (InfusionsoftTokenExpiredException $e) 
-	    {
-	        $infusionsoft->refreshAccessToken();
-	        $token = new Token;
-	    	$token->token = serialize($infusionsoft->getToken());
-	    	$token->save();
-
-	        $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
-	    }    
-
+	    $email = Request::get('email');
+		$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
+	    
 	    if( !isset($contacts[0]))
 	    	return Response::json(['error' => 'Invalid Contact']);
 
@@ -658,7 +646,7 @@ class InfusionsoftController extends BaseController {
 		$jobs = $infusionsoft->data->query(
                 'Job',
                 10, 0,
-                ['JobRecurringId' => $subscriptionID],
+                ['JobRecurringId' => $subscription_id],
                 ['Id', 'JobTitle', 'ProductId', 'DateCreated'],
                 'Id',
                 true);

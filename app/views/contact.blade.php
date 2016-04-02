@@ -56,7 +56,7 @@
                 <div class="panel-heading"> Subscriptions </div>
                 <div class="panel-body">
                 @if ( !count($contact['subscriptions']) )
-                    echo "This contact has no Subscriptions yet.";
+                    This contact has no Subscriptions yet.
                 @endif
                 @foreach($contact['subscriptions'] as $sub)
                     <div> Subscription Id: <b> {{ $sub['Id'] }} </b> </div>
