@@ -1,7 +1,8 @@
 @extends('layouts.master')
 
 <?php
-  $status=['Unknown', 'Error', 'Deleted', 'OK', 'Inactive'];
+    $cc_status  = ['Unknown', 'Error', 'Deleted', 'OK', 'Inactive'];
+    $in_stats   = [0 => 'Unpaid', 1 => 'Paid'];
 ?>
 
 @section('content')
@@ -42,10 +43,10 @@
                         </tr>
                         @foreach($contact['CreditCards'] as $card)
                         <tr>
-                            <td> {{$card['Id']}} </td>
-                            <td> {{$card['Last4']}} </td>
-                            <td> {{$card['CardType']}} </td>
-                            <td> {{ $status[$card['Status']]}} ({{$card['Status']}}) </td>
+                            <td> {{ $card['Id'] }} </td>
+                            <td> {{ $card['Last4'] }} </td>
+                            <td> {{ $card['CardType'] }} </td>
+                            <td> {{ $cc_status[$card['Status']] }} ({{ $card['Status'] }}) </td>
                         </tr>
                         @endforeach
                     </table>
@@ -83,7 +84,7 @@
                             <td> {{$invoice['Id']}}             </td>
                             <td> {{$invoice['Description']}}    </td>
                             <td> <?php if( isset($invoice['InvoiceType']) )  echo $invoice['InvoiceType']; ?>    </td>
-                            <td> {{$invoice['PayStatus']}}      </td>
+                            <td> {{ $in_status[$invoice['PayStatus']] }} </td>
                             <td> <?php if(isset($invoice['InvoiceTotal'])) echo $invoice['InvoiceTotal']; else echo "-" ?>   </td>
                             <td> {{$invoice['TotalDue']}}       </td>
                             <td> {{$invoice['TotalPaid']}}      </td>
@@ -119,7 +120,7 @@
                             <td> {{$invoice['Id']}}             </td>
                             <td> {{$invoice['Description']}}    </td>
                             <td> <?php if( isset($invoice['InvoiceType']) )  echo $invoice['InvoiceType']; ?>    </td>
-                            <td> {{$invoice['PayStatus']}}      </td>
+                            <td> {{ $in_status[$invoice['PayStatus']] }} </td>
                             <td> <?php if(isset($invoice['InvoiceTotal'])) echo $invoice['InvoiceTotal']; else echo "-" ?>   </td>
                             <td> {{$invoice['TotalDue']}}       </td>
                             <td> {{$invoice['TotalPaid']}}      </td>
