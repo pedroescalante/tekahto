@@ -72,16 +72,25 @@ class InfusionsoftController extends BaseController {
                     ['ID', 'FirstName', 'LastName', 'Email'],
                     'ID',
                     true);
-		$c=[];
+		$arr = [];
 		foreach($contacts as $contact){
-			$creditCards = $infusionsoft->data->query('CreditCard',1000, 0, ['ContactId'=>$contact['ID']], ['Id','Last4','CardType','Status'], 'Id', true);
+			$creditCards = 	$infusionsoft->data->query(
+							'CreditCard', 
+							1000, 0, 
+							['ContactId' => $contact['ID']], 
+							['Id','Last4','CardType','Status'], 
+							'Id', 
+							true);
 			$contact['CreditCards'] = $creditCards;
-			$c[] = $contact;
+			$arr[] = $contact;
 		}
 	    
-	    return View::make('contacts', ['contacts'=>$c]);
+	    return View::make('contacts', ['contacts' => $arr]);
 	}
 
+	/**
+		Shows a view with the information of a specific contact
+	**/
 	public function contact()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
@@ -103,66 +112,31 @@ class InfusionsoftController extends BaseController {
 	        $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
 	    }    
 
-	    $products = $this->getProducts($infusionsoft);
+	    if( !isset($contacts[0]))
+	    	return Response::json(['error' => 'Invalid Contact']);
 
-	    $data = array();
-	    foreach ($contacts as $contact) 
-	    {
-	        $c = $infusionsoft->contacts->load($contact['Id'], ['Id', 'FirstName', 'LastName']);
-
-	        $credit_cards = $infusionsoft->data->query(
-	                    'CreditCard',
-	                    10, 0,
-	                    ['ContactID' => $c['Id']],
-	                    ['Id', 'CardType', 'Last4', 'Status'],
-	                    'Last4',
-	                    true);
-	        $c['CreditCards'] = $credit_cards;
-	        
-	        $jobs = 	$infusionsoft->data->query(
-	                    'Job',
-	                    10, 0,
-	                    ['ContactID' => $c['Id']],
-	                    ['Id', 'JobTitle', 'ProductId', 'DateCreated'],
-	                    'Id',
-	                    true);
-	        
-	        $job_array = [];
-	        foreach ($jobs as $job) {
-	        	$invoices =	$infusionsoft->data->query(
-	                    	'Invoice',
-	                    	10, 0,
-	                    	['JobID' => $job['Id']],
-	                    	['Id', 'Description', 'InvoiceType', 'PayStatus', 'InvoiceTotal','TotalDue', 'TotalPaid'],
-	                    	'Id',
-	                    	true);
-	        	$job['invoices'] = $invoices;
-	        	$job_array [] = $job;
-	        }
-
-	        $recs = 	$infusionsoft->data->query(
-	                    'RecurringOrder',
-	                    10, 0,
-	                    ['ContactID' => $c['Id']],
-	                    ['Id', 'merchantAccountId', 'ProductId', 'StartDate', 'EndDate'],
-	                    'Id',
-	                    true);
-		$r=[];
-		foreach($recs as $rec){
-			$rec['ProductName']=$products[$rec['ProductId']]['ProductName'];
-			$r[]=$rec;
-		}
-
-	        $c['Jobs'] = $job_array;
-	        $c['Recs'] = $r;
-	        
-	        $data[] = $c;
-	    }
+	    $contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName']);
 		
-	    if( isset($data[0]))
-		    return View::make('contactbyemail', ['contact'=>$data[0]]);
-	    else
-		throw new Exception("The Contact not exists");
+		$contact['CreditCards'] = getCreditCards($infusionsoft, $contact['Id']);
+	        
+	    $jobs = getJobs($infusionsoft, $contact['Id']);
+        $job_array = [];
+        foreach ($jobs as $job) {
+        	$job['invoices'] = getInvoicesByJob($infusionsoft, $job['Id']);
+        	$job_array [] = $job;
+        }
+        $contact['Jobs'] = $job_array;
+
+	    $subs 	  = getSubscriptions($infusionsoft, $contact['Id']);
+	    $products = $this->getProducts($infusionsoft);
+		$subs_array =[];
+		foreach($subs as $sub){
+			$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
+			$subs_array[] = $rec;
+		}
+		$contact['subscriptions'] = $subs_array;
+		
+	    return View::make('contactbyemail', ['contact' => $contact]);
 	}	
 
 	public function products()
@@ -601,5 +575,75 @@ class InfusionsoftController extends BaseController {
 					'Id', 
 					true);
 		return $credit_c;
+	}
+
+	/**
+		Get all the Subscriptions of a contact
+		$infusionsoft 	= InfusionSoft object
+		$contact_id 	= Contact ID from previous queries
+	**/
+	public function getSubscriptions($infusionsoft, $contact_id){
+
+		$subscrip = $infusionsoft->data->query(
+					'RecurringOrder', 
+					1000, 0, 
+					['ContactId' => $contact_id], 
+					['Id','ProductId','StartDate','merchantAccountId','Status'], 
+					'Id', 
+					true);
+		return $subscrip;
+	}
+
+	/**
+		Get all Invoices from a Job
+		$infusionsoft 	= InfusionSoft object
+		$job_id			= Job ID to retrieve data
+	**/
+	public function getInvoicesByJob($infusionsoft, $job_id){
+
+		$invoices = $infusionsoft->data->query(
+					'Invoice', 
+					1000, 0, 
+					['JobId' => $Job_id], 
+					['Id','Description','JobId','ContactId','PayStatus','TotalDue','TotalPaid'], 
+					'Id', 
+					true);
+		return $invoices;
+	}
+
+	/**
+		Get info from an Invoice
+		$infusionsoft 	= InfusionSoft object
+		$invoice_id		= Invoice ID to retrieve data
+	**/
+	public function getInvoice($infusionsoft, $invoice_id){
+
+		$invoices = $infusionsoft->data->query(
+					'Invoice', 
+					1000, 0, 
+					['Id' => $invoice_id], 
+					['Id','Description','JobId','ContactId','PayStatus','TotalDue','TotalPaid'], 
+					'Id', 
+					true);
+		if( isset($invoices[0]) )
+			return $invoices[0];
+		return null;
+	}
+
+	/**
+		Get all the Jobs from a contact
+		$infusionsoft 	= InfusionSoft object
+		$contact_id 	= Contact ID from previous queries
+	**/
+	public function getJobs($infusionsoft, $contact_id){
+
+		$jobs = $infusionsoft->data->query(
+                'Job',
+                10, 0,
+                ['ContactID' => $contact_id],
+                ['Id', 'JobTitle', 'ProductId', 'DateCreated'],
+                'Id',
+                true);
+		return $jobs;
 	}
 }
