@@ -664,7 +664,7 @@ class InfusionsoftController extends BaseController {
                 'Invoice',
                 10, 0,
                 ['JobId' => 53422],
-                ['Id', 'JobTitle', 'ProductId', 'DateCreated'],
+                ['Id','Description','JobId','ContactId','PayStatus','TotalDue','TotalPaid'], 
                 'Id',
                 true);
 
