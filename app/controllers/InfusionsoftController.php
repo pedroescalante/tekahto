@@ -166,7 +166,7 @@ class InfusionsoftController extends BaseController {
 		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
 	    
-	    $products = $infusionsoft->products->find($plan_id);
+	    $products = $this->getProducts($infusionsoft);
 	    if( !isset($products[0]) )
 	    	return Response::json(['error' => 'Invalid Plan']);
 
