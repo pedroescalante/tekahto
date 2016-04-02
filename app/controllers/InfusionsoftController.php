@@ -575,7 +575,7 @@ class InfusionsoftController extends BaseController {
 					true);
 
 		$array = [];
-		foreach($query as $product){
+		foreach($products as $product){
 			$array[$product['Id']] = [
 					'ProductName' 	=> $product['ProductName'], 
 					'ProductPrice' 	=> $product['ProductPrice'], 
