@@ -139,6 +139,9 @@ class InfusionsoftController extends BaseController {
 	    return View::make('products', ['products'=>$products]);
 	}
 
+	/**
+		Returns a view with a specific Product information
+	**/
 	public function product()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
@@ -146,61 +149,14 @@ class InfusionsoftController extends BaseController {
 		$infusionsoft->setToken(unserialize($last_token->token));
 
 	    $id = Request::get('id');
+	    $product = $infusionsoft->products->find($id);
 	    
-	    try 
-	    {
-	        $product = $infusionsoft->products->find($id);
-	    } 
-	    catch (InfusionsoftTokenExpiredException $e) 
-	    {
-	        $infusionsoft->refreshAccessToken();
-	        $token = new Token;
-	    	$token->token = serialize($infusionsoft->getToken());
-	    	$token->save();
-
-	        $product = $infusionsoft->products->find($id);
-	    }    
-
 	    return View::make('product', ['product'=>$product]);
 	}
 
-	public function invoice()
-	{
-		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('id', 'desc')->first();
-		$infusionsoft->setToken(unserialize($last_token->token));
-	    
-	    try
-	    {
-	        $email 		= Request::get('email');
-	        $product_id = Request::get('product_id');
-	        $cc_last4 	= Request::get('cc_id');
-
-	        $product 	= $infusionsoft->products->find($product_id);
-	    }
-	    catch (InfusionsoftTokenExpiredException $e) 
-	    {
-	        $infusionsoft->refreshAccessToken();
-	        $token = new Token;
-	    	$token->token = serialize($infusionsoft->getToken());
-	    	$token->save();
-
-	        $product = $infusionsoft->products->find($product_id);
-	    }
-
-	    $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
-	    $contact = $contacts[0];
-	    $credit_card = $infusionsoft->data->query(
-	                    'CreditCard',
-	                    10, 0,
-	                    ['Last4' => $cc_last4],
-	                    ['CardType', 'Last4', 'Status'],
-	                    'Last4',
-	                    true);
-
-	    return [$contact, $credit_card];
-	}
-
+	/**
+		Returns the Payment Information to be shown on BOF Plan Upgrade
+	**/
 	public function payment()
 	{
 		$plan_id = Input::get('plan_id');
@@ -210,52 +166,21 @@ class InfusionsoftController extends BaseController {
 		$last_token = Token::orderBy('id', 'desc')->first();
 		$infusionsoft->setToken(unserialize($last_token->token));
 	    
-	    try 
-	    {
-	        $products = $infusionsoft->data->query(
-	                    'Product',
-	                    10, 0,
-	                    ['ID' => $plan_id],
-	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
-	                    'ProductName',
-	                    true);
-	    } 
-	    catch (InfusionsoftTokenExpiredException $e) 
-	    {
-	        $infusionsoft->refreshAccessToken();
-	        $token = new Token;
-	    	$token->token = serialize($infusionsoft->getToken());
-	    	$token->save();
-
-	        $products = $infusionsoft->data->query(
-	                    'Product',
-	                    10, 0,
-	                    ['ID' => $plan_id],
-	                    ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
-	                    'ProductName',
-	                    true);
-	    }
+	    $products = $infusionsoft->products->find($plan_id);
+	    if( !isset($products[0]) )
+	    	return Response::json(['error' => 'Invalid Plan']);
 
 	    $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
+	    if( !isset($contacts[0]) )
+	    	return Response::json(['error' => 'Invalid Contact']);
 	    
-	    $cc = [];
-	    foreach ($contacts as $contact) 
-	    {
-	        $c = $infusionsoft->contacts->load($contact['Id'], ['Id', 'FirstName', 'LastName']);
-
-	        $credit_cards = $infusionsoft->data->query(
-	                    'CreditCard',
-	                    10, 0,
-	                    ['ContactID' => $c['Id'], 'Status' => 3],
-	                    ['Id', 'CardType', 'Last4', 'Status'],
-	                    'Last4',
-	                    true);
-
-	       	foreach ($credit_cards as $card)
+	    $contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName']);
+		$credit_cards = $this->getCreditCards($infusionsoft, $contact['Id']);
+		$cc = [];
+		foreach ($credit_cards as $card)
 	       		$cc[]=$card;
-	    }
 
-	    return Response::json(['product'=>$products[0], 'contact'=>$contacts[0], 'credit_card'=>$cc]);
+	    return Response::json(['product'=>$products[0], 'contact'=>$contact, 'credit_card'=>$cc]);
 	}
 
 	public function paymentInfo()
@@ -299,8 +224,7 @@ class InfusionsoftController extends BaseController {
 	    foreach ($contacts as $contact) 
 	    {
 	        $c = $infusionsoft->contacts->load($contact['Id'], ['Id', 'FirstName', 'LastName']);
-
-	        $credit_cards = $infusionsoft->data->query(
+$credit_cards = $infusionsoft->data->query(
 	                    'CreditCard',
 	                    10, 0,
 	                    ['ContactID' => $c['Id'], 'Status' => 3],
@@ -495,6 +419,10 @@ class InfusionsoftController extends BaseController {
 //			throw new Exception("Error: The Payment process failed");
 //		}
 	}
+
+	/**
+		Get the information of a Specific Product
+	**/
 
 	/**
 		Get all the Products on InfusionSoft
