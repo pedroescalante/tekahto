@@ -47,11 +47,13 @@
                 <div class="panel-heading"> Subscriptions </div>
                 <div class="panel-body">
                 @foreach($contact['subscriptions'] as $sub)
-                    <div> Subscription Id: <b> {{$sub['Id']}} </b> </th></div>
-                    <div> Merchant Account ID: <b> {{$sub['merchantAccountId']}} </b> </div>
-                    <div> Product Name: <b> {{$sub['ProductName']}} </b> </div>
-                    <div> Start Date: <b> {{$sub['StartDate']->format('Y-m-d')}} </b> </div>
-                    <div> End Date: <b> <?php if(isset($sub['EndDate'])) echo $sub['EndDate']->format('Y-m-d'); else echo "-"; ?></b> </div>
+                    <div> Subscription Id: <b> {{ $sub['Id'] }} </b> </th></div>
+                    <div> Merchant Account ID: <b> {{ $sub['merchantAccountId'] }} </b> </div>
+                    <div> Product Name: <b> {{ $sub['ProductName'] }} </b> </div>
+                    <div> Start Date: <b> {{ $sub['StartDate']->format('Y-m-d') }} </b> </div>
+                    <div> End Date: <b> <?php if(isset($sub['EndDate'])) echo $sub['EndDate']->format('Y-m-d'); else echo "-"; ?>
+                    <div> Status: <b> {{ $sub['Status'] }} </b>
+                    </b> </div>
                 <hr>
                 @endforeach
             </div>
