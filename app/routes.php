@@ -12,7 +12,7 @@ Route::get('/infusionsoft/product',     	['https', 'uses' => 'InfusionsoftContro
 
 //BOF Endpoints
 Route::post('/infusionsoft/payment', 		['https', 'uses' => 'InfusionsoftController@paymentInfo']);
-Route::post('/infusionsoft/subscription',	['https', 'uses' => 'InfusionsoftController@makeSubscription']);
+Route::post('/infusionsoft/upgrade', 		['https', 'uses' => 'InfusionsoftController@makeSubscription']);
 
 //Test Endpoints
 Route::post('/infusionsoft/test',     		['https', 'uses' => 'InfusionsoftController@payment']);
