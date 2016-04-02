@@ -2,6 +2,9 @@
 
 class InfusionsoftController extends BaseController {
 
+	/**
+		Returns the InfusionSoft Object
+	**/
 	public function getInfusionsoftObject(){
 		
 		$infusionsoft = new Infusionsoft\Infusionsoft(array(
@@ -13,6 +16,9 @@ class InfusionsoftController extends BaseController {
     	return $infusionsoft;
 	}
 
+	/**
+		Shows a view with the InfusionSoft link to get the Authentication Token
+	**/
 	public function getLink()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
@@ -20,17 +26,21 @@ class InfusionsoftController extends BaseController {
 		return View::make('link', ['link' => $link]);
 	}
 
+	/**
+		Receives the Token from InfusionSoft API and configures it. 
+		Then it shows the Dashboard
+	**/
 	public function callback()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
 
 	    try
 	    {
-		    if (Request::has('code') and !$infusionsoft->getToken()) {
+		    if ( Request::has('code') and !$infusionsoft->getToken() ) {
 		        $infusionsoft->requestAccessToken(Request::get('code'));
 		    }
 
-		    if ($infusionsoft->getToken()) {
+		    if ( $infusionsoft->getToken() ) {
 				$token = new Token;
 				$token->token = serialize($infusionsoft->getToken());
 				$token->save();

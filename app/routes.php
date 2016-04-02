@@ -1,6 +1,6 @@
 <?php
 
-Route::get('/', function(){ return View::make('hello'); });
+Route::get('/', ['https', function(){ return View::make('hello'); }]);
 
 Route::get('/infusionsoft',             ['https', 'uses' => 'InfusionsoftController@getLink']);
 Route::get('/infusionsoft/callback',    ['https', 'uses' => 'InfusionsoftController@callback']);
