@@ -649,6 +649,7 @@ class InfusionsoftController extends BaseController {
 
 	public function retrieve(){
 
+		$infusionsoft = $this->getInfusionsoftObject();
 		$jobs = $infusionsoft->data->query(
                 'Job',
                 10, 0,
