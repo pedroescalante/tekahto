@@ -604,7 +604,7 @@ class InfusionsoftController extends BaseController {
 		$invoices = $infusionsoft->data->query(
 					'Invoice', 
 					1000, 0, 
-					['JobId' => $Job_id], 
+					['JobId' => $job_id], 
 					['Id','Description','JobId','ContactId','PayStatus','TotalDue','TotalPaid'], 
 					'Id', 
 					true);
