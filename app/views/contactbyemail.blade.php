@@ -61,39 +61,41 @@
                 <hr>
                 @endforeach
             </div>
-        </div>
-
-        <h4> Jobs </h4>
-        @foreach($contact['Jobs'] as $job)
-            <div>Job Id: <b> {{$job['Id']}} </b> </th></div>
-            <div> Job Title <b> {{$job['JobTitle']}} </b> </div>
-            <div> Product Id <b> {{$job['ProductId']}} </b> </div>
+        
+            <div class="panel panel-primary">
+                <div class="panel-heading"> Jobs </div>
+                <div class="panel-body">
+                    @foreach($contact['Jobs'] as $job)
+                    <div>Job Id: <b> {{$job['Id']}} </b> </th></div>
+                    <div> Job Title <b> {{$job['JobTitle']}} </b> </div>
+                    <div> Product Id <b> {{$job['ProductId']}} </b> </div>
             
-            <h5>Invoices</h5>
-            <table class="table table-condensed table-bordered">
-                <tr class="info">
-                    <th> Id   </th>
-                    <th> Description  </th>
-                    <th> Type         </th>
-                    <th> PayStatus    </th>
-                    <th> Total        </th>
-                    <th> Due          </th>
-                    <th> Paid         </th>
-                </tr>
-                @foreach($job['invoices'] as $invoice)
-                <tr>
-                    <td> {{$invoice['Id']}}             </td>
-                    <td> {{$invoice['Description']}}    </td>
-                    <td> <?php if( isset($invoice['InvoiceType']) )  echo $invoice['InvoiceType']; ?>    </td>
-                    <td> {{$invoice['PayStatus']}}      </td>
-                    <td> <?php if(isset($invoice['InvoiceTotal'])) echo $invoice['InvoiceTotal']; else echo "-" ?>   </td>
-                    <td> {{$invoice['TotalDue']}}       </td>
-                    <td> {{$invoice['TotalPaid']}}      </td>
-                </tr>
-                @endforeach
-            </table>
-            <hr>
-        @endforeach
-
+                    <h5>Invoices</h5>
+                    <table class="table table-condensed table-bordered">
+                        <tr class="info">
+                            <th> Id   </th>
+                            <th> Description  </th>
+                            <th> Type         </th>
+                            <th> PayStatus    </th>
+                            <th> Total        </th>
+                            <th> Due          </th>
+                            <th> Paid         </th>
+                        </tr>
+                        @foreach($job['invoices'] as $invoice)
+                        <tr>
+                            <td> {{$invoice['Id']}}             </td>
+                            <td> {{$invoice['Description']}}    </td>
+                            <td> <?php if( isset($invoice['InvoiceType']) )  echo $invoice['InvoiceType']; ?>    </td>
+                            <td> {{$invoice['PayStatus']}}      </td>
+                            <td> <?php if(isset($invoice['InvoiceTotal'])) echo $invoice['InvoiceTotal']; else echo "-" ?>   </td>
+                            <td> {{$invoice['TotalDue']}}       </td>
+                            <td> {{$invoice['TotalPaid']}}      </td>
+                        </tr>
+                        @endforeach
+                    </table>
+                    <hr>
+                    @endforeach
+                </div>
+            </div>
         </div>
 @stop      
