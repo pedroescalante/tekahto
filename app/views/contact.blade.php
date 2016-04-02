@@ -2,7 +2,7 @@
 
 <?php
     $cc_status  = ['Unknown', 'Error', 'Deleted', 'OK', 'Inactive'];
-    $in_stats   = [0 => 'Unpaid', 1 => 'Paid'];
+    $in_status  = [0 => 'Unpaid', 1 => 'Paid'];
 ?>
 
 @section('content')
