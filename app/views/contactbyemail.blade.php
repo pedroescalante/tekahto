@@ -6,42 +6,51 @@
 
 @section('content')
         <div class="col-sm-12">
-            <h4>Contact</h4>
-            <table class="table table-striped">
-                <tr>
-                    <th> ID </th>
-                    <td> {{ $contact['Id'] }} </td>
-                </tr>
-                <tr>
-                    <th> First Name </th>
-                    <td> {{ $contact['FirstName'] }} </td>
-                </tr>
-                <tr>
-                    <th> Last Name </th>
-                    <td> <?php if( isset($contact['LastName']) ) echo $contact['LastName']; ?> </td>
-                </tr>
-                <tr>
-                    <th> Registered Credit Cards </th>
-                    <td> {{ count($contact['CreditCards']) }} </td>
-                </tr>
-            </table>
-            <h4> Credit Cards </h4>
-            <table class="table table-striped">
-                <tr>
-                    <th> Id </th>
-                    <th> Last 4 Numbers </th>
-                    <th> Type </th>
-                    <th> Status </th>
-                </tr>
-                @foreach($contact['CreditCards'] as $card)
-                <tr>
-                    <td> {{$card['Id']}} </td>
-                    <td> {{$card['Last4']}} </td>
-                    <td> {{$card['CardType']}} </td>
-                    <td> {{$card['Status']}} = {{ $status[$card['Status']]}} </td>
-                </tr>
-                @endforeach
-            </table>
+            <div class="panel panel-primary">
+                <div class="panel-heading"> Contact Info </div>
+                <div class="panel-body">
+                    <table class="table table-condensed table-bordered">
+                        <tr>
+                            <th> ID </th>
+                            <td> {{ $contact['Id'] }} </td>
+                        </tr>
+                        <tr>
+                            <th> First Name </th>
+                            <td> {{ $contact['FirstName'] }} </td>
+                        </tr>
+                        <tr>
+                            <th> Last Name </th>
+                            <td> <?php if( isset($contact['LastName']) ) echo $contact['LastName']; ?> </td>
+                        </tr>
+                        <tr>
+                            <th> Registered Credit Cards </th>
+                            <td> {{ count($contact['CreditCards']) }} </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="panel panel-primary">
+                <div class="panel-heading"> Credit Cards </div>
+                <div class="panel-body">
+                    <table class="table table-condensed table-bordered">
+                        <tr class="info">
+                            <th> Id </th>
+                            <th> Last 4 Numbers </th>
+                            <th> Type </th>
+                            <th> Status </th>
+                        </tr>
+                        @foreach($contact['CreditCards'] as $card)
+                        <tr>
+                            <td> {{$card['Id']}} </td>
+                            <td> {{$card['Last4']}} </td>
+                            <td> {{$card['CardType']}} </td>
+                            <td> {{ $status[$card['Status']]}} ({{$card['Status']}}) </td>
+                        </tr>
+                        @endforeach
+                    </table>
+                </div>
+            </div>
 
             <div class="panel panel-primary">
                 <div class="panel-heading"> Subscriptions </div>
