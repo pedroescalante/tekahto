@@ -525,6 +525,7 @@ class InfusionsoftController extends BaseController {
 		$array = [];
 		foreach($products as $product){
 			$array[$product['Id']] = [
+					'Id' 			=> $product['Id'],
 					'ProductName' 	=> $product['ProductName'], 
 					'ProductPrice' 	=> $product['ProductPrice'], 
 					'Status'		=> $product['Status'],
