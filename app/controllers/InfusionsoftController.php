@@ -19,7 +19,12 @@ class InfusionsoftController extends BaseController {
 	/**
 		Set Stored token to get the Refreshed Access Token
 	**/
-	public function refreshToken($infusionsoft){
+	public function refreshToken(){
+		$infusionsoft = new Infusionsoft\Infusionsoft(array(
+	        'clientId'     => $_ENV['clientId'],
+	        'clientSecret' => $_ENV['clientSecret'],
+	        'redirectUri'  => $_ENV['redirectUri']
+    	));
 		$token = Token::orderBy('created_at', 'desc')->first();
 		dd($token);
 	}
