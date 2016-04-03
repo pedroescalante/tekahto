@@ -19,16 +19,16 @@ class InfusionsoftController extends BaseController {
 	/**
 		Set Stored token to get the Refreshed Access Token
 	**/
-	public function refreshToken(){
-		$infusionsoft = new Infusionsoft\Infusionsoft(array(
-	        'clientId'     => $_ENV['clientId'],
-	        'clientSecret' => $_ENV['clientSecret'],
-	        'redirectUri'  => $_ENV['redirectUri']
-    	));
+	public function refreshToken($infusionsoft){
 		$token = Token::orderBy('created_at', 'desc')->first();
-		$infusionsoft->setToken(unserialize($token));
-		$infusionsoft->refreshAccessToken();
-		dd($infusionsoft->getToken());
+		if($token){
+			$infusionsoft->setToken(unserialize($token->token));
+			$infusionsoft->refreshAccessToken();
+			$new_token = new Token;
+			$new_token->token = serialize($infusionsoft->getToken());
+			$new_token->save();
+			return $infusionsoft;
+		}
 	}
 
 	/**
@@ -77,8 +77,7 @@ class InfusionsoftController extends BaseController {
 	public function contacts()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('id', 'desc')->first();
-		$infusionsoft->setToken(unserialize($last_token->token));
+		$infusionsoft = $this->refreshToken($infusionsoft);
 
 		$contacts = $infusionsoft->data->query(
                     'Contact',
@@ -109,8 +108,8 @@ class InfusionsoftController extends BaseController {
 	public function contact()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('id', 'desc')->first();
-		$infusionsoft->setToken(unserialize($last_token->token));
+		$infusionsoft = $this->refreshToken($infusionsoft);
+
 
 	    $email = Request::get('email');
 		$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
@@ -146,8 +145,8 @@ class InfusionsoftController extends BaseController {
 	public function products()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('id', 'desc')->first();
-		$infusionsoft->setToken(unserialize($last_token->token));
+		$infusionsoft = $this->refreshToken($infusionsoft);
+
 	    
 	    $products = $this->getProducts($infusionsoft);
 
@@ -160,8 +159,8 @@ class InfusionsoftController extends BaseController {
 	public function product()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('id', 'desc')->first();
-		$infusionsoft->setToken(unserialize($last_token->token));
+		$infusionsoft = $this->refreshToken($infusionsoft);
+
 
 	    $id = Request::get('id');
 	    $product = $infusionsoft->products->find($id);
@@ -178,8 +177,8 @@ class InfusionsoftController extends BaseController {
 		$email 	 = Input::get('email');
 		
 		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('id', 'desc')->first();
-		$infusionsoft->setToken(unserialize($last_token->token));
+		$infusionsoft = $this->refreshToken($infusionsoft);
+
 	    
 	    $products = $this->getProducts($infusionsoft);
 	    if( !isset($products[$plan_id]) )
@@ -213,8 +212,7 @@ class InfusionsoftController extends BaseController {
 		$tags = [216 => 2494 , 220 => 2496, 218 => 2498];
 
 		$infusionsoft = $this->getInfusionsoftObject();
-		$last_token = Token::orderBy('id', 'desc')->first();
-		$infusionsoft->setToken(unserialize($last_token->token));
+		$infusionsoft = $this->refreshToken($infusionsoft);
 
 		//Product (Pricing Plan)
 		$products = $this->getProducts($infusionsoft);
