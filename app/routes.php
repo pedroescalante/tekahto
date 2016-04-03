@@ -16,3 +16,4 @@ Route::post('/infusionsoft/upgrade', 		['https', 'uses' => 'InfusionsoftControll
 
 //Test Endpoints
 Route::post('/infusionsoft/test',     		['https', 'uses' => 'InfusionsoftController@payment']);
+Route::post('/infusionsoft/token',     		['https', 'uses' => 'InfusionsoftController@refreshToken']);
