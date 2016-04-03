@@ -26,7 +26,9 @@ class InfusionsoftController extends BaseController {
 	        'redirectUri'  => $_ENV['redirectUri']
     	));
 		$token = Token::orderBy('created_at', 'desc')->first();
-		dd($token);
+		$infusionsoft->setToken(unserialize($token));
+		$infusionsoft->refreshAccessToken();
+		dd($infusionsoft->getToken());
 	}
 
 	/**
