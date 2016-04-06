@@ -142,6 +142,23 @@ class InfusionsoftController extends BaseController {
 	    return View::make('contact', ['contact' => $contact]);
 	}	
 
+	public function tags($tag_id)
+{
+	$infusionsoft = $this->getInfusionsoftObject();
+	$infusionsoft = $this->refreshToken($infusionsoft);
+
+	$tags = $this->getTag($infusionsoft, $tag_id);
+	return Response::json($tags);
+}
+
+public function subscr(){
+
+	$infusionsoft = $this->getInfusionsoftObject();
+	$infusionsoft = $this->refreshToken($infusionsoft);
+	$sus = $this->getSubscriptionPlans($infusionsoft);
+	return Response::json($sus);
+}
+
 	public function products()
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
@@ -236,7 +253,7 @@ class InfusionsoftController extends BaseController {
 		//Subscription
 		$subscriptionPlanId = $subscriptionPlans[ $product['Id'] ]; //Subscription = [92 => 197$, 94 => 97$]
 		$merchantAccountID = 25; //Test Merchant
-		$subscriptionID = $infusionsoft->invoices()->addRecurringOrder(
+/*		$subscriptionID = $infusionsoft->invoices()->addRecurringOrder(
 							$contact['Id'], false, $subscriptionPlanId, 1, 
 							$product['ProductPrice'], 
 							false, 
@@ -256,12 +273,12 @@ class InfusionsoftController extends BaseController {
 		if( $payment['Successful'] ){
 			
 			$infusionsoft->contacts()->addToGroup($contact['Id'], $tags[ $product['Id']]);
-			return Response::json([ "success" => "true", "info" => $payment, "new_plan" => ["plan_name" => "Professional Plan"]] );
+			return Response::json([ "success" => "true", "info" => $payment, "product_id" => $product['Id']] );
 		}
 		else
 		{
 			return Response::json(['success' => 'false', 'info' => 'Payment failed']);
-		}
+		}*/
 	}
 
 	/**
@@ -295,12 +312,12 @@ class InfusionsoftController extends BaseController {
 		Get all the Tags from InfusionSoft
 		$infusionsoft 	= InfusionSoft object
 	**/
-	public function getTags($infusionsoft){
+	public function getTag($infusionsoft, $tag_id){
 		
 		$tags = $infusionsoft->data->query(
 	            'ContactGroup',
 	            1000, 0,
-	            ['Id' => 2496],
+	            ['Id' => $tag_id],
 	            ['GroupCategoryId', 'GroupDescription', 'GroupName', 'Id'],
 	            'Id',
 	            true);
@@ -308,6 +325,7 @@ class InfusionsoftController extends BaseController {
 		$array = [];
 		foreach($tags as $tag){
 			$array[$tag['Id']] = [
+					'Id'			=> $tag['Id'],
 					'GroupCategoryId' 	=> $tag['GroupCategoryId'], 
 					'GroupDescription' 	=> $tag['GroupDescription'], 
 					'GroupName'			=> $tag['GroupName'],
@@ -353,6 +371,22 @@ class InfusionsoftController extends BaseController {
 			return null;
 		return $credit_c[0];
 	}
+
+	/**
+		Get all the Subscription Plans
+		$infusionsoft 	= Infusionsoft object
+	**/
+	public function getSubscriptionPlans($infusionsoft){
+		$sus = $infusionsoft->data->query(
+			'SubscriptionPlan',
+			1000, 0,
+			['Active' => 1],
+			['Id', 'ProductID', 'PlanPrice'],
+			'Id',
+			true);
+		return $sus;
+	}
+
 
 	/**
 		Get all the Subscriptions of a contact
