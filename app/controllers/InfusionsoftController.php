@@ -273,10 +273,12 @@ class InfusionsoftController extends BaseController {
 							0, 0);	
 		}
 		else{
-			dd($actualSubscriptions);
+			$inactiveSubscription = $actualSubscriptions[0];
+			$infusionsoft->data->update('RecurringOrder', $inactiveSubscription['Id'], ['Status'=>'Active']);
+			$subscriptionID = $inactiveSubscription['Id'];
 		}
 
-		//Test if IS allows duplicate Subscriptions
+		//If the Subscription is New or Reactivated, this is its Id
 		dd($subscriptionID);
 
 		//Invoice For Recurring
