@@ -98,7 +98,7 @@ class InfusionsoftController extends BaseController {
 			$contact['CreditCards'] = $creditCards;
 			$arr[] = $contact;
 		}
-	    
+		    
 	    return View::make('contacts', ['contacts' => $arr]);
 	}
 
@@ -138,7 +138,7 @@ class InfusionsoftController extends BaseController {
 			$subs_array[] 		= $sub;
 		}
 		$contact['subscriptions'] = $subs_array;
-		
+dd($contact);
 	    return View::make('contact', ['contact' => $contact]);
 	}	
 
@@ -199,11 +199,11 @@ public function subscr(){
 	    
 	    $products = $this->getProducts($infusionsoft);
 	    if( !isset($products[$plan_id]) )
-	    	return Response::json(['error' => 'Invalid Plan']);
+	    	return Response::json(['errors' => ['Invalid Plan']]);
 
 	    $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
 	    if( !isset($contacts[0]) )
-	    	return Response::json(['error' => 'Invalid Contact']);
+	    	return Response::json(['errors' => ['Invalid Contact']]);
 	    
 	    $contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName']);
 		$credit_cards = $this->getCreditCards($infusionsoft, $contact['Id']);
@@ -225,8 +225,9 @@ public function subscr(){
 		$card_id = Input::get('card_id');
 		$email 	 = Input::get('email');
 		
-		$subscriptionPlans = [220 => 94];
-		$tags = [216 => 2494 , 220 => 2496, 218 => 2498];
+		$subscriptionPlans	= [216 => 88,    220 => 94,   218 => 100];
+		$successTags 		= [216 => 2494 , 220 => 2496, 218 => 2498];
+		$failedTags  		= [216 => 2074];
 
 		$infusionsoft = $this->getInfusionsoftObject();
 		$infusionsoft = $this->refreshToken($infusionsoft);
@@ -248,19 +249,38 @@ public function subscr(){
 		$credit_card = $this->getSpecificCreditCard($infusionsoft, $contact['Id'], $card_id);
 		if( !isset($credit_card) )
 			return Response::json(['error' => 'Invalid Credit Card']);
-		return Response::json([ 'success' => 'true', 'info' => 'Test approach', 'product_id' => $product['Id'] ]);
+		//return Response::json([ 'success' => 'true', 'info' => ['Test approach'], 'product_id' => $product['Id'] ]);
 
 		//Subscription
 		$subscriptionPlanId = $subscriptionPlans[ $product['Id'] ]; //Subscription = [92 => 197$, 94 => 97$]
 		$merchantAccountID = 25; //Test Merchant
-/*		$subscriptionID = $infusionsoft->invoices()->addRecurringOrder(
+		try{
+		$subscriptionID = $infusionsoft->invoices()->addRecurringOrder(
 							$contact['Id'], false, $subscriptionPlanId, 1, 
 							$product['ProductPrice'], 
 							false, 
 							$merchantAccountID, 
 							$credit_card['Id'], 
 							0, 0);
-		
+		} catch (Exception $e){
+			dd($e->getMessage());
+			$query = $infusionsoft->data->query(
+                                        'RecurringOrder',
+                                        1000, 0,
+                                        ['ContactId' => $contact_id, 'ProductId'=>$product['Id'], 'Status'=>'Inactive'],
+                                        ['Id','Status','StartDate','ContactId','ProductId'],
+                                        'Id',
+                                        true);
+			$subscription = $query[0];
+			if($subscription){
+				$infusionsoft->data->update('RecurringOrder', $subscription['Id']. ['Status'=>'Active']);
+			}
+			$subscriptionID = $subscription['Id'];
+		}
+
+		//Test if IS allows duplicate Subscriptions
+		dd($subscriptionID);
+
 		//Invoice For Recurring
 		$invoiceID = $infusionsoft->invoices()->createInvoiceForRecurring($subscriptionID);
 		
@@ -269,16 +289,16 @@ public function subscr(){
 		$payment = $infusionsoft->invoices()->chargeInvoice(
 							$invoiceID, $notes, 
 							$credit_card['Id'], $merchantAccountID, false);
-	
-		if( $payment['Successful'] ){
-			
-			$infusionsoft->contacts()->addToGroup($contact['Id'], $tags[ $product['Id']]);
+		//Invoice Charged Successfully
+		if( $payment['Successful'] ){	
+			$infusionsoft->contacts()->addToGroup($contact['Id'], $successTags[ $product['Id']]);
 			return Response::json([ "success" => "true", "info" => $payment, "product_id" => $product['Id']] );
 		}
 		else
 		{
+			$infusionsoft->contacts()->addToGroup($contact['Id'], $failedTags[ $product['Id']]);
 			return Response::json(['success' => 'false', 'info' => 'Payment failed']);
-		}*/
+		}
 	}
 
 	/**
@@ -399,7 +419,7 @@ public function subscr(){
 					'RecurringOrder', 
 					1000, 0, 
 					['ContactId' => $contact_id], 
-					['Id','ProductId','StartDate','merchantAccountId','Status'], 
+					['Id','ProductId','StartDate','merchantAccountId','Status','SubscriptionPlanId'], 
 					'Id', 
 					true);
 		return $subscrip;
