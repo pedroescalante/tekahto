@@ -263,6 +263,7 @@ class InfusionsoftController extends BaseController {
 		$subscriptionPlanId  = $subscriptionPlans[ $product['Id'] ];
 		$merchantAccountID 	 = 25;
 		$actualSubscriptions = $this->getSubscriptionsByProduct($infusionsoft, $contact['Id'], $product['Id']);
+		dd($actualSubscriptions);
 		if( !count($actualSubscriptions) ){
 			$subscriptionID = $infusionsoft->invoices()->addRecurringOrder(
 							$contact['Id'], false, $subscriptionPlanId, 1, 
@@ -274,8 +275,8 @@ class InfusionsoftController extends BaseController {
 		}
 		else{
 			$inactiveSubscription = $actualSubscriptions[0];
-			$infusionsoft->data->update('RecurringOrder', $inactiveSubscription['Id'], ['Status'=>'Active']);
-			$subscriptionID = $inactiveSubscription['Id'];
+			//$infusionsoft->data->update('RecurringOrder', $inactiveSubscription['Id'], ['Status'=>'Active']);
+			//$subscriptionID = $inactiveSubscription['Id'];
 		}
 
 		//If the Subscription is New or Reactivated, this is its Id
