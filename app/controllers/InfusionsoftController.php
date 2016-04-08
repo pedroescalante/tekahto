@@ -262,7 +262,7 @@ class InfusionsoftController extends BaseController {
 		//Subscription
 		$subscriptionPlanId  = $subscriptionPlans[ $product['Id'] ];
 		$merchantAccountID 	 = 25;
-		$actualSubscriptions = $this->getSubscriptionsByProduct($contact['Id'], $infusionsoft, $product['Id']);
+		$actualSubscriptions = $this->getSubscriptionsByProduct($infusionsoft, $contact['Id'], $product['Id']);
 		if( !count($actualSubscriptions) ){
 			$subscriptionID = $infusionsoft->invoices()->addRecurringOrder(
 							$contact['Id'], false, $subscriptionPlanId, 1, 
