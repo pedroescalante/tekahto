@@ -30,7 +30,6 @@
                     </table>
                 </div>
             </div>
-            
             <div class="panel panel-primary">
                 <div class="panel-heading"> Credit Cards </div>
                 <div class="panel-body">
@@ -58,16 +57,16 @@
                 <div class="panel-body">
                 @if ( !count($contact['subscriptions']) )
                     This contact has no Subscriptions yet.
-                @endif
+                @else
                 @foreach($contact['subscriptions'] as $sub)
-                    <div> Subscription Id: <b> {{ $sub['Id'] }} </b> </div>
-                    <div> Merchant Account ID: <b> {{ $sub['merchantAccountId'] }} </b> </div>
-                    <div> Product Name: <b> {{ $sub['ProductName'] }} </b> </div>
-                    <div> Start Date: <b> {{ $sub['StartDate']->format('Y-m-d') }} </b> </div>
+                    <div> Subscription Id: <b> <?php if(isset($sub['Id'])) echo $sub['Id'] ?> </b> </div>
+                    <div> Merchant Account ID: <b> <?php if( isset($sub['merchantAccountId'])) echo $sub['merchantAccountId'] ?> </b> </div>
+                    <div> Product Name: <b> <?php if( isset($sub['ProductName'])) echo $sub['ProductName'] ?> </b> </div>
+                    <div> Start Date: <b> <?php if( isset($sub['StartDate'])) echo $sub['StartDate']->format('Y-m-d') ?> </b> </div>
                     <div> End Date: 
                         <b> <?php if(isset($sub['EndDate'])) echo $sub['EndDate']->format('Y-m-d'); else echo "-"; ?> </b> 
                     </div>
-                    <div> Status: <b> {{ $sub['Status'] }} </b> </div>
+                    <div> Status: <b> <?php if( isset( $sub['Status'])) echo $sub['Status'] ?> </b> </div>
                     <h5><b>Invoices</b></h5>
                     <table class="table table-condensed table-bordered">
                         <tr class="info">
@@ -79,20 +78,23 @@
                             <th> Due          </th>
                             <th> Paid         </th>
                         </tr>
+			@if ( count($sub['invoices']))
                         @foreach($sub['invoices'] as $invoice)
                         <tr>
-                            <td> {{$invoice['Id']}}             </td>
-                            <td> {{$invoice['Description']}}    </td>
-                            <td> <?php if( isset($invoice['InvoiceType']) )  echo $invoice['InvoiceType']; ?>    </td>
-                            <td> {{ $in_status[$invoice['PayStatus']] }} </td>
-                            <td> <?php if(isset($invoice['InvoiceTotal'])) echo $invoice['InvoiceTotal']; else echo "-" ?>   </td>
-                            <td> {{$invoice['TotalDue']}}       </td>
-                            <td> {{$invoice['TotalPaid']}}      </td>
+                            <td> <?php if( isset($invoice['Id'])) echo $invoice['Id'] ?> </td>
+                            <td> <?php if( isset($invoice['Description'])) echo $invoice['Description'] ?> </td>
+                            <td> <?php if( isset($invoice['InvoiceType']) )  echo $invoice['InvoiceType']; ?> </td>
+                            <td> <?php if( isset($invoice['PayStatus'])) echo $in_status[$invoice['PayStatus']] ?> </td>
+                            <td> <?php if( isset($invoice['InvoiceTotal'])) echo $invoice['InvoiceTotal']; else echo "-" ?>   </td>
+                            <td> <?php if( isset($invoice['TotalDue'])) echo $invoice['TotalDue']?>       </td>
+                            <td> <?php if( isset($invoice['TotalPaid'])) echo $invoice['TotalPaid']?>      </td>
                         </tr>
                         @endforeach
+			@endif
                     </table>
                     <hr>
                 @endforeach
+		@endif
                 </div>
             </div>
         

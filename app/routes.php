@@ -9,6 +9,7 @@ Route::get('/infusionsoft/contacts',    	['https', 'uses' => 'InfusionsoftContro
 Route::get('/infusionsoft/contact',     	['https', 'uses' => 'InfusionsoftController@contact']);
 Route::get('/infusionsoft/products',    	['https', 'uses' => 'InfusionsoftController@products']);
 Route::get('/infusionsoft/product',     	['https', 'uses' => 'InfusionsoftController@product']);
+Route::get('/infusionsoft/tags', 		['https', 'uses' => 'InfusionsoftController@allTags']);
 Route::get('/infusionsoft/tags/{tag_id}',     	['https', 'uses' => 'InfusionsoftController@tags']);
 Route::get('/infusionsoft/subscr',     		['https', 'uses' => 'InfusionsoftController@subscr']);
 
