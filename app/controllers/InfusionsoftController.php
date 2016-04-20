@@ -139,7 +139,6 @@ class InfusionsoftController extends BaseController {
 			$subs_array[] 		= $sub;
 		}
 		$contact['subscriptions'] = $subs_array;
-		//dd($contact);
 	    return View::make('contact', ['contact' => $contact]);
 	}	
 
@@ -152,7 +151,7 @@ class InfusionsoftController extends BaseController {
 		$infusionsoft = $this->refreshToken($infusionsoft);
 
 		$tags = $this->getTag($infusionsoft, $tag_id);
-		return Response::json($tags);
+		return View::make('tag', ['tag' => $tags);
 	}
 
 	/**
