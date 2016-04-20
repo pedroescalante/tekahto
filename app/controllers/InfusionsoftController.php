@@ -151,7 +151,7 @@ class InfusionsoftController extends BaseController {
 		$infusionsoft = $this->refreshToken($infusionsoft);
 
 		$tags = $this->getTag($infusionsoft, $tag_id);
-		return View::make('tag', ['tag' => $tags);
+		return View::make('tag', ['tag' => $tags]);
 	}
 
 	/**
