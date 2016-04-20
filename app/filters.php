@@ -88,3 +88,14 @@ Route::filter('csrf', function()
 		throw new Illuminate\Session\TokenMismatchException;
 	}
 });
+
+Route::filter('bof', function()
+{	
+	$token = Request::header('Auth');
+	$token = str_replace('Bearer ', '', $token);
+	
+	if( $token != 'ZPvuDXh29iQvsaNRtumpx7Wx9I6LNc9lcLjMLOLBWWdQyT5uGaeVGxMiXCOn')
+	{
+		return Response::json(['error' => 'invalid_token'], 401);
+	} 
+});
