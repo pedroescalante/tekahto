@@ -369,9 +369,10 @@ class InfusionsoftController extends BaseController {
 			$array[$tag['Id']] = [
 					'Id'			=> $tag['Id'],
 					'GroupCategoryId' 	=> $tag['GroupCategoryId'], 
-					'GroupDescription' 	=> $tag['GroupDescription'], 
-					'GroupName'			=> $tag['GroupName'],
-					'Description' 		=> (isset($tag['Description'])) ? $tag['Description'] : "-" ];
+					'GroupDescription' 	=> (isset($tag['GroupDescription'])) ? $tag['GroupDescription'] : "-", 
+					'GroupName'		=> $tag['GroupName'],
+					'Description' 		=> (isset($tag['Description'])) ? $tag['Description'] : "-"
+					 ];
 		}
 		
 	    return $array;

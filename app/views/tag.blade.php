@@ -18,11 +18,11 @@
             </tr>
             <tr>
               <th> Category </th>
-              <td> {{ $tag['GroupCategoryId'] }} </td>
+              <td> {{ @$tag['GroupCategoryId'] }} </td>
             </tr>
             <tr>
               <th> Group Description </th>
-              <td> {{ $tag['GroupDescription'] }} </td>
+              <td> <?php /*if isset($tag['GroupDescription']) echo $tag['GroupDescription']*/ ?> </td>
             </tr>
           </table>
         </div>
