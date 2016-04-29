@@ -3,6 +3,7 @@
 <?php
     $cc_status  = ['Unknown', 'Error', 'Deleted', 'OK', 'Inactive'];
     $in_status  = [0 => 'Unpaid', 1 => 'Paid'];
+    $auto_charge = [0=>'No', 1=>'Yes'];
 ?>
 
 @section('content')
@@ -55,46 +56,32 @@
             <div class="panel panel-primary">
                 <div class="panel-heading"> Subscriptions </div>
                 <div class="panel-body">
-                @if ( !count($contact['subscriptions']) )
-                    This contact has no Subscriptions yet.
-                @else
+		    <table class="table table-condensed">
+			<tr>
+			    <th> ID </th>
+			    <th> Merchant ID </th>
+			    <th> Product ID </th>
+			    <th> Start Date </th>
+			    <th> AutoBill </th>
+			    <th> Status </th>
+			<tr>
                 @foreach($contact['subscriptions'] as $sub)
-                    <div> Subscription Id: <b> <?php if(isset($sub['Id'])) echo $sub['Id'] ?> </b> </div>
-                    <div> Merchant Account ID: <b> <?php if( isset($sub['merchantAccountId'])) echo $sub['merchantAccountId'] ?> </b> </div>
-                    <div> Product Name: <b> <?php if( isset($sub['ProductName'])) echo $sub['ProductName'] ?> </b> </div>
-                    <div> Start Date: <b> <?php if( isset($sub['StartDate'])) echo $sub['StartDate']->format('Y-m-d') ?> </b> </div>
-                    <div> End Date: 
-                        <b> <?php if(isset($sub['EndDate'])) echo $sub['EndDate']->format('Y-m-d'); else echo "-"; ?> </b> 
-                    </div>
-                    <div> Status: <b> <?php if( isset( $sub['Status'])) echo $sub['Status'] ?> </b> </div>
-                    <h5><b>Invoices</b></h5>
-                    <table class="table table-condensed table-bordered">
-                        <tr class="info">
-                            <th> Id   </th>
-                            <th> Description  </th>
-                            <th> Type         </th>
-                            <th> PayStatus    </th>
-                            <th> Total        </th>
-                            <th> Due          </th>
-                            <th> Paid         </th>
-                        </tr>
-			@if ( count($sub['invoices']))
-                        @foreach($sub['invoices'] as $invoice)
-                        <tr>
-                            <td> <?php if( isset($invoice['Id'])) echo $invoice['Id'] ?> </td>
-                            <td> <?php if( isset($invoice['Description'])) echo $invoice['Description'] ?> </td>
-                            <td> <?php if( isset($invoice['InvoiceType']) )  echo $invoice['InvoiceType']; ?> </td>
-                            <td> <?php if( isset($invoice['PayStatus'])) echo $in_status[$invoice['PayStatus']] ?> </td>
-                            <td> <?php if( isset($invoice['InvoiceTotal'])) echo $invoice['InvoiceTotal']; else echo "-" ?>   </td>
-                            <td> <?php if( isset($invoice['TotalDue'])) echo $invoice['TotalDue']?>       </td>
-                            <td> <?php if( isset($invoice['TotalPaid'])) echo $invoice['TotalPaid']?>      </td>
-                        </tr>
-                        @endforeach
-			@endif
-                    </table>
-                    <hr>
+			<tr>
+                	    <td> <?php if( isset($sub['Id']))  		     echo $sub['Id'] ?> </td>
+                    	    <td> <?php if( isset($sub['merchantAccountId'])) echo $sub['merchantAccountId'] ?> </td>
+                    	    <td> <?php if( isset($sub['ProductName'])) 	     echo $sub['ProductName'] ?> </td>
+                	    <td> <?php if( isset($sub['StartDate']))         echo $sub['StartDate']->format('Y-m-d') ?> </td>
+                	    <td> <?php if( isset($sub['AutoCharge']))        echo $auto_charge[$sub['AutoCharge']]; else echo "-"; ?> </td> 
+                	    <td> <?php if( isset($sub['Status'])){
+					if( $sub['Status']=="Active") 
+					    echo "<span class='label label-success'>".$sub['Status']."</span>";
+					else
+					    echo $sub['Status'];
+				       }
+				 ?> </td>
+			</tr>
                 @endforeach
-		@endif
+		    </table>
                 </div>
             </div>
         
