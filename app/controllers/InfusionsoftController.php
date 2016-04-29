@@ -249,12 +249,36 @@ class InfusionsoftController extends BaseController {
 		$card_id = Input::get('card_id');
 		$email 	 = Input::get('email');
 		
-		$subscriptionPlans	= [216 => 88,    220 => 94,   218 => 100];
+		//Product IDs
+		// 216: BOF Starter
+		// 220: BOF Professional
+		// 218: BOF Premium
 		$planOrdering		= [216 => 1,     220 => 2,    218 => 3];
-
-		$downgradeTags		= [216 => 2570,  220 => 2568];
+		
+		//Subscription Plans
+		//  88:  Starter Plan 29$
+		//  94:  Professional Plan 97$
+		//  100: Premium 149$
+		$subscriptionPlans	= [216 => 88,    220 => 94,   218 => 100];
+		
+		//Upgrade Tags
+		// 2494: Upgrade: BOF3 Starter
+		// 2496: Upgrade: BOF3 Professional
+		// 2498: Upgrade: BOF3 Premium
 		$upgradeTags 		= [216 => 2494 , 220 => 2496, 218 => 2498];
+
+		//Downgrade Tags
+		// 2570: Downgrade: BOF3 Starter
+		// 2570: Downgrade: BOF3 Professional
+		$downgradeTags		= [216 => 2570,  220 => 2568];
+		
+		//Failed Tags
+		// 2074: CC Failed Subscription
 		$failedTags  		= [216 => 2074];
+
+		//Merchant Account ID
+		// 25: Test
+		$merchantAccountID 	 = 25;
 
 		$infusionsoft = $this->getInfusionsoftObject();
 		$infusionsoft = $this->refreshToken($infusionsoft);
@@ -287,7 +311,6 @@ class InfusionsoftController extends BaseController {
 		$subscriptionPlanId  = $subscriptionPlans[ $product['Id'] ];
 		$subscriptionPlan = $this->getSubscriptionInfo($infusionsoft, $subscriptionPlanId);
 
-		$merchantAccountID 	 = 25;
 		$actualSubscriptions = $this->getSubscriptionsByProduct($infusionsoft, $contact['Id'], $product['Id'], 'Active');
 		if(count($actualSubscriptions))
 			return Response::json(['success'=>'false', 'errors' => ['The product is already active. Operation Failed']]);
