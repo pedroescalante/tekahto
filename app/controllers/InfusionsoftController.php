@@ -325,11 +325,13 @@ class InfusionsoftController extends BaseController {
 
 		//Invoice For Recurring
 		$invoiceID = $infusionsoft->invoices()->createInvoiceForRecurring($subscriptionID);
+
 		//Charge Invoice
 		$notes = "Invoice - ".$product['Description'];
 		$payment = $infusionsoft->invoices()->chargeInvoice(
 							$invoiceID, $notes, 
 							$credit_card['Id'], $merchantAccountID, false);
+		
 		//Invoice Charged Successfully
 		if( $payment['Successful'] ){	
 			if( $planOrdering[$plan_id] < $planOrdering[$actual_plan_id])
