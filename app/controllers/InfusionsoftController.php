@@ -145,16 +145,40 @@ class InfusionsoftController extends BaseController {
 	**/
 	public function contactList($filename)
 	{
-            $infusionsoft = $this->getInfusionsoftObject();
-            $infusionsoft = $this->refreshToken($infusionsoft);
+		$infusionsoft = $this->getInfusionsoftObject();
+		$infusionsoft = $this->refreshToken($infusionsoft);
+
+		$response = array();
+		$products = $this->getProducts($infusionsoft);
 
 	    $myfile = fopen($filename, "r") or die("Unable to open file!");
 	    while(!feof($myfile)) {
-  		$email = fgets($myfile);
-		$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
-	
+			$email = fgets($myfile);
+			$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
+
+			if( !isset($contacts[0]))
+	    		$response[] = ['Invalid Contact'];
+	    	else
+	    	{
+	    		$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
+		
+			    $subs = $this->getSubscriptions($infusionsoft, $contact['Id']);
+			    $subs_array =[];
+			    foreach($subs as $sub){
+			    	if( isset($products[$sub['ProductId']]) )
+						$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
+					else
+						$sub['ProductName'] = "Unknown Product";
+					$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
+					$subs_array[] 		= $sub;
+			    }
+			    $contact['subscriptions'] = $subs_array;
+			    $response[] = $contact;
+	    	}
 	    }
 	    fclose($myfile);
+
+	    return $response;
 	}
 
 	/**
