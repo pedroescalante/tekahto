@@ -162,7 +162,7 @@ class InfusionsoftController extends BaseController {
 	    	{
 	    		$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
 		
-			    $subs = $this->getSubscriptions($infusionsoft, $contact['Id']);
+			    /*$subs = $this->getSubscriptions($infusionsoft, $contact['Id']);
 			    $subs_array =[];
 			    foreach($subs as $sub){
 			    	if( isset($products[$sub['ProductId']]) )
@@ -172,7 +172,7 @@ class InfusionsoftController extends BaseController {
 					$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
 					$subs_array[] 		= $sub;
 			    }
-			    $contact['subscriptions'] = $subs_array;
+			    $contact['subscriptions'] = $subs_array;*/
 			    $response[] = $contact;
 	    	}
 	    }
