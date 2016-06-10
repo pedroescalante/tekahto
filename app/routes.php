@@ -5,6 +5,8 @@ Route::get('/infusionsoft',             	['https', 'uses' => 'InfusionsoftContro
 Route::get('/infusionsoft/callback',    	['https', 'uses' => 'InfusionsoftController@callback']);
 Route::get('/infusionsoft/contacts',    	['https', 'uses' => 'InfusionsoftController@contacts']);
 
+Route::get('/infusionsoft/list',                ['https', 'uses' => 'InfusionsoftController@contactList']);
+
 //Views
 //Route::group(['before'=>'bof'], function(){
 	Route::get('/infusionsoft/contact',     	['https', 'uses' => 'InfusionsoftController@contact']);

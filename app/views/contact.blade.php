@@ -24,6 +24,11 @@
                             <th> Last Name </th>
                             <td> <?php if( isset($contact['LastName']) ) echo $contact['LastName']; ?> </td>
                         </tr>
+			<tr>
+                            <th> Phone </th>
+                            <td> <?php if( isset($contact['Phone1']) ) echo $contact['Phone1']; ?> </td>
+                        </tr>
+
                         <tr>
                             <th> Registered Credit Cards </th>
                             <td> {{ count($contact['CreditCards']) }} </td>

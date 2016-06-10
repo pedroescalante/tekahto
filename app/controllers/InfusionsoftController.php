@@ -108,38 +108,36 @@ class InfusionsoftController extends BaseController {
 	**/
 	public function contact()
 	{
-		$infusionsoft = $this->getInfusionsoftObject();
-		$infusionsoft = $this->refreshToken($infusionsoft);
-
+	    $infusionsoft = $this->getInfusionsoftObject();
+	    $infusionsoft = $this->refreshToken($infusionsoft);
 
 	    $email = Request::get('email');
-		$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName']);
+	    $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
 	    
 	    if( !isset($contacts[0]))
 	    	return Response::json(['error' => 'Invalid Contact']);
 
-	    $contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName']);
+	    $contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
 		
-		$contact['CreditCards'] = $this->getCreditCards($infusionsoft, $contact['Id']);
+	    $contact['CreditCards'] = $this->getCreditCards($infusionsoft, $contact['Id']);
 	        
 	    $jobs = $this->getJobs($infusionsoft, $contact['Id']);
-        $job_array = [];
-        foreach ($jobs as $job) {
+            $job_array = [];
+            foreach ($jobs as $job) {
         	$job['invoices'] 	= $this->getInvoicesByJob($infusionsoft, $job['Id']);
         	$job_array [] 		= $job;
-        }
-        $contact['Jobs'] = $job_array;
+            }
+            $contact['Jobs'] = $job_array;
 
 	    $subs 	  = $this->getSubscriptions($infusionsoft, $contact['Id']);
 	    $products = $this->getProducts($infusionsoft);
-		$subs_array =[];
-		foreach($subs as $sub){
-			$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
-			$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
-			$subs_array[] 		= $sub;
-		}
-		$contact['subscriptions'] = $subs_array;
-		//$contact['tags'] = $this->getContactTags($infusionsoft, $contact['Id']);
+	    $subs_array =[];
+	    foreach($subs as $sub){
+		$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
+		$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
+		$subs_array[] 		= $sub;
+	    }
+	    $contact['subscriptions'] = $subs_array;
 	    return View::make('contact', ['contact' => $contact]);
 	}	
 
