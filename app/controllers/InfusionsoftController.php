@@ -1,4 +1,3 @@
-
 <?php
 
 class InfusionsoftController extends BaseController {
@@ -140,6 +139,23 @@ class InfusionsoftController extends BaseController {
 	    $contact['subscriptions'] = $subs_array;
 	    return View::make('contact', ['contact' => $contact]);
 	}	
+
+	/**
+		Show a list of contacts from a file
+	**/
+	public function contactList($filename)
+	{
+            $infusionsoft = $this->getInfusionsoftObject();
+            $infusionsoft = $this->refreshToken($infusionsoft);
+
+	    $myfile = fopen($filename, "r") or die("Unable to open file!");
+	    while(!feof($myfile)) {
+  		$email = fgets($myfile);
+		$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
+	
+	    }
+	    fclose($myfile);
+	}
 
 	/**
 		Returns a view with data from a specific Tag
