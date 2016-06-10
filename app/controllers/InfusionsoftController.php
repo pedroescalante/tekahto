@@ -154,6 +154,7 @@ class InfusionsoftController extends BaseController {
 	    $myfile = fopen($filename, "r") or die("Unable to open file!");
 	    while(!feof($myfile)) {
 			$email = fgets($myfile);
+			$email = preg_replace('/\s+/', '', $email);
 			if( strlen($email) > 0 ){
 				try {
 					$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
@@ -163,7 +164,6 @@ class InfusionsoftController extends BaseController {
 			    	else
 			    	{
 			    		$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
-				
 					    /*$subs = $this->getSubscriptions($infusionsoft, $contact['Id']);
 					    $subs_array =[];
 					    foreach($subs as $sub){
@@ -185,7 +185,7 @@ class InfusionsoftController extends BaseController {
 	    }
 	    fclose($myfile);
 
-	    return $response;
+	    return View::make('list', ['contacts'=>$response]);
 	}
 
 	/**
