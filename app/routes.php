@@ -1,5 +1,7 @@
 <?php
 
+Route::any('/contact', ['uses' => 'InfusionsoftController@contact']);
+
 Route::get('/', ['https', function(){ return View::make('index'); }]);
 Route::get('/infusionsoft',             	['https', 'uses' => 'InfusionsoftController@getLink']);
 Route::get('/infusionsoft/callback',    	['https', 'uses' => 'InfusionsoftController@callback']);

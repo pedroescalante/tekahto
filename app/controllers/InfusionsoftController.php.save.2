@@ -1,3 +1,4 @@
+
 <?php
 
 class InfusionsoftController extends BaseController {
@@ -107,89 +108,40 @@ class InfusionsoftController extends BaseController {
 	**/
 	public function contact()
 	{
-	    $infusionsoft = $this->getInfusionsoftObject();
-	    $infusionsoft = $this->refreshToken($infusionsoft);
+		$infusionsoft = $this->getInfusionsoftObject();
+		$infusionsoft = $this->refreshToken($infusionsoft);
+
 
 	    $email = Request::get('email');
-	    $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
+		$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
 	    
 	    if( !isset($contacts[0]))
 	    	return Response::json(['error' => 'Invalid Contact']);
 
 	    $contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
 		
-	    $contact['CreditCards'] = $this->getCreditCards($infusionsoft, $contact['Id']);
+		$contact['CreditCards'] = $this->getCreditCards($infusionsoft, $contact['Id']);
 	        
 	    $jobs = $this->getJobs($infusionsoft, $contact['Id']);
-            $job_array = [];
-            foreach ($jobs as $job) {
+        $job_array = [];
+        foreach ($jobs as $job) {
         	$job['invoices'] 	= $this->getInvoicesByJob($infusionsoft, $job['Id']);
         	$job_array [] 		= $job;
-            }
-            $contact['Jobs'] = $job_array;
+        }
+        $contact['Jobs'] = $job_array;
 
 	    $subs 	  = $this->getSubscriptions($infusionsoft, $contact['Id']);
 	    $products = $this->getProducts($infusionsoft);
-	    $subs_array =[];
-	    foreach($subs as $sub){
-		if( isset($products[$sub['ProductId']]['ProductName']) )
-		    $sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
-		else 
-		    $sub['ProductName'] = "";
-		$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
-		$subs_array[] 		= $sub;
-	    }
-	    $contact['subscriptions'] = $subs_array;
+		$subs_array =[];
+		foreach($subs as $sub){
+			$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
+			$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
+			$subs_array[] 		= $sub;
+		}
+		$contact['subscriptions'] = $subs_array;
+		//$contact['tags'] = $this->getContactTags($infusionsoft, $contact['Id']);
 	    return View::make('contact', ['contact' => $contact]);
 	}	
-
-	/**
-		Show a list of contacts from a file
-	**/
-	public function contactList($filename)
-	{
-		$infusionsoft = $this->getInfusionsoftObject();
-		$infusionsoft = $this->refreshToken($infusionsoft);
-
-		$response = array();
-		$products = $this->getProducts($infusionsoft);
-
-	    $myfile = fopen($filename, "r") or die("Unable to open file!");
-	    while(!feof($myfile)) {
-			$email = fgets($myfile);
-			$email = preg_replace('/\s+/', '', $email);
-			if( strlen($email) > 0 ){
-				try {
-					$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
-
-					if( !isset($contacts[0]))
-			    		$response[] = ['FirstName'=> 'Not Registered on IS', 'Email'=>$email];
-			    		else
-			    		{
-			    		$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id','Email','FirstName', 'LastName', 'Phone1']);
-					    $subs = $this->getSubscriptions($infusionsoft, $contact['Id']);
-					    $subs_array =[];
-					    foreach($subs as $sub){
-					    	if( isset($products[$sub['ProductId']]['ProductName']) )
-								$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
-							else
-								$sub['ProductName'] = "Unknown Product";
-							//$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
-							$subs_array[] 		= $sub;
-					    }
-					    $contact['subscriptions'] = $subs_array;
-					    $response[] = $contact;
-			    	}
-			    }
-			    catch(Exception $e){
-			    	die("Exception with ".$email);
-			    }
-			}
-	    }
-	    fclose($myfile);
-
-	    return View::make('list', ['contacts'=>$response]);
-	}
 
 	/**
 		Returns a view with data from a specific Tag
@@ -317,7 +269,7 @@ class InfusionsoftController extends BaseController {
 
 		//Downgrade Tags
 		// 2570: Downgrade: BOF3 Starter
-		// 2570: Downgrade: BOF3 Professional
+		// 2568: Downgrade: BOF3 Professional
 		$downgradeTags		= [216 => 2570,  220 => 2568];
 		
 		//Failed Tags
@@ -326,8 +278,7 @@ class InfusionsoftController extends BaseController {
 
 		//Merchant Account ID
 		// 25: Test
-		// 34: EasyPayDirect
-		$merchantAccountID 	 = 34;
+		$merchantAccountID 	 = 25;
 
 		$infusionsoft = $this->getInfusionsoftObject();
 		$infusionsoft = $this->refreshToken($infusionsoft);
