@@ -132,12 +132,12 @@ class InfusionsoftController extends BaseController {
 	    $products = $this->getProducts($infusionsoft);
 	    $subs_array =[];
 	    foreach($subs as $sub){
-		if( isset($products[$sub['ProductId']]['ProductName']) )
-		    $sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
-		else 
-		    $sub['ProductName'] = "";
-		$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
-		$subs_array[] 		= $sub;
+			if( isset($products[$sub['ProductId']]['ProductName']) )
+		    	$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
+			else 
+		    	$sub['ProductName'] = "";
+			$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
+			$subs_array[] 		= $sub;
 	    }
 	    $contact['subscriptions'] = $subs_array;
 	    return View::make('contact', ['contact' => $contact]);
@@ -167,14 +167,14 @@ class InfusionsoftController extends BaseController {
 			    		else
 			    		{
 			    		$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id','Email','FirstName', 'LastName', 'Phone1']);
-					    $subs = $this->getSubscriptions($infusionsoft, $contact['Id']);
+					    $subs 	  = $this->getSubscriptions($infusionsoft, $contact['Id']);
 					    $subs_array =[];
 					    foreach($subs as $sub){
-					    	if( isset($products[$sub['ProductId']]['ProductName']) )
-								$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
-							else
-								$sub['ProductName'] = "Unknown Product";
-							//$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
+							if( isset($products[$sub['ProductId']]['ProductName']) )
+						    	$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
+							else 
+						    	$sub['ProductName'] = "";
+							$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
 							$subs_array[] 		= $sub;
 					    }
 					    $contact['subscriptions'] = $subs_array;
