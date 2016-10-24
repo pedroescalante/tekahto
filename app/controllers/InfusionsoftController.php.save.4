@@ -1,10 +1,5 @@
 <?php
 
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-
 class InfusionsoftController extends BaseController {
 
 	/**
@@ -26,7 +21,6 @@ class InfusionsoftController extends BaseController {
 	**/
 	public function refreshToken($infusionsoft){
 		$token = Token::orderBy('created_at', 'desc')->first();
-
 		if($token){
 			$infusionsoft->setToken(unserialize($token->token));
 			$infusionsoft->refreshAccessToken();
@@ -34,25 +28,6 @@ class InfusionsoftController extends BaseController {
 			$new_token->token = serialize($infusionsoft->getToken());
 			$new_token->save();
 			return $infusionsoft;
-		}
-	}
-
-	public function refreshTokenTwo($infusionsoft){
-		$token = Token::orderBy('created_at', 'desc')->first();
-		if($token){
-			$infusionsoft->setToken(unserialize($token->token));
-			if( $infusionsoft->getToken()->endOfLife > time() )
-			{
-				return $infusionsoft;
-			}
-			else
-			{
-				$infusionsoft->refreshAccessToken();
-				$new_token = new Token;
-				$new_token->token = serialize( $infusionsoft->getToken() );
-				$new_token->save();
-				return $infusionsoft();
-			}
 		}
 	}
 
@@ -136,7 +111,6 @@ class InfusionsoftController extends BaseController {
 	    $infusionsoft = $this->refreshToken($infusionsoft);
 
 	    $email = Request::get('email');
-
 	    $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
 	    
 	    if( !isset($contacts[0]))
@@ -158,12 +132,12 @@ class InfusionsoftController extends BaseController {
 	    $products = $this->getProducts($infusionsoft);
 	    $subs_array =[];
 	    foreach($subs as $sub){
-			if( isset($products[$sub['ProductId']]['ProductName']) )
-		    	$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
-			else 
-		    	$sub['ProductName'] = "";
-			$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
-			$subs_array[] 		= $sub;
+		if( isset($products[$sub['ProductId']]['ProductName']) )
+		    $sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
+		else 
+		    $sub['ProductName'] = "";
+		$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
+		$subs_array[] 		= $sub;
 	    }
 	    $contact['subscriptions'] = $subs_array;
 	    return View::make('contact', ['contact' => $contact]);
@@ -193,23 +167,14 @@ class InfusionsoftController extends BaseController {
 			    		else
 			    		{
 			    		$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id','Email','FirstName', 'LastName', 'Phone1']);
-					    $subs 	  = $this->getSubscriptions($infusionsoft, $contact['Id']);
+					    $subs = $this->getSubscriptions($infusionsoft, $contact['Id']);
 					    $subs_array =[];
 					    foreach($subs as $sub){
-
-							if( isset($products[$sub['ProductId']]) )
-							    $proName = $products[ $sub['ProductId']  ]['ProductName'];
+					    	if( isset($products[$sub['ProductId']]['ProductName']) )
+								$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
 							else
-							    $proName = "";
-							//return Response::json($proName);
-
-							if( strlen($proName) )
-							    	$sub['ProductName'] = $proName;
-							else 
-							    	$sub['ProductName'] = "-";
-							
-							//$sub['ProductName'] = $products[ $sub['ProductId'] ]['ProductName'];
-							$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
+								$sub['ProductName'] = "Unknown Product";
+							//$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
 							$subs_array[] 		= $sub;
 					    }
 					    $contact['subscriptions'] = $subs_array;
@@ -217,12 +182,12 @@ class InfusionsoftController extends BaseController {
 			    	}
 			    }
 			    catch(Exception $e){
-			    	die("Exception with ".$email." Message: ". $e->getMessage());
+			    	die("Exception with ".$email);
 			    }
 			}
 	    }
 	    fclose($myfile);
-	//return Response::json($response);
+
 	    return View::make('list', ['contacts'=>$response]);
 	}
 
@@ -328,7 +293,7 @@ class InfusionsoftController extends BaseController {
 	**/
 	public function makeSubscription()
 	{
-		$actual_plan_id = Input::get('actual_plan_id');
+		$actual_plan_id = Input::get('actplan_id');
 		$plan_id 	= Input::get('plan_id');
 		$card_id 	= Input::get('card_id');
 		$email 	 	= Input::get('email');
@@ -363,7 +328,7 @@ class InfusionsoftController extends BaseController {
 		//Merchant Account ID
 		// 25: Test
 		// 34: EasyPayDirect
-		$merchantAccountID 	 = 34;
+		$merchantAccountID 	 = 25;
 
 		$infusionsoft = $this->getInfusionsoftObject();
 		$infusionsoft = $this->refreshToken($infusionsoft);
@@ -401,7 +366,8 @@ class InfusionsoftController extends BaseController {
 		//if(count($actualSubscriptions))
 		if( $plan_id == $actual_plan_id )
 			return Response::json(['success'=>'false', 'errors' => ['The product is already active. Operation Failed']]);
-		
+		return Response::json(['pass'=>true]);
+
 		$subscriptionID = $infusionsoft->invoices()->addRecurringOrder(
 				  $contact['Id'], false, $subscriptionPlanId, 1, 
 				  $subscriptionPlan['PlanPrice'], 
@@ -414,14 +380,11 @@ class InfusionsoftController extends BaseController {
 		$invoiceID = $infusionsoft->invoices()->createInvoiceForRecurring($subscriptionID);
 
 		//Charge Invoice
-		$notes = "BOF3 API Plan Change - ".$product['ProductName'];
+		$notes = "Invoice - ".$product['Description'];
 		$payment = $infusionsoft->invoices()->chargeInvoice(
 							$invoiceID, $notes, 
 							$credit_card['Id'], $merchantAccountID, false);
-
-		//Log Info
-                $view_log = new Logger('View Logs');
-                $view_log->pushHandler(new StreamHandler(storage_path('logs/view.log'), Logger::INFO));
+		Log::info($payment);
 		
 		//Invoice Charged Successfully
 		if( $payment['Successful'] ){	
@@ -430,28 +393,12 @@ class InfusionsoftController extends BaseController {
 			else
 			    $infusionsoft->contacts()->addToGroup($contact['Id'], $upgradeTags[$product['Id']]);
 
-			//Log Info
-                	$view_log->addInfo("____________________________________");
-			$view_log->addInfo("Email: ".$email);
-			$view_log->addInfo("New Plan ID: ".$plan_id);
-			$view_log->addInfo("Previous Plan ID: ".$actual_plan_id);
-			$view_log->addInfo($payment);
-			
-
 			return Response::json(['success'=>'true', "info" => $payment, "product_id" => $product['Id']] );
 		}
 		else
 		{
-			//Log Info
-			$view_log->addInfo("____________________________________");
-                        $view_log->addInfo("Email: ".$email);
-                        $view_log->addInfo("New Plan ID: ".$plan_id);
-                        $view_log->addInfo("Previous Plan ID: ".$actual_plan_id);
-                        $view_log->addInfo($payment);
-
 			return Response::json(['success'=>'false', 'info'=>'Payment Failed', 'payment'=>$payment]);
 		}
-
 	}
 
 	/**
@@ -590,18 +537,6 @@ class InfusionsoftController extends BaseController {
 		return $subscrip;
 	}
 
-	public function getSubscriptionsAllData($infusionsoft, $contact_id){
-		$subscrip = $infusionsoft->data->query(
-			'RecurringOrder',
-			1000, 0, 
-			['ContactId' => $contact_id],
-			['Id', 'ProductId', 'StartDate', 'merchantAccountId', 'Status', 'SubscriptionPlanId', 'AutoCharge', 'BillingCycle', 'LastBillDate', 'NextBillDate'],
-			'Id',
-			true
-		);
-		return $subscrip;
-	}
-
 	public function getActiveSubscriptions($infusionsoft, $contact_id){
 		$subscrip = $infusionsoft->data->query(
                                         'RecurringOrder',
@@ -736,126 +671,4 @@ class InfusionsoftController extends BaseController {
 
 		return $invoic[0];
 	}
-
-	public function bof3account()
-	{
-		$email = Input::get('email');
-		$merchants = [34 => "EasyPayDirect", 25=> "Test Merchant", 36 => "EasyPayDirect BOF"];
-
-		Account::where('email', $email)->delete();
-
-		$infusionsoft = $this->getInfusionsoftObject();
-		$infusionsoft = $this->refreshTokenTwo($infusionsoft);
-		$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
-                $products = $this->getProducts($infusionsoft);
-
-                if( !isset($contacts[0]))
-                	return Response::json(['error' => 'Invalid Contact']);
-
-                $contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
-
-                $subs = $this->getSubscriptionsAllData($infusionsoft, $contact['Id']);
-                $subs_array =[];
-
-                foreach($subs as $sub)
-		{
-                        if( isset($products[$sub['ProductId']]['ProductName']) )
-                                $sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
-                        else
-                                $sub['ProductName'] = "";
-                        $subs_array[] = $sub;
-			
-			$account = new Account();
-			$account->email = $email;
-                        $account->pricing_plan    = $sub['ProductName'];
-                        $account->start_date      = $sub['StartDate'];
-                        $account->merchant_id     = $merchants[ $sub['merchantAccountId'] ];
-                        $account->subscription_id = $sub['Id'];
-                        $account->status          = $sub['Status'];
-			if( isset($sub['LastBillDate']) )
-				$account->last_bill_date  = $sub['LastBillDate'];
-			if( isset($sub['NextBillDate']) )
-				$account->next_bill_date  = $sub['NextBillDate'];
-			$account->save();
-                }
-                $contact['subscriptions'] = $subs_array;
-
-		$plans = Account::where('email', $email)->get();
-	
-		$client = new Client;
-        	try {
-            		$response = $client->post('http://api-beta.buyersonfire.net/infusion/plans',
-		            	    [ 'form_params' => [ json_encode($plans)  ],
-				      'verify' => false ]);
-            		$res = json_decode($response->getBody()->getContents());
-			return Response::json($res);
-        	} 
-        	catch (ClientException $e){
-            		return json_decode($e->getMessage());
-        	}
-	}
-
-	public function getAccounts()
-	{
-		$email = Input::get('email');
-		$merchants = [34 => "EasyPayDirect", 25=> "Test Merchant"];
-		if($email){
-
-		    Account::where('email', $email)->delete();
-		    $exists = Account::where('email', $email)->count();
-
-		    if( !$exists ) {
-
-		    	$account = new Account;
-			$account->email = $email;	    	 
-
-			$infusionsoft = $this->getInfusionsoftObject();
-			$infusionsoft = $this->refreshToken($infusionsoft);
-
-			$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
-			$products = $this->getProducts($infusionsoft);
-
-			if( !isset($contacts[0]))
-    			    return Response::json(['error' => 'Invalid Contact']);
-
-			$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
-			$subs = $this->getSubscriptions($infusionsoft, $contact['Id']);
-    
-    			$subs_array =[];
-    			foreach($subs as $sub){
-    			    if( isset($products[$sub['ProductId']]['ProductName']) )
-			        $sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
-        		    else
-		        	$sub['ProductName'] = "";
-        		    $subs_array[] = $sub;
-			    if( $sub['Status'] == "Active" ){
-				$account->pricing_plan = $sub['ProductName'];
-				$account->start_date = $sub['StartDate'];
-				$account->merchant_id = $merchants[ $sub['merchantAccountId'] ];
-				$account->subscription_id =$sub['Id'];
-				$account->status = $sub['Status'];	
-			    }
-    			}
-    			$contact['subscriptions'] = $subs_array;
-
-			$account->save();
-		    }
-
-		    $plans = Account::where('email', $email)->get();
-		    return Response::json($plans);
-		}
-	}
-
-	public function logger()
-	{
-		$view_log = new Logger('View Logs');
-		$view_log->pushHandler(new StreamHandler(storage_path('logs/view.log'), Logger::INFO));
-
-		$view_log->addInfo("User clicked");
-	}
-
-	public function sendDataBof(){
-		
-	}
-
 }

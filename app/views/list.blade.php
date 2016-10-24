@@ -18,10 +18,10 @@
                                if( isset($contact['LastName']))  echo $contact['LastName'] ?> </td>
                     <td>
 		    <?php if(isset($contact['subscriptions'])) { ?>
-                    @foreach($contact['subscriptions'] as $sub)
-			<?php if( in_array($sub['ProductId'], ['216', '220', '218']) ){ ?>
+                    @foreach($contact['subscriptions'] as $sub)                       
+			<?php if( in_array($sub['ProductId'], ['216', '220', '218', '186', '252']) ){ ?>
                         <li>
-                            <?php if( isset($sub['ProductName'])) echo $sub['ProductName']; else echo "No Plan Selected"; ?>
+				<?php echo $sub['ProductName']?>
                             <?php if( isset($sub['Status']) ){
                                 if( $sub['Status']=="Active") 
                                     echo "<span class='label label-success'> (".$sub['Status'].") </span>";
