@@ -18,7 +18,9 @@
                         </tr>
                         <tr>
                             <th> First Name </th>
-                            <td> {{ $contact['FirstName'] }} </td>
+                            <td> <?php 
+				if( isset($contact['FirstName']))
+				echo $contact['FirstName'];?> </td>
                         </tr>
                         <tr>
                             <th> Last Name </th>

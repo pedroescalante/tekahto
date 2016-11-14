@@ -166,6 +166,66 @@ class InfusionsoftController extends BaseController {
 			$subs_array[] 		= $sub;
 	    }
 	    $contact['subscriptions'] = $subs_array;
+
+		//Send Contact Data to BOF
+		Account::where('email', $email)->delete();
+		$subs = $this->getSubscriptionsAllData($infusionsoft, $contact['Id']);
+                $subs_array =[];
+                foreach($subs as $sub)
+                {
+                        if( isset($products[$sub['ProductId']]['ProductName']) )
+                                $sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
+                        else
+                                $sub['ProductName'] = "";
+                        $subs_array[] = $sub;
+
+                        $account = new Account();
+                        $account->email = $email;
+
+                        //ProductName
+                        if( isset($sub['ProductName']) )
+                                $account->pricing_plan    = $sub['ProductName'];
+                        else
+                                $account->pricing_plan    = "Product ".$sub['ProductId']." - No Product Name from IS";
+                        //Start Date
+                        if( isset($sub['StartDate']) )
+                                $account->start_date      = $sub['StartDate'];
+                        else
+                                $account->start_date = null;
+                       //Merchant ID
+                        if( isset($merchants[$sub['merchantAccountId']]) )
+                                $account->merchant_id = $merchants[ $sub['merchantAccountId'] ];
+                        else
+                                $account->merchant_id = "Merchant: ".$sub['merchantAccountId'];
+                        //Subscription ID
+                        $account->subscription_id = $sub['Id'];
+                        //Status
+                        $account->status          = $sub['Status'];
+                        //Last Bill Date
+                        if( isset($sub['LastBillDate']) )
+                                $account->last_bill_date  = $sub['LastBillDate'];
+                        //Next Bill Date
+                        if( isset($sub['NextBillDate']) )
+                                $account->next_bill_date  = $sub['NextBillDate'];
+
+                        $account->save();
+                }
+		$plans = Account::where('email', $email)->get();
+
+                $client = new Client;
+                try {
+                        $response = $client->post( 'http://api.buyersonfire.net/infusion/plans',
+                                    [ 'form_params' => [
+                                        'plans' => json_encode($plans)]
+                                      , 'verify' => false ]);
+                        $res = json_decode($response->getBody()->getContents());
+                }
+                catch (ClientException $e){
+                        return json_decode($e->getMessage());
+                }
+
+
+
 	    return View::make('contact', ['contact' => $contact]);
 	}	
 
@@ -180,50 +240,17 @@ class InfusionsoftController extends BaseController {
 		$response = array();
 		$products = $this->getProducts($infusionsoft);
 
-	    $myfile = fopen($filename, "r") or die("Unable to open file!");
-	    while(!feof($myfile)) {
+	        $myfile = fopen($filename, "r") or die("Unable to open file!");
+	        while(!feof($myfile)) {
 			$email = fgets($myfile);
 			$email = preg_replace('/\s+/', '', $email);
 			if( strlen($email) > 0 ){
-				try {
-					$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
 
-					if( !isset($contacts[0]))
-			    		$response[] = ['FirstName'=> 'Not Registered on IS', 'Email'=>$email];
-			    		else
-			    		{
-			    		$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id','Email','FirstName', 'LastName', 'Phone1']);
-					    $subs 	  = $this->getSubscriptions($infusionsoft, $contact['Id']);
-					    $subs_array =[];
-					    foreach($subs as $sub){
 
-							if( isset($products[$sub['ProductId']]) )
-							    $proName = $products[ $sub['ProductId']  ]['ProductName'];
-							else
-							    $proName = "";
-							//return Response::json($proName);
 
-							if( strlen($proName) )
-							    	$sub['ProductName'] = $proName;
-							else 
-							    	$sub['ProductName'] = "-";
-							
-							//$sub['ProductName'] = $products[ $sub['ProductId'] ]['ProductName'];
-							$sub['invoices'] 	= $this->getInvoicesBySubscription($infusionsoft, $sub['Id']);
-							$subs_array[] 		= $sub;
-					    }
-					    $contact['subscriptions'] = $subs_array;
-					    $response[] = $contact;
-			    	}
-			    }
-			    catch(Exception $e){
-			    	die("Exception with ".$email." Message: ". $e->getMessage());
-			    }
 			}
 	    }
 	    fclose($myfile);
-	//return Response::json($response);
-	    return View::make('list', ['contacts'=>$response]);
 	}
 
 	/**
@@ -460,7 +487,10 @@ class InfusionsoftController extends BaseController {
 	**/
 	public function getProducts($infusionsoft){
 		
-		$products = $infusionsoft->data->query(
+		$products = Product::get();
+		if( !count($products) )
+		{
+		    $products = $infusionsoft->data->query(
 					'Product',
 					1000, 0,
 					['Status' => '1'],
@@ -468,17 +498,60 @@ class InfusionsoftController extends BaseController {
 					'ProductName',
 					true);
 
-		$array = [];
-		foreach($products as $product){
+		    $array = [];
+		    foreach($products as $product){
 			$array[$product['Id']] = [
-					'Id'			=> $product['Id'],
+					'Id'		=> $product['Id'],
 					'ProductName'	=> $product['ProductName'], 
 					'ProductPrice'	=> $product['ProductPrice'], 
-					'Status'		=> $product['Status'],
+					'Status'	=> $product['Status'],
 					'Description'	=> (isset($product['Description'])) ? $product['Description'] : "-" ];
+			$p = new Product;
+			$p->id = $product['Id'];
+			$p->product_name = $product['ProductName'];
+			$p->product_price = $product['ProductPrice'];
+			$p->status = $product['Status'];
+			$p->description = isset($product['Description']) ? $product['Description'] : "-";
+			$p->save();
+		    }
+
+		    $products = $infusionsoft->data->query(
+                                        'Product',
+                                        1000, 0,
+                                        ['Status' => '0'],
+                                        ['Id', 'ProductName', 'Description', 'ProductPrice', 'Status'],
+                                        'ProductName',
+                                        true);
+
+                    foreach($products as $product){
+                        $array[$product['Id']] = [
+                                        'Id'            => $product['Id'],
+                                        'ProductName'   => $product['ProductName'],
+                                        'ProductPrice'  => $product['ProductPrice'],
+                                        'Status'        => $product['Status'],
+                                        'Description'   => (isset($product['Description'])) ? $product['Description'] : "-" ];
+                        $p = new Product;
+                        $p->id = $product['Id'];
+                        $p->product_name = $product['ProductName'];
+                        $p->product_price = $product['ProductPrice'];
+                        $p->status = $product['Status'];
+                        $p->description = isset($product['Description']) ? $product['Description'] : "-";
+                        $p->save();
+                    }
+			
+                }
+		else {
+		    $array = [];
+		    foreach( $products as $product){
+			$array[$product->id] = [
+				'Id' => $product->id,
+				'ProductName'	=> $product->product_name,
+				'ProductPrice'	=> $product->product_price,
+				'Status' 	=> $product->status,
+				'Description' 	=> ( isset($product->description)? $product->description: "-")];
+		    }
 		}
-		
-	    return $array;
+		return $array;
 	}
 
 	/**
@@ -740,19 +813,29 @@ class InfusionsoftController extends BaseController {
 	public function bof3account()
 	{
 		$email = Input::get('email');
+		$stage = Input::get('stage');
 		$merchants = [34 => "EasyPayDirect", 25=> "Test Merchant", 36 => "EasyPayDirect BOF"];
+
+		Log::info($email);
 
 		Account::where('email', $email)->delete();
 
 		$infusionsoft = $this->getInfusionsoftObject();
 		$infusionsoft = $this->refreshTokenTwo($infusionsoft);
-		$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
+
+		try {
+
+                $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
+
+		//}catch( Exception $e ){
+		//}
+
+               if( !isset($contacts[0]))
+                  return Response::json(['error' => 'Invalid Contact']);
+
+               $contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
+		
                 $products = $this->getProducts($infusionsoft);
-
-                if( !isset($contacts[0]))
-                	return Response::json(['error' => 'Invalid Contact']);
-
-                $contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
 
                 $subs = $this->getSubscriptionsAllData($infusionsoft, $contact['Id']);
                 $subs_array =[];
@@ -767,28 +850,53 @@ class InfusionsoftController extends BaseController {
 			
 			$account = new Account();
 			$account->email = $email;
-                        $account->pricing_plan    = $sub['ProductName'];
-                        $account->start_date      = $sub['StartDate'];
-                        $account->merchant_id     = $merchants[ $sub['merchantAccountId'] ];
+
+			//ProductName
+			if( isset($sub['ProductName']) )
+	                        $account->pricing_plan    = $sub['ProductName'];
+			else
+				$account->pricing_plan    = "Product ".$sub['ProductId']." - No Product Name from IS";
+			//Start Date
+			if( isset($sub['StartDate']) )
+	                        $account->start_date      = $sub['StartDate'];
+			else
+				$account->start_date = null;
+			//Merchant ID
+			if( isset($merchants[$sub['merchantAccountId']]) )
+                        	$account->merchant_id = $merchants[ $sub['merchantAccountId'] ];
+			else
+				$account->merchant_id = "Merchant: ".$sub['merchantAccountId'];
+			//Subscription ID
                         $account->subscription_id = $sub['Id'];
+			//Status
                         $account->status          = $sub['Status'];
+			//Last Bill Date
 			if( isset($sub['LastBillDate']) )
 				$account->last_bill_date  = $sub['LastBillDate'];
+			//Next Bill Date
 			if( isset($sub['NextBillDate']) )
 				$account->next_bill_date  = $sub['NextBillDate'];
+
 			$account->save();
                 }
                 $contact['subscriptions'] = $subs_array;
 
+		}
+		catch( Exception $e){
+			Log::error("Error: ". $email);
+                	return Response::json(['error' => 'Invalid Contact']);
+		}
+
 		$plans = Account::where('email', $email)->get();
-	
+		
 		$client = new Client;
         	try {
-            		$response = $client->post('http://api-beta.buyersonfire.net/infusion/plans',
-		            	    [ 'form_params' => [ json_encode($plans)  ],
-				      'verify' => false ]);
+            		$response = $client->post( $stage.'/infusion/plans',
+		            	    [ 'form_params' => [ 
+					'plans' => json_encode($plans)]  
+				      , 'verify' => false ]);
             		$res = json_decode($response->getBody()->getContents());
-			return Response::json($res);
+			return Response::json(['plans'=>$res]);
         	} 
         	catch (ClientException $e){
             		return json_decode($e->getMessage());
@@ -831,7 +939,10 @@ class InfusionsoftController extends BaseController {
 			    if( $sub['Status'] == "Active" ){
 				$account->pricing_plan = $sub['ProductName'];
 				$account->start_date = $sub['StartDate'];
+			    if( isset($merchants[ $sub['merchantAccountId'] ]))
 				$account->merchant_id = $merchants[ $sub['merchantAccountId'] ];
+			    else
+				$account->merchant_id = "Merchant ".$sub['merchantAccountId'];
 				$account->subscription_id =$sub['Id'];
 				$account->status = $sub['Status'];	
 			    }

@@ -20,7 +20,7 @@ Route::post('/infusionsoft/log', 		['https', 'uses' => 'InfusionsoftController@l
 	Route::post('/infusionsoft/payment', 		['https', 'uses' => 'InfusionsoftController@paymentInfo']);
 	Route::post('/infusionsoft/upgrade', 		['https', 'uses' => 'InfusionsoftController@makeSubscription']);
 	Route::post('/infusionsoft/accounts', 		['https', 'uses' => 'InfusionsoftController@getAccounts']);
-	Route::get('/infusionsoft/bof3account', 	['https', 'uses' => 'InfusionsoftController@bof3account']);
+	Route::post('/infusionsoft/bof3account', 	['https', 'uses' => 'InfusionsoftController@bof3account']);
 
 
 //Test Endpoints
