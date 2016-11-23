@@ -140,7 +140,8 @@ class InfusionsoftController extends BaseController {
 	    $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
 	    
 	    if( !isset($contacts[0]))
-	    	return Response::json(['error' => 'Invalid Contact']);
+		break;
+	    //	return Response::json(['error' => 'Invalid Contact']);
 
 	    $contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
 		
@@ -241,14 +242,88 @@ class InfusionsoftController extends BaseController {
 		$products = $this->getProducts($infusionsoft);
 
 	        $myfile = fopen($filename, "r") or die("Unable to open file!");
+		$stage = "http://api.buyersonfire.net";
+
 	        while(!feof($myfile)) {
 			$email = fgets($myfile);
 			$email = preg_replace('/\s+/', '', $email);
 			if( strlen($email) > 0 ){
 
-
-
-			}
+		//$email = Input::get('email');
+		$merchants = [34 => "EasyPayDirect", 25=> "Test Merchant", 36 => "EasyPayDirect BOF"];
+		Log::info($email);
+		Account::where('email', $email)->delete();
+		$infusionsoft = $this->getInfusionsoftObject();
+		$infusionsoft = $this->refreshTokenTwo($infusionsoft);
+		try {
+                $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
+		//}catch( Exception $e ){
+		//}
+               if( !isset($contacts[0]))
+                  return Response::json(['error' => 'Invalid Contact']);
+               $contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
+		
+                $products = $this->getProducts($infusionsoft);
+                $subs = $this->getSubscriptionsAllData($infusionsoft, $contact['Id']);
+                $subs_array =[];
+                foreach($subs as $sub)
+		{
+                        if( isset($products[$sub['ProductId']]['ProductName']) )
+                                $sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
+                        else
+                                $sub['ProductName'] = "";
+                        $subs_array[] = $sub;
+			
+			$account = new Account();
+			$account->email = $email;
+			//ProductName
+			if( isset($sub['ProductName']) )
+	                        $account->pricing_plan    = $sub['ProductName'];
+			else
+				$account->pricing_plan    = "Product ".$sub['ProductId']." - No Product Name from IS";
+			//Start Date
+			if( isset($sub['StartDate']) )
+	                        $account->start_date      = $sub['StartDate'];
+			else
+				$account->start_date = null;
+			//Merchant ID
+			if( isset($merchants[$sub['merchantAccountId']]) )
+                        	$account->merchant_id = $merchants[ $sub['merchantAccountId'] ];
+			else
+				$account->merchant_id = "Merchant: ".$sub['merchantAccountId'];
+			//Subscription ID
+                        $account->subscription_id = $sub['Id'];
+			//Status
+                        $account->status          = $sub['Status'];
+			//Last Bill Date
+			if( isset($sub['LastBillDate']) )
+				$account->last_bill_date  = $sub['LastBillDate'];
+			//Next Bill Date
+			if( isset($sub['NextBillDate']) )
+				$account->next_bill_date  = $sub['NextBillDate'];
+			$account->save();
+                }
+                $contact['subscriptions'] = $subs_array;
+		}
+		catch( Exception $e){
+			Log::error("Error: ". $email);
+                	return Response::json(['error' => 'Invalid Contact']);
+		}
+		$plans = Account::where('email', $email)->get();
+		
+		$client = new Client;
+        	try {
+            		$response = $client->post( $stage.'/infusion/plans',
+		            	    [ 'form_params' => [ 
+					'plans' => json_encode($plans)]  
+				      , 'verify' => false ]);
+            		$res = json_decode($response->getBody()->getContents());
+			//return Response::json(['plans'=>$res]);
+        	} 
+        	catch (ClientException $e){
+            		return json_decode($e->getMessage());
+        	}
+	}
 	    }
 	    fclose($myfile);
 	}
