@@ -140,8 +140,7 @@ class InfusionsoftController extends BaseController {
 	    $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
 	    
 	    if( !isset($contacts[0]))
-		break;
-	    //	return Response::json(['error' => 'Invalid Contact']);
+		return Response::json(['error' => 'Invalid Contact']);
 
 	    $contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
 		
