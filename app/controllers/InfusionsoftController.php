@@ -899,15 +899,25 @@ class InfusionsoftController extends BaseController {
 
 		try {
 
-                $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
+               $contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
 
-		//}catch( Exception $e ){
-		//}
 
-               if( !isset($contacts[0]))
-                  return Response::json(['error' => 'Invalid Contact']);
+               if( !isset($contacts[0])){
+                  $client = new Client;
+		        	try {
+		            		$response = $client->post( $stage.'/infusion/no_plans',
+				            	    [ 'form_params' => [ 
+									'email' => $email]  
+						      , 'verify' => false ]);
+		            		$res = json_decode($response->getBody()->getContents());
+					return Response::json(['email'=>$email]);
+		        	} 
+		        	catch (ClientException $e){
+		            		return json_decode($e->getMessage());
+		        	}
+               }
 
-               $contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
+                $contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
 		
                 $products = $this->getProducts($infusionsoft);
 
@@ -958,7 +968,7 @@ class InfusionsoftController extends BaseController {
 		}
 		catch( Exception $e){
 			Log::error("Error: ". $email);
-                	return Response::json(['error' => 'Invalid Contact']);
+            return Response::json(['error' => 'Invalid Contact']);
 		}
 
 		$plans = Account::where('email', $email)->get();
