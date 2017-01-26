@@ -1069,39 +1069,48 @@ class InfusionsoftController extends BaseController {
 		//Main Process
 		try 
 		{
+			Log::info("Main Process");
 			//Get Contact Info
         	$contacts = $infusionsoft->contacts->findByEmail($package['email'], ['Id', 'FirstName', 'LastName', 'Phone1']);
 			
+			Log::info("Contacts: ".count($contacts));
+
 			//If Contact is not registered on IS
 			if( !isset($contacts[0]) )
 			{
+				Log::info("Not Registered");
+
 				$client = new Client;
 				try 
 				{
 					$package['plan_count'] = 0;
 					$package['plans']	   = [];
+					Log::info($package);
 
 					//Send Info to Stage
 					$response = $client->post( $package['server'].'/admin/reports/get',
 				            	    [ 'form_params' => [ 'data' => $package ],
 						      		  'verify' 		=> false ]);
 		            $res = json_decode( $response->getBody()->getContents() );
-		            Log::info($package);
-					return Response::json( ['data'=>$package] );
+		            return Response::json( ['data'=>$package] );
 		        } 
 		        catch (ClientException $e)
 		        {
+		        	Log::info("Error on Guzzle Client 1");
 					return json_decode($e->getMessage());
 		       	}
 			}
 
 			//If contact is registered get data
 			$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
+			Log::info("Got Contact");
 			//Get Products Data
 			$products = $this->getProducts($infusionsoft);
+			Log::info("Got Products");
 
 			//Gets all Subscriptions for that Contact
 			$subs = $this->getSubscriptionsAllData($infusionsoft, $contact['Id']);
+			Log::info("Got Subs");
 			$subs_array =[];
 			foreach($subs as $sub)
 			{
@@ -1120,6 +1129,8 @@ class InfusionsoftController extends BaseController {
 				$subs_array[] = $sub;
 			}
 			$contact['subscriptions'] = $subs_array;
+
+			Log::info("Subs: ".count($subs_array));
 				/*$subscription = array();
 
 				//ProductName
@@ -1150,27 +1161,27 @@ class InfusionsoftController extends BaseController {
 
 		}
 		catch( Exception $e){
+			Log::info("Error on Getting IS Data");
 			return Response::json(['error' => $e->getMessage() ]);
-			//Log::error("Error Thrown on Email: ". $package['email'] );
-            //return Response::json(['error' => 'Invalid Contact']);
 		}
 
 		//Send Data to Stage
 		$client = new Client;
         try 
         {
+        	Log::info("Preparing Guzzle 2");
 			$package['plan_count'] = count( $contact['subscriptions'] );
 			$package['plans']      = $contact['subscriptions'];
+			Log::info($package);
 
         	$response = $client->post( $package['server'].'/admin/reports/get',
 		            	[ 'form_params' => [ 'data' => $package ], 
 		            	  'verify' => false ]);
 			$res = json_decode($response->getBody()->getContents());
-			Log::info($package);
 			return Response::json( ['data'=>$package] );
         } 
         catch (ClientException $e){
-        	Log::info("Error Main");
+        	Log::info("Error on Guzzle 2");
 			return json_decode($e->getMessage());
 		}
 	}
