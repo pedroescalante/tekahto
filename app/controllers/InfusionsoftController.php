@@ -1059,8 +1059,6 @@ class InfusionsoftController extends BaseController {
 		//Get package from Stage
 		$package = Input::get('package');
 	
-		Log::info($package);
-
 		//Merchants
 		$merchants = [34 => "EasyPayDirect", 25=> "Test Merchant", 36 => "EasyPayDirect BOF"];
 
@@ -1088,6 +1086,7 @@ class InfusionsoftController extends BaseController {
 				            	    [ 'form_params' => [ 'data' => $package ],
 						      		  'verify' 		=> false ]);
 		            $res = json_decode( $response->getBody()->getContents() );
+		            Log::info($package);
 					return Response::json( ['data'=>$package] );
 		        } 
 		        catch (ClientException $e)
@@ -1167,6 +1166,7 @@ class InfusionsoftController extends BaseController {
 		            	[ 'form_params' => [ 'data' => $package ], 
 		            	  'verify' => false ]);
 			$res = json_decode($response->getBody()->getContents());
+			Log::info($package);
 			return Response::json( ['data'=>$package] );
         } 
         catch (ClientException $e){
