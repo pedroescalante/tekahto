@@ -1091,25 +1091,25 @@ class InfusionsoftController extends BaseController {
 			{
 				Log::info("Not Registered");
 
-				$client = new Client;
+				/*$client = new Client;
 				try 
-				{
+				{*/
 					$package['plan_count'] = 0;
 					$package['plans']	   = [];
-					Log::info($package);
+					//Log::info($package);
 
 					//Send Info to Stage
-					$response = $client->post( $package['server'].'/reports/get',
+					/*$response = $client->post( $package['server'].'/reports/get',
 				            	    [ 'form_params' => [ 'data' => $package ],
 						      		  'verify' 		=> false ]);
-		            $res = json_decode( $response->getBody()->getContents() );
+		            $res = json_decode( $response->getBody()->getContents() );*/
 		            return Response::json( ['data'=>$package] );
-		        } 
+		        /*} 
 		        catch (ClientException $e)
 		        {
 		        	Log::info("Error on Guzzle Client 1: ".$e->getMessage() );
 					return json_decode($e->getMessage());
-		       	}
+		       	}*/
 			}
 
 			//If contact is registered get data
@@ -1162,24 +1162,24 @@ class InfusionsoftController extends BaseController {
 		}
 
 		//Send Data to Stage
-		$client = new Client;
+		/*$client = new Client;
         try 
         {
-        	Log::info("Preparing Guzzle 2");
-			$package['plan_count'] = count( $contact['subscriptions'] );
-			$package['plans']      = $contact['subscriptions'];
-			Log::info($package);
-
-        	$response = $client->post( $package['server'].'/reports/get',
+        	Log::info("Preparing Guzzle 2");*/
+		$package['plan_count'] = count( $contact['subscriptions'] );
+		$package['plans']      = $contact['subscriptions'];
+			
+        	/*$response = $client->post( $package['server'].'/reports/get',
 		            	[ 'form_params' => [ 'data' => $package ], 
 		            	  'verify' => false ]);
 			$res = json_decode($response->getBody()->getContents());
-			return Response::json( ['data'=>$package] );
-        } 
+			*/
+		return Response::json( ['data'=>$package] );
+        /*} 
         catch (ClientException $e){
         	Log::info("Error on Guzzle 2");
 			return json_decode($e->getMessage());
-		}
+		}*/
 	}
 
 }
