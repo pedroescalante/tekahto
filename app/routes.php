@@ -21,6 +21,7 @@ Route::post('/infusionsoft/log', 		['https', 'uses' => 'InfusionsoftController@l
 	Route::post('/infusionsoft/upgrade', 		['https', 'uses' => 'InfusionsoftController@makeSubscription']);
 	Route::post('/infusionsoft/accounts', 		['https', 'uses' => 'InfusionsoftController@getAccounts']);
 	Route::post('/infusionsoft/bof3account', 	['https', 'uses' => 'InfusionsoftController@bof3account']);
+	Route::post('/infusionsoft/report', 		['https', 'uses' => 'InfusionsoftController@reportData']);
 
 
 //Test Endpoints

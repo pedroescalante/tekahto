@@ -597,24 +597,25 @@ class InfusionsoftController extends BaseController {
                                         'ProductName',
                                         true);
 
-                    foreach($products as $product){
-                        $array[$product['Id']] = [
-                                        'Id'            => $product['Id'],
-                                        'ProductName'   => $product['ProductName'],
-                                        'ProductPrice'  => $product['ProductPrice'],
-                                        'Status'        => $product['Status'],
-                                        'Description'   => (isset($product['Description'])) ? $product['Description'] : "-" ];
-                        $p = new Product;
-                        $p->id = $product['Id'];
-                        $p->product_name = $product['ProductName'];
-                        $p->product_price = $product['ProductPrice'];
-                        $p->status = $product['Status'];
-                        $p->description = isset($product['Description']) ? $product['Description'] : "-";
-                        $p->save();
-                    }
+            foreach($products as $product){
+                $array[$product['Id']] = [
+                                'Id'            => $product['Id'],
+                                'ProductName'   => $product['ProductName'],
+                                'ProductPrice'  => $product['ProductPrice'],
+                                'Status'        => $product['Status'],
+                                'Description'   => (isset($product['Description'])) ? $product['Description'] : "-" ];
+                $p = new Product;
+                $p->id = $product['Id'];
+                $p->product_name = $product['ProductName'];
+                $p->product_price = $product['ProductPrice'];
+                $p->status = $product['Status'];
+                $p->description = isset($product['Description']) ? $product['Description'] : "-";
+                $p->save();
+            }
 			
-                }
-		else {
+		}
+		else
+		{
 		    $array = [];
 		    foreach( $products as $product){
 			$array[$product->id] = [
@@ -1051,6 +1052,130 @@ class InfusionsoftController extends BaseController {
 
 	public function sendDataBof(){
 		
+	}
+
+	public function reportData()
+	{
+		//Get package from Stage
+		$package = Input::get('package');
+	
+		//Get data
+		$email 		= $package->email;
+		$account_id = $package->account_id;
+		$server 	= $package->server;
+
+		//Merchants
+		$merchants = [34 => "EasyPayDirect", 25=> "Test Merchant", 36 => "EasyPayDirect BOF"];
+
+		//IS Object
+		$infusionsoft = $this->getInfusionsoftObject();
+		$infusionsoft = $this->refreshTokenTwo($infusionsoft);
+
+		//Main Process
+		try 
+		{
+			//Get Contact Info
+        	$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
+			
+			//If Contact is not registered om IS
+			if( !isset($contacts[0]) )
+			{
+				$client = new Client;
+				try 
+				{
+					$outgoing = [ 'email' 		=> $email, 
+								  'plan_count' 	=> 0,
+								  'plans'		=> null ];
+
+					//Send Info to Stage
+					$response = $client->post( $stage.'/admin/reports/get',
+				            	    [ 'form_params' => [ 'data' => $outgoing ],
+						      		  'verify' 		=> false ]);
+		            $res = json_decode( $response->getBody()->getContents() );
+					return Response::json(['email'=>$email]);
+		        } 
+		        catch (ClientException $e)
+		        {
+					return json_decode($e->getMessage());
+		       	}
+			}
+
+			//If contact is registered get data
+			$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
+			//Get Products Data
+			$products = $this->getProducts($infusionsoft);
+
+			//Gets all Subscriptions for that Contact
+			$subs = $this->getSubscriptionsAllData($infusionsoft, $contact['Id']);
+			$subs_array =[];
+			foreach($subs as $sub)
+			{
+				//Set Product Name
+				if( isset($products[$sub['ProductId']]['ProductName']) )
+					$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
+				else
+					$sub['ProductName'] = "";
+				
+				//Set Merchant
+				if( isset($merchants[$sub['merchantAccountId']]) )
+					$sub['Merchant'] = $merchants[ $sub['merchantAccountId'] ];
+				else
+					$sub['Merchant'] = "Merchant: ".$sub['merchantAccountId'];
+
+				$subs_array[] = $sub;
+			}
+			$contact['subscriptions'] = $subs_array;
+				/*$subscription = array();
+
+				//ProductName
+				if( isset($sub['ProductName']) )
+					$account['pricing_plan'] = $sub['ProductName'];
+			else
+				$account->pricing_plan    = "Product ".$sub['ProductId']." - No Product Name from IS";
+			//Start Date
+			if( isset($sub['StartDate']) )
+	                        $account->start_date      = $sub['StartDate'];
+			else
+				$account->start_date = null;
+			//Merchant ID
+			
+			//Subscription ID
+                        $account->subscription_id = $sub['Id'];
+			//Status
+                        $account->status          = $sub['Status'];
+			//Last Bill Date
+			if( isset($sub['LastBillDate']) )
+				$account->last_bill_date  = $sub['LastBillDate'];
+			//Next Bill Date
+			if( isset($sub['NextBillDate']) )
+				$account->next_bill_date  = $sub['NextBillDate'];
+
+			$account->save();
+                }*/
+
+		}
+		catch( Exception $e){
+			Log::error("Error Thrown on Email: ". $email);
+            return Response::json(['error' => 'Invalid Contact']);
+		}
+
+		//Send Data to Stage
+		$client = new Client;
+        try 
+        {
+        	$outgoing = [ 'email' 		=> $email, 
+						  'plan_count' 	=> count( $contact['subscriptions']),
+						  'plans'		=> $contact['subscriptions'] ];
+
+        	$response = $client->post( $stage.'/admin/reports/get',
+		            	[ 'form_params' => [ 'data' => $outgoing ], 
+		            	  'verify' => false ]);
+            		$res = json_decode($response->getBody()->getContents());
+			return Response::json(['plans'=>$res]);
+        } 
+        catch (ClientException $e){
+			return json_decode($e->getMessage());
+		}
 	}
 
 }
