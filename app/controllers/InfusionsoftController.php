@@ -1159,8 +1159,8 @@ class InfusionsoftController extends BaseController {
 		$client = new Client;
         try 
         {
-        	$package['plan_count'] 	=> count( $contact['subscriptions']);
-			$package['plans']		=> $contact['subscriptions'];
+			$package['plan_count'] = count( $contact['subscriptions'] );
+			$package['plans']      = $contact['subscriptions'];
 
         	$response = $client->post( $package['stage'].'/admin/reports/get',
 		            	[ 'form_params' => [ 'data' => $package ], 
