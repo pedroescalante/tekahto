@@ -1084,7 +1084,7 @@ class InfusionsoftController extends BaseController {
 					$package['plans']	   = [];
 
 					//Send Info to Stage
-					$response = $client->post( $package['stage'].'/admin/reports/get',
+					$response = $client->post( $package['server'].'/admin/reports/get',
 				            	    [ 'form_params' => [ 'data' => $package ],
 						      		  'verify' 		=> false ]);
 		            $res = json_decode( $response->getBody()->getContents() );
@@ -1163,7 +1163,7 @@ class InfusionsoftController extends BaseController {
 			$package['plan_count'] = count( $contact['subscriptions'] );
 			$package['plans']      = $contact['subscriptions'];
 
-        	$response = $client->post( $package['stage'].'/admin/reports/get',
+        	$response = $client->post( $package['server'].'/admin/reports/get',
 		            	[ 'form_params' => [ 'data' => $package ], 
 		            	  'verify' => false ]);
             		$res = json_decode($response->getBody()->getContents());
