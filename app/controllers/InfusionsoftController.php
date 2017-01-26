@@ -1059,7 +1059,7 @@ class InfusionsoftController extends BaseController {
 		//Get package from Stage
 		$package = Input::get('package');
 	
-		//Merchants
+		//Merchants, Bill Cycles
 		$merchants = [	24 => "PowerPay The King Of Systems",
 						25 => "Test Merchant", 
 						27 => "Auth.Net - Buyers On Fire",
@@ -1068,6 +1068,10 @@ class InfusionsoftController extends BaseController {
 						32 => "EasyPayDirect (AgentSoft - DO NOT USE)",
 						34 => "EasyPayDirect (TKOS)", 
 						36 => "EasyPayDirect BOF"];
+		$billcycle = [  1  => "Year",
+						2  => "Month",
+						3  => "Week",
+						6  => "Day"];
 
 		//IS Object
 		$infusionsoft = $this->getInfusionsoftObject();
@@ -1133,10 +1137,18 @@ class InfusionsoftController extends BaseController {
 				else
 					$sub['Merchant'] = "Merchant: ".$sub['merchantAccountId'];
 
+				//Set Bill Cycle
+				if( isset($billcycle[$sub['BillingCycle']]) )
+					$sub['BillingCycle'] = $billcycle[ $sub['BillingCycle'] ];
+
+				//Set AutoCharge
+				if( $sub['Autocharge'] == 1 ) $sub['AutoCharge'] = "Yes"; else $sub['AutoCharge'] = "No";
+				
+				$sub['StartDate'] 	 = $sub['StartDate']->format('Y-m-d H:i:s');
+				$sub['LastBillDate'] = $sub['LastBillDate']->format('Y-m-d H:i:s');
+				$sub['NextBillDate'] = $sub['NextBillDate']->format('Y-m-d H:i:s');
+
 				$subs_array[] = $sub;
-
-				Log::info( $sub['StartDate']->format('Y-m-d H:i:s') );
-
 			}
 			$contact['subscriptions'] = $subs_array;
 		}
