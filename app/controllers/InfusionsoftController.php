@@ -1060,7 +1060,14 @@ class InfusionsoftController extends BaseController {
 		$package = Input::get('package');
 	
 		//Merchants
-		$merchants = [34 => "EasyPayDirect", 25=> "Test Merchant", 36 => "EasyPayDirect BOF"];
+		$merchants = [	24 => "PowerPay The King Of Systems",
+						25 => "Test Merchant", 
+						27 => "Auth.Net - Buyers On Fire",
+						28 => "Auth.net - EMS",
+						30 => "Auth.net - Meritus",
+						32 => "EasyPayDirect (AgentSoft - DO NOT USE)",
+						34 => "EasyPayDirect (TKOS)", 
+						36 => "EasyPayDirect BOF"];
 
 		//IS Object
 		$infusionsoft = $this->getInfusionsoftObject();
@@ -1127,38 +1134,13 @@ class InfusionsoftController extends BaseController {
 					$sub['Merchant'] = "Merchant: ".$sub['merchantAccountId'];
 
 				$subs_array[] = $sub;
+
+				Log::info( $sub['StartDate'] );
+				Log::info( count($sub['StartDate']) );
+				Log::info( strlen($sub['StartDate']) );
+
 			}
 			$contact['subscriptions'] = $subs_array;
-
-			Log::info("Subs: ".count($subs_array));
-				/*$subscription = array();
-
-				//ProductName
-				if( isset($sub['ProductName']) )
-					$account['pricing_plan'] = $sub['ProductName'];
-			else
-				$account->pricing_plan    = "Product ".$sub['ProductId']." - No Product Name from IS";
-			//Start Date
-			if( isset($sub['StartDate']) )
-	                        $account->start_date      = $sub['StartDate'];
-			else
-				$account->start_date = null;
-			//Merchant ID
-			
-			//Subscription ID
-                        $account->subscription_id = $sub['Id'];
-			//Status
-                        $account->status          = $sub['Status'];
-			//Last Bill Date
-			if( isset($sub['LastBillDate']) )
-				$account->last_bill_date  = $sub['LastBillDate'];
-			//Next Bill Date
-			if( isset($sub['NextBillDate']) )
-				$account->next_bill_date  = $sub['NextBillDate'];
-
-			$account->save();
-                }*/
-
 		}
 		catch( Exception $e){
 			Log::info("Error on Getting IS Data");
