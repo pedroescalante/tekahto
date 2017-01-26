@@ -1096,7 +1096,7 @@ class InfusionsoftController extends BaseController {
 		        } 
 		        catch (ClientException $e)
 		        {
-		        	Log::info("Error on Guzzle Client 1");
+		        	Log::info("Error on Guzzle Client 1: ".$e->getMessage() );
 					return json_decode($e->getMessage());
 		       	}
 			}
