@@ -1151,7 +1151,7 @@ class InfusionsoftController extends BaseController {
 
 		}
 		catch( Exception $e){
-			Log::error("Error Thrown on Email: ". $email);
+			Log::error("Error Thrown on Email: ". $package['email'] );
             return Response::json(['error' => 'Invalid Contact']);
 		}
 
