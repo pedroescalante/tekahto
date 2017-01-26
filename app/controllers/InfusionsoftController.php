@@ -1170,6 +1170,7 @@ class InfusionsoftController extends BaseController {
 			return Response::json( ['data'=>$package] );
         } 
         catch (ClientException $e){
+        	Log::info("Error Main");
 			return json_decode($e->getMessage());
 		}
 	}
