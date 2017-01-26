@@ -1074,7 +1074,7 @@ class InfusionsoftController extends BaseController {
 			//Get Contact Info
         	$contacts = $infusionsoft->contacts->findByEmail($package['email'], ['Id', 'FirstName', 'LastName', 'Phone1']);
 			
-			//If Contact is not registered om IS
+			//If Contact is not registered on IS
 			if( !isset($contacts[0]) )
 			{
 				$client = new Client;
@@ -1151,8 +1151,9 @@ class InfusionsoftController extends BaseController {
 
 		}
 		catch( Exception $e){
-			Log::error("Error Thrown on Email: ". $package['email'] );
-            return Response::json(['error' => 'Invalid Contact']);
+			return Response::json(['error' => $e->getMessage() ]);
+			//Log::error("Error Thrown on Email: ". $package['email'] );
+            //return Response::json(['error' => 'Invalid Contact']);
 		}
 
 		//Send Data to Stage
