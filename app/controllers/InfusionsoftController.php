@@ -1088,7 +1088,7 @@ class InfusionsoftController extends BaseController {
 					Log::info($package);
 
 					//Send Info to Stage
-					$response = $client->post( $package['server'].'/admin/reports/get',
+					$response = $client->post( $package['server'].'/reports/get',
 				            	    [ 'form_params' => [ 'data' => $package ],
 						      		  'verify' 		=> false ]);
 		            $res = json_decode( $response->getBody()->getContents() );
@@ -1174,7 +1174,7 @@ class InfusionsoftController extends BaseController {
 			$package['plans']      = $contact['subscriptions'];
 			Log::info($package);
 
-        	$response = $client->post( $package['server'].'/admin/reports/get',
+        	$response = $client->post( $package['server'].'/reports/get',
 		            	[ 'form_params' => [ 'data' => $package ], 
 		            	  'verify' => false ]);
 			$res = json_decode($response->getBody()->getContents());
