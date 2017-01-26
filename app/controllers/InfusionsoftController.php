@@ -1057,14 +1057,9 @@ class InfusionsoftController extends BaseController {
 	public function reportData()
 	{
 		//Get package from Stage
-		$package = (object) Input::get('package');
+		$package = Input::get('package');
 	
 		Log::info($package);
-
-		//Get data
-		$email 		= $package->email;
-		$account_id = $package->account_id;
-		$server 	= $package->server;
 
 		//Merchants
 		$merchants = [34 => "EasyPayDirect", 25=> "Test Merchant", 36 => "EasyPayDirect BOF"];
@@ -1077,7 +1072,7 @@ class InfusionsoftController extends BaseController {
 		try 
 		{
 			//Get Contact Info
-        	$contacts = $infusionsoft->contacts->findByEmail($email, ['Id', 'FirstName', 'LastName', 'Phone1']);
+        	$contacts = $infusionsoft->contacts->findByEmail($package['email'], ['Id', 'FirstName', 'LastName', 'Phone1']);
 			
 			//If Contact is not registered om IS
 			if( !isset($contacts[0]) )
@@ -1085,13 +1080,12 @@ class InfusionsoftController extends BaseController {
 				$client = new Client;
 				try 
 				{
-					$outgoing = [ 'email' 		=> $email, 
-								  'plan_count' 	=> 0,
-								  'plans'		=> null ];
+					$package['plan_count'] = 0;
+					$package['plans']	   = [];
 
 					//Send Info to Stage
-					$response = $client->post( $stage.'/admin/reports/get',
-				            	    [ 'form_params' => [ 'data' => $outgoing ],
+					$response = $client->post( $package['stage'].'/admin/reports/get',
+				            	    [ 'form_params' => [ 'data' => $package ],
 						      		  'verify' 		=> false ]);
 		            $res = json_decode( $response->getBody()->getContents() );
 					return Response::json(['email'=>$email]);
@@ -1165,12 +1159,11 @@ class InfusionsoftController extends BaseController {
 		$client = new Client;
         try 
         {
-        	$outgoing = [ 'email' 		=> $email, 
-						  'plan_count' 	=> count( $contact['subscriptions']),
-						  'plans'		=> $contact['subscriptions'] ];
+        	$package['plan_count'] 	=> count( $contact['subscriptions']);
+			$package['plans']		=> $contact['subscriptions'];
 
-        	$response = $client->post( $stage.'/admin/reports/get',
-		            	[ 'form_params' => [ 'data' => $outgoing ], 
+        	$response = $client->post( $package['stage'].'/admin/reports/get',
+		            	[ 'form_params' => [ 'data' => $package ], 
 		            	  'verify' => false ]);
             		$res = json_decode($response->getBody()->getContents());
 			return Response::json(['plans'=>$res]);
