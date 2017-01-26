@@ -1088,7 +1088,7 @@ class InfusionsoftController extends BaseController {
 				            	    [ 'form_params' => [ 'data' => $package ],
 						      		  'verify' 		=> false ]);
 		            $res = json_decode( $response->getBody()->getContents() );
-					return Response::json(['email'=>$email]);
+					return Response::json( ['data'=>$package] );
 		        } 
 		        catch (ClientException $e)
 		        {
@@ -1166,8 +1166,8 @@ class InfusionsoftController extends BaseController {
         	$response = $client->post( $package['server'].'/admin/reports/get',
 		            	[ 'form_params' => [ 'data' => $package ], 
 		            	  'verify' => false ]);
-            		$res = json_decode($response->getBody()->getContents());
-			return Response::json(['plans'=>$res]);
+			$res = json_decode($response->getBody()->getContents());
+			return Response::json( ['data'=>$package] );
         } 
         catch (ClientException $e){
 			return json_decode($e->getMessage());
