@@ -1135,7 +1135,6 @@ class InfusionsoftController extends BaseController {
 
 				$subs_array[] = $sub;
 
-				Log::info( $sub['StartDate'] );
 				Log::info( $sub['StartDate']->format('Y-m-d H:i:s') );
 
 			}
