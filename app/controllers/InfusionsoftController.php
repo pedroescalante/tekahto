@@ -1057,10 +1057,10 @@ class InfusionsoftController extends BaseController {
 	public function reportData()
 	{
 		//Get package from Stage
-		$package = Input::get('package');
+		$package = (object) Input::get('package');
 	
 		Log::info($package);
-		
+
 		//Get data
 		$email 		= $package->email;
 		$account_id = $package->account_id;
