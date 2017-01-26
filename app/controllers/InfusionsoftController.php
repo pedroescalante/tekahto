@@ -1142,7 +1142,7 @@ class InfusionsoftController extends BaseController {
 					$sub['BillingCycle'] = $billcycle[ $sub['BillingCycle'] ];
 
 				//Set AutoCharge
-				if( $sub['Autocharge'] == 1 ) $sub['AutoCharge'] = "Yes"; else $sub['AutoCharge'] = "No";
+				if( $sub['AutoCharge'] == 1 ) $sub['AutoCharge'] = "Yes"; else $sub['AutoCharge'] = "No";
 				
 				$sub['StartDate'] 	 = $sub['StartDate']->format('Y-m-d H:i:s');
 				$sub['LastBillDate'] = $sub['LastBillDate']->format('Y-m-d H:i:s');
