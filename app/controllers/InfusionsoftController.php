@@ -1056,10 +1056,8 @@ class InfusionsoftController extends BaseController {
 
 	public function reportData()
 	{
-		//Get package from Stage
 		$package = Input::get('package');
 	
-		//Merchants, Bill Cycles
 		$merchants = [	24 => "PowerPay The King Of Systems",
 						25 => "Test Merchant", 
 						27 => "Auth.Net - Buyers On Fire",
@@ -1073,11 +1071,9 @@ class InfusionsoftController extends BaseController {
 						3  => "Week",
 						6  => "Day"];
 
-		//IS Object
 		$infusionsoft = $this->getInfusionsoftObject();
 		$infusionsoft = $this->refreshTokenTwo($infusionsoft);
 
-		//Main Process
 		try 
 		{
 			//Get Contact Info
@@ -1106,10 +1102,17 @@ class InfusionsoftController extends BaseController {
 		        	Log::info("Error on Guzzle Client 1: ".$e->getMessage() );
 					return json_decode($e->getMessage());
 		       	}*/
+			$contacts = $infusionsoft->contacts->findByEmail($package['email'], ['Id', 'FirstName', 'LastName', 'Phone1']);
+			
+			if( !isset($contacts[0]) )
+			{
+				$package['plan_count'] = 0;
+				$package['plans']	   = [];
+				return Response::json( ['data'=>$package] );
 			}
 
-			//If contact is registered get data
 			$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
+
 			//Get Products Data
 			$products = $this->getProductsFromFile();
 
@@ -1118,26 +1121,21 @@ class InfusionsoftController extends BaseController {
 			$subs_array =[];
 			foreach($subs as $sub)
 			{
-				//Set Product Name
 				if( isset($products[$sub['ProductId']]['ProductName']) )
 					$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
 				else
 					$sub['ProductName'] = "";
 				
-				//Set Merchant
 				if( isset($merchants[$sub['merchantAccountId']]) )
 					$sub['Merchant'] = $merchants[ $sub['merchantAccountId'] ];
 				else
 					$sub['Merchant'] = "Merchant: ".$sub['merchantAccountId'];
 
-				//Set Bill Cycle
 				if( isset($billcycle[$sub['BillingCycle']]) )
 					$sub['BillingCycle'] = $billcycle[ $sub['BillingCycle'] ];
 
-				//Set AutoCharge
 				if( $sub['AutoCharge'] == 1 ) $sub['AutoCharge'] = "Yes"; else $sub['AutoCharge'] = "No";
 				
-				//Change Date Format
 				if( isset( $sub['StartDate']) )
 					$sub['StartDate'] 	 = $sub['StartDate']->format('Y-m-d H:i:s');
 				if( isset( $sub['LastBillDate']) )
@@ -1149,31 +1147,16 @@ class InfusionsoftController extends BaseController {
 			}
 			$contact['subscriptions'] = $subs_array;
 		}
-		catch( Exception $e){
-			Log::info("Email: ".$package['email']." - Error on Getting IS Data");
-			return Response::json(['error' => $e->getMessage() ]);
-		}
 
-		//Send Data to Stage
-		/*$client = new Client;
-        try 
-        {
-        	Log::info("Preparing Guzzle 2");*/
-		$package['plan_count'] = count( $contact['subscriptions'] );
-		$package['plans']      = $contact['subscriptions'];
-			
-        	/*$response = $client->post( $package['server'].'/reports/get',
-		            	[ 'form_params' => [ 'data' => $package ], 
-		            	  'verify' => false ]);
-			$res = json_decode($response->getBody()->getContents());
-			*/
-		Log::info("Email: ".$package['email']." - Plan Count: ".$package['plan_count']);
-		return Response::json( ['data'=>$package] );
-        /*} 
-        catch (ClientException $e){
-        	Log::info("Error on Guzzle 2");
-			return json_decode($e->getMessage());
-		}*/
+			$package['plan_count'] = count( $contact['subscriptions'] );
+			$package['plans']      = $contact['subscriptions'];
+			return Response::json( ['data'=>$package] );
+		}
+		catch( Exception $e)
+		{
+			$package['error'] = $e->getMessage();
+			return Response::json( ['data' => $package] );
+		}
 	}
 
 	public function getProductsFromFile()
