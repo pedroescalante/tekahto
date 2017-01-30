@@ -1,3 +1,10 @@
+<?php
+
+	echo json_encode($products);
+
+?>
+
+/*
 @extends('layouts.master')
 
 @section('content')
@@ -25,3 +32,4 @@
           </table>
         </div>
 @stop      
+*/

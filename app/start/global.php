@@ -49,6 +49,10 @@ Log::useFiles(storage_path().'/logs/laravel.log');
 App::error(function(Exception $exception, $code)
 {
 	Log::error($exception);
+	
+	/*Mail::send('email_exception', ['error' => $exception->getMessage()], function ($m) {
+            $m->to('pedro.escalante@citriom.com', 'Pedro Escalante')->subject('Tekahto - Thrown Exception!');
+        });*/
 });
 
 /*

@@ -54,7 +54,7 @@ return array(
 
 		'mysql' => array(
 			'driver'    => 'mysql',
-			'host'      => 'localhost',
+			'host'      => '127.0.0.1',
 			'database'  => 'tekahto_token',
 			'username'  => $_ENV['db_user'],
 			'password'  => $_ENV['db_pass'],

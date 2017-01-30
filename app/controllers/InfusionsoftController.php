@@ -167,7 +167,7 @@ class InfusionsoftController extends BaseController {
 	    }
 	    $contact['subscriptions'] = $subs_array;
 
-		//Send Contact Data to BOF
+		/*Send Contact Data to BOF 
 		Account::where('email', $email)->delete();
 		$subs = $this->getSubscriptionsAllData($infusionsoft, $contact['Id']);
                 $subs_array =[];
@@ -224,7 +224,7 @@ class InfusionsoftController extends BaseController {
                         return json_decode($e->getMessage());
                 }
 
-
+*/
 
 	    return View::make('contact', ['contact' => $contact]);
 	}	
@@ -1080,17 +1080,12 @@ class InfusionsoftController extends BaseController {
 		//Main Process
 		try 
 		{
-			Log::info("Main Process");
 			//Get Contact Info
         	$contacts = $infusionsoft->contacts->findByEmail($package['email'], ['Id', 'FirstName', 'LastName', 'Phone1']);
 			
-			Log::info("Contacts: ".count($contacts));
-
 			//If Contact is not registered on IS
 			if( !isset($contacts[0]) )
 			{
-				Log::info("Not Registered");
-
 				/*$client = new Client;
 				try 
 				{*/
@@ -1103,6 +1098,7 @@ class InfusionsoftController extends BaseController {
 				            	    [ 'form_params' => [ 'data' => $package ],
 						      		  'verify' 		=> false ]);
 		            $res = json_decode( $response->getBody()->getContents() );*/
+			    Log::info("Email: ".$package['email']." - Plans: ".$package['plan_count'] );
 		            return Response::json( ['data'=>$package] );
 		        /*} 
 		        catch (ClientException $e)
@@ -1114,14 +1110,11 @@ class InfusionsoftController extends BaseController {
 
 			//If contact is registered get data
 			$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
-			Log::info("Got Contact");
 			//Get Products Data
-			$products = $this->getProducts($infusionsoft);
-			Log::info("Got Products");
+			$products = $this->getProductsFromFile();
 
 			//Gets all Subscriptions for that Contact
 			$subs = $this->getSubscriptionsAllData($infusionsoft, $contact['Id']);
-			Log::info("Got Subs");
 			$subs_array =[];
 			foreach($subs as $sub)
 			{
@@ -1157,7 +1150,7 @@ class InfusionsoftController extends BaseController {
 			$contact['subscriptions'] = $subs_array;
 		}
 		catch( Exception $e){
-			Log::info("Error on Getting IS Data");
+			Log::info("Email: ".$package['email']." - Error on Getting IS Data");
 			return Response::json(['error' => $e->getMessage() ]);
 		}
 
@@ -1174,6 +1167,7 @@ class InfusionsoftController extends BaseController {
 		            	  'verify' => false ]);
 			$res = json_decode($response->getBody()->getContents());
 			*/
+		Log::info("Email: ".$package['email']." - Plan Count: ".$package['plan_count']);
 		return Response::json( ['data'=>$package] );
         /*} 
         catch (ClientException $e){
@@ -1182,4 +1176,16 @@ class InfusionsoftController extends BaseController {
 		}*/
 	}
 
+	public function getProductsFromFile()
+	{
+		$data = file_get_contents( public_path()."/Products.json" );
+		$json_a = json_decode($data, true);		
+		return var_dump($json_a);
+	}
+
+	public function planQueue()
+	{
+		$data = Input::get();
+		Queue::push('\Proc\Worker\InfusionRetriever', $data );
+	}
 }
