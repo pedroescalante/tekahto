@@ -1169,6 +1169,6 @@ class InfusionsoftController extends BaseController {
 	public function planQueue()
 	{
 		$data = Input::get();
-		Queue::push('\Proc\Worker\InfusionRetriever', $data );
+		Queue::push('\Proc\Worker\InfusionRetriever', $data['package'] );
 	}
 }

@@ -89,6 +89,7 @@ class InfusionRetriever
 
 					if( $sub['AutoCharge'] == 1 ) $sub['AutoCharge'] = "Yes"; else $sub['AutoCharge'] = "No";
 					*/
+
 					if( isset( $sub['StartDate']) )
 						$sub['StartDate'] 	 = $sub['StartDate']->format('Y-m-d H:i:s');
 					if( isset( $sub['LastBillDate']) )
