@@ -62,7 +62,7 @@ class InfusionRetriever
 			$infusionsoft = $this->getInfusionsoftObject();
 			$infusionsoft = $this->refreshTokenTwo($infusionsoft);
 
-			$contacts = $infusionsoft->contacts->findByEmail($data['email'], ['Id', 'FirstName', 'LastName', 'Phone1']);
+			$contacts = $infusionsoft->contacts->findByEmail($package['email'], ['Id', 'FirstName', 'LastName', 'Phone1']);
 
 			if( !isset($contacts[0]) ) {
 				$package['plan_count'] = 0;
