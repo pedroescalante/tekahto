@@ -130,6 +130,18 @@ class InfusionRetriever
 			}
 
 			Log::info("Email: ".$package['email']." - Plans: ".$package['plan_count'] );
+
+			try {
+				$response = $client->post( $package['server']."twilio_reports/plans", 
+							[ 'form_params' => [ 'package' => $package ], 
+							  'verify' => false ]);
+				$res = json_decode($response->getBody()->getContents());
+				return Response::json(['plans'=>$res]);
+        	} 
+        	catch (ClientException $e){
+				return json_decode($e->getMessage());
+        	}
+
 		} catch (Exception $e) {
 			Log::error("Error: ".$e->getMessage());
 		}
