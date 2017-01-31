@@ -7,21 +7,21 @@ use Monolog\Handler\StreamHandler;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Log;
+use Infusionsoft\Infusionsoft;
 
 class InfusionRetriever 
 {
-	public function getInfusionsoftObject(){
-		
-		$infusionsoft = new Infusionsoft\Infusionsoft(array(
-	        'clientId'     => $_ENV['clientId'],
-	        'clientSecret' => $_ENV['clientSecret'],
-	        'redirectUri'  => $_ENV['redirectUri']
-    	));
+	public function getInfusionsoftObject()
+	{	
+		$infusionsoft = new Infusionsoft([  'clientId'     => $_ENV['clientId'],
+	        								'clientSecret' => $_ENV['clientSecret'],
+	        								'redirectUri'  => $_ENV['redirectUri'] ]);
 
     	return $infusionsoft;
 	}
 
-	public function refreshToken($infusionsoft){
+	public function refreshToken($infusionsoft)
+	{
 		$token = Token::orderBy('created_at', 'desc')->first();
 
 		if($token){
@@ -34,7 +34,8 @@ class InfusionRetriever
 		}
 	}
 
-	public function refreshTokenTwo($infusionsoft){
+	public function refreshTokenTwo($infusionsoft)
+	{
 		$token = Token::orderBy('created_at', 'desc')->first();
 		if($token){
 			$infusionsoft->setToken(unserialize($token->token));
