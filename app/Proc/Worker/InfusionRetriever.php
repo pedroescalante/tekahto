@@ -132,7 +132,7 @@ class InfusionRetriever
 			Log::info("Email: ".$package['email']." - Plans: ".$package['plan_count'] );
 
 			try {
-				$response = $client->post( $package['server']."twilio_reports/plans", 
+				$response = $client->post( $package['server']."twilio_reports/plans",
 							[ 'form_params' => [ 'package' => $package ], 
 							  'verify' => false ]);
 				$res = json_decode($response->getBody()->getContents());
