@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Log;
 use Infusionsoft\Infusionsoft;
+use app\models\Token;
 
 class InfusionRetriever 
 {
