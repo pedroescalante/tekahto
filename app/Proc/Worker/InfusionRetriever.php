@@ -55,6 +55,25 @@ class InfusionRetriever
 		}
 	}
 
+	public function getSubscriptionsAllData($infusionsoft, $contact_id){
+		$subscrip = $infusionsoft->data->query(
+			'RecurringOrder',
+			1000, 0, 
+			['ContactId' => $contact_id],
+			['Id', 'ProductId', 'StartDate', 'merchantAccountId', 'Status', 'SubscriptionPlanId', 'AutoCharge', 'BillingCycle', 'LastBillDate', 'NextBillDate'],
+			'Id',
+			true
+		);
+		return $subscrip;
+	}
+
+	public function getProductsFromFile()
+	{
+		$data = file_get_contents( public_path()."/Products.json" );
+		$array = json_decode($data, true);		
+		return $array;
+	}
+
 	public function fire($job, $package)
 	{
 		try 
@@ -72,9 +91,15 @@ class InfusionRetriever
 				$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
 				$subs = $this->getSubscriptionsAllData($infusionsoft, $contact['Id']);
 				$subs_array =[];
+
+				//Get Fixed Data
+				$products  = $this->getProductsFromFile();
+				$merchants = $this->getMerchants();
+				$billcycle = $this->getBillingCycles();
+
 				foreach($subs as $sub)
 				{
-					/*if( isset($products[$sub['ProductId']]['ProductName']) )
+					if( isset($products[$sub['ProductId']]['ProductName']) )
 						$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
 					else
 						$sub['ProductName'] = "";
@@ -88,7 +113,6 @@ class InfusionRetriever
 						$sub['BillingCycle'] = $billcycle[ $sub['BillingCycle'] ];
 
 					if( $sub['AutoCharge'] == 1 ) $sub['AutoCharge'] = "Yes"; else $sub['AutoCharge'] = "No";
-					*/
 
 					if( isset( $sub['StartDate']) )
 						$sub['StartDate'] 	 = $sub['StartDate']->format('Y-m-d H:i:s');
@@ -112,4 +136,25 @@ class InfusionRetriever
 
 		$job->delete();
 	}
+
+	public function getMerchants(){
+		$merchants = [	24 => "PowerPay The King Of Systems",
+						25 => "Test Merchant", 
+						27 => "Auth.Net - Buyers On Fire",
+						28 => "Auth.net - EMS",
+						30 => "Auth.net - Meritus",
+						32 => "EasyPayDirect (AgentSoft - DO NOT USE)",
+						34 => "EasyPayDirect (TKOS)", 
+						36 => "EasyPayDirect BOF"];
+		return $merchants;
+	}
+
+	public function getBillingCycles(){
+		$billcycle = [  1  => "Year",
+						2  => "Month",
+						3  => "Week",
+						6  => "Day"];
+		return $billcycle;
+	}
+
 }
