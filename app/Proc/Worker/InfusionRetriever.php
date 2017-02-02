@@ -85,7 +85,7 @@ class InfusionRetriever
 
 			if( !isset($contacts[0]) ) {
 				$package['plan_count'] = 0;
-				$package['plans']	   = [];
+				$package['plans']      = [];
 			}
 			else {
 				$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
@@ -129,17 +129,17 @@ class InfusionRetriever
 				$package['plans']      = $contact['subscriptions'];
 			}
 
-			Log::info("Email: ".$package['email']." - Plans: ".$package['plan_count'] );
+			Log::info("AccountId: ".$package['account_id']." - Email: ".$package['email']." - Plans: ".$package['plan_count'] );
 
 			try {
-				$response = $client->post( $package['server']."twilio_reports/plans",
+				$client = new Client;
+				$response = $client->post( $package['server']."/twilio_reports/plans",
 							[ 'form_params' => [ 'package' => $package ], 
 							  'verify' => false ]);
 				$res = json_decode($response->getBody()->getContents());
-				return Response::json(['plans'=>$res]);
         	} 
         	catch (ClientException $e){
-				return json_decode($e->getMessage());
+			Log::info("Error: Guzzle Error");
         	}
 
 		} catch (Exception $e) {
