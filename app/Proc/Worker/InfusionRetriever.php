@@ -76,76 +76,80 @@ class InfusionRetriever
 
 	public function fire($job, $package)
 	{
-		try 
+		$infusionsoft = $this->getInfusionsoftObject();
+		$infusionsoft = $this->refreshTokenTwo($infusionsoft);
+
+		foreach ($package['accounts'] as $account) 
 		{
-			$infusionsoft = $this->getInfusionsoftObject();
-			$infusionsoft = $this->refreshTokenTwo($infusionsoft);
+			try 
+			{
+				$contacts = $infusionsoft->contacts->findByEmail($account->email, ['Id', 'FirstName', 'LastName', 'Phone1']);
 
-			$contacts = $infusionsoft->contacts->findByEmail($package['email'], ['Id', 'FirstName', 'LastName', 'Phone1']);
-
-			if( !isset($contacts[0]) ) {
-				$package['plan_count'] = 0;
-				$package['plans']      = [];
-			}
-			else {
-				$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
-				$subs = $this->getSubscriptionsAllData($infusionsoft, $contact['Id']);
-				$subs_array =[];
-
-				//Get Fixed Data
-				$products  = $this->getProductsFromFile();
-				$merchants = $this->getMerchants();
-				$billcycle = $this->getBillingCycles();
-
-				foreach($subs as $sub)
-				{
-					if( isset($products[$sub['ProductId']]['ProductName']) )
-						$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
-					else
-						$sub['ProductName'] = "";
-					
-					if( isset($merchants[$sub['merchantAccountId']]) )
-						$sub['Merchant'] = $merchants[ $sub['merchantAccountId'] ];
-					else
-						$sub['Merchant'] = "Merchant: ".$sub['merchantAccountId'];
-
-					if( isset($billcycle[$sub['BillingCycle']]) )
-						$sub['BillingCycle'] = $billcycle[ $sub['BillingCycle'] ];
-
-					if( $sub['AutoCharge'] == 1 ) $sub['AutoCharge'] = "Yes"; else $sub['AutoCharge'] = "No";
-
-					if( isset( $sub['StartDate']) )
-						$sub['StartDate'] 	 = $sub['StartDate']->format('Y-m-d H:i:s');
-					if( isset( $sub['LastBillDate']) )
-						$sub['LastBillDate'] = $sub['LastBillDate']->format('Y-m-d H:i:s');
-					if( isset( $sub['NextBillDate']) )
-						$sub['NextBillDate'] = $sub['NextBillDate']->format('Y-m-d H:i:s');
-
-					$subs_array[] = $sub;
+				if( !isset($contacts[0]) ) {
+					$new_package['plan_count'] = 0;
+					$new_package['plans']      = [];
 				}
-				$contact['subscriptions'] = $subs_array;
+				else 
+				{
+					$contact = $infusionsoft->contacts->load($contacts[0]['Id'], ['Id', 'FirstName', 'LastName', 'Phone1']);
+					$subs = $this->getSubscriptionsAllData($infusionsoft, $contact['Id']);
+					$subs_array =[];
 
-				$package['plan_count'] = count( $contact['subscriptions'] );
-				$package['plans']      = $contact['subscriptions'];
+					//Get Fixed Data
+					$products  = $this->getProductsFromFile();
+					$merchants = $this->getMerchants();
+					$billcycle = $this->getBillingCycles();
+
+					foreach($subs as $sub)
+					{
+						if( isset($products[$sub['ProductId']]['ProductName']) )
+							$sub['ProductName'] = $products[$sub['ProductId']]['ProductName'];
+						else
+							$sub['ProductName'] = "";
+						
+						if( isset($merchants[$sub['merchantAccountId']]) )
+							$sub['Merchant'] = $merchants[ $sub['merchantAccountId'] ];
+						else
+							$sub['Merchant'] = "Merchant: ".$sub['merchantAccountId'];
+
+						if( isset($billcycle[$sub['BillingCycle']]) )
+							$sub['BillingCycle'] = $billcycle[ $sub['BillingCycle'] ];
+
+						if( $sub['AutoCharge'] == 1 ) $sub['AutoCharge'] = "Yes"; else $sub['AutoCharge'] = "No";
+
+						if( isset( $sub['StartDate']) )
+							$sub['StartDate'] 	 = $sub['StartDate']->format('Y-m-d H:i:s');
+						if( isset( $sub['LastBillDate']) )
+							$sub['LastBillDate'] = $sub['LastBillDate']->format('Y-m-d H:i:s');
+						if( isset( $sub['NextBillDate']) )
+							$sub['NextBillDate'] = $sub['NextBillDate']->format('Y-m-d H:i:s');
+
+						$subs_array[] = $sub;
+					}
+					$contact['subscriptions'] = $subs_array;
+
+					$new_package['plan_count'] = count( $contact['subscriptions'] );
+					$new_ackage['plans']       = $contact['subscriptions'];
+				}
+
+				Log::info("AccountId: ".$account->id." - Email: ".$account->email." - Plans: ".$new_package['plan_count'] );
+
+				try {
+					$client = new Client;
+					$response = $client->post( $package['server']."/twilio_reports/plans",
+								[ 'form_params' => [ 'package' => $new_package ], 
+								  'verify' => false ]);
+					$res = json_decode($response->getBody()->getContents());
+	        	} 
+	        	catch (ClientException $e){
+					Log::info("Error: Guzzle Error");
+	        	}
+
+			} catch (Exception $e) {
+				Log::error("Error: ".$e->getMessage());
 			}
-
-			Log::info("AccountId: ".$package['account_id']." - Email: ".$package['email']." - Plans: ".$package['plan_count'] );
-
-			try {
-				$client = new Client;
-				$response = $client->post( $package['server']."/twilio_reports/plans",
-							[ 'form_params' => [ 'package' => $package ], 
-							  'verify' => false ]);
-				$res = json_decode($response->getBody()->getContents());
-        	} 
-        	catch (ClientException $e){
-			Log::info("Error: Guzzle Error");
-        	}
-
-		} catch (Exception $e) {
-			Log::error("Error: ".$e->getMessage());
 		}
-
+		
 		$job->delete();
 	}
 
