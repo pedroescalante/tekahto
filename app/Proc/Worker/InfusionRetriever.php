@@ -79,8 +79,11 @@ class InfusionRetriever
 		$infusionsoft = $this->getInfusionsoftObject();
 		$infusionsoft = $this->refreshTokenTwo($infusionsoft);
 
+		Log::info(json_encode($package) );
+
 		foreach ($package['accounts'] as $account) 
 		{
+			/*
 			try 
 			{
 				$contacts = $infusionsoft->contacts->findByEmail($account->email, ['Id', 'FirstName', 'LastName', 'Phone1']);
@@ -147,7 +150,7 @@ class InfusionRetriever
 
 			} catch (Exception $e) {
 				Log::error("Error: ".$e->getMessage());
-			}
+			}*/
 		}
 		
 		$job->delete();

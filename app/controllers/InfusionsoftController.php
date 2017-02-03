@@ -1168,7 +1168,13 @@ class InfusionsoftController extends BaseController {
 
 	public function planQueue()
 	{
-		$data = Input::get();
-		Queue::push('\Proc\Worker\InfusionRetriever', $data['package'] );
+	    try{
+		$package = Input::get('package');
+		$package['accounts'] = json_decode($package['accounts']);
+		Queue::push('\Proc\Worker\InfusionRetriever', $package );
+	    } catch (Exception $e){
+		Log::error("Error Getting BOF Data");
+		return Response::json(['success'=>false]);
+	    }
 	}
 }
