@@ -1171,6 +1171,7 @@ class InfusionsoftController extends BaseController {
 	    try{
 		$package = Input::get('package');
 		$package['accounts'] = json_decode($package['accounts']);
+		//Log::info(json_encode($package));
 		Queue::push('\Proc\Worker\InfusionRetriever', $package );
 	    } catch (Exception $e){
 		Log::error("Error Getting BOF Data");

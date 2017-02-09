@@ -78,15 +78,14 @@ class InfusionRetriever
 	{
 		$infusionsoft = $this->getInfusionsoftObject();
 		$infusionsoft = $this->refreshTokenTwo($infusionsoft);
-
-		Log::info(json_encode($package) );
+		//Log::info( json_encode($package) );
 
 		foreach ($package['accounts'] as $account) 
 		{
-			/*
+			
 			try 
 			{
-				$contacts = $infusionsoft->contacts->findByEmail($account->email, ['Id', 'FirstName', 'LastName', 'Phone1']);
+				$contacts = $infusionsoft->contacts->findByEmail($account['email'], ['Id', 'FirstName', 'LastName', 'Phone1']);
 
 				if( !isset($contacts[0]) ) {
 					$new_package['plan_count'] = 0;
@@ -132,27 +131,32 @@ class InfusionRetriever
 					$contact['subscriptions'] = $subs_array;
 
 					$new_package['plan_count'] = count( $contact['subscriptions'] );
-					$new_ackage['plans']       = $contact['subscriptions'];
+					$new_package['plans']       = $contact['subscriptions'];
 				}
 
-				Log::info("AccountId: ".$account->id." - Email: ".$account->email." - Plans: ".$new_package['plan_count'] );
+				$new_package['last_account_id']	 = $package['last_account_id'];
+				$new_package['account_id']	 = $account['id'];
+				$new_package['email'] 	  	 = $account['email'];
+				$new_package['report_id']	 = $package['report_id'];
 
+				Log::info("AccountID: ".$account['id']." Email: ".$account['email']." - Plans: ".$new_package['plan_count']);
+				
 				try {
 					$client = new Client;
 					$response = $client->post( $package['server']."/twilio_reports/plans",
 								[ 'form_params' => [ 'package' => $new_package ], 
 								  'verify' => false ]);
 					$res = json_decode($response->getBody()->getContents());
-	        	} 
-	        	catch (ClientException $e){
-					Log::info("Error: Guzzle Error");
-	        	}
-
+				
+	        		} 
+		        	catch (ClientException $e){
+						Log::info("Error: Guzzle Error");
+	        		}
 			} catch (Exception $e) {
 				Log::error("Error: ".$e->getMessage());
-			}*/
+			}
 		}
-		
+
 		$job->delete();
 	}
 
