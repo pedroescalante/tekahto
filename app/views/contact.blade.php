@@ -99,6 +99,7 @@
                     <div>Job Id: <b> {{$job['Id']}} </b> </th></div>
                     <div> Job Title <b> {{$job['JobTitle']}} </b> </div>
                     <div> Product Id <b> {{$job['ProductId']}} </b> </div>
+			<div> {{json_encode($job['DateCreated'])}}> </div>
             
                     <h5><b>Invoices</b></h5>
                     <table class="table table-condensed table-bordered">
